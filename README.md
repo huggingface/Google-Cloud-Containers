@@ -2,7 +2,13 @@
 
 This repository contains Dockerfiles for building Hugging Face specific Deep Learning Containers that are periodically synced and built by Google Cloud.
 
-## Available Containers
+## Configurations
+
+The [`container.yaml`](./container.yaml) file contains the configuration for the latest version of the container. Google uses this file to determine which container to build as the latest version. 
+
+## Tests
+
+After the containers are built, you can run the tests in the `tests` directory to verify that they are working correctly.
 
 ## Available Containers
 
@@ -26,13 +32,7 @@ This repository contains Dockerfiles for building Hugging Face specific Deep Lea
 
 The container files are organized in a nested folder structure based on the container tag. For example, the Dockerfile for the container with the tag `pytorch-training-gpu.2.0.transformers.4.35.0.py310` is located at `pytorch/training/gpu/2.0/transformers/4.35.0/py310/Dockerfile`.
 
-## Tests
 
-After the containers are built, you can run the tests in the `tests` directory to verify that they are working correctly.
-
-## Configurations
-
-The [`container.yaml`](./container.yaml) file contains the configuration for the latest version of the container. Google uses this file to determine which container to build as the latest version.
 
 ## Updates
 
