@@ -12,21 +12,21 @@ After the containers are built, you can run the tests in the `tests` directory t
 
 ## Available Containers
 
-| Container Tag                                                                         | Framework | Type      | Accelerator |
-| ------------------------------------------------------------------------------------- | --------- | --------- | ----------- |
-| [pytorch-training-gpu.2.0.transformers.4.35.0.py310](link_to_container_here)          | Pytorch   | training  | GPU         |
-| [pytorch-training-tpu.2.0.transformers.4.35.0.py310](link_to_container_here)          | Pytorch   | training  | TPU         |
-| [pytorch-inference-gpu.2.0.transformers.4.35.0.py310](link_to_container_here)         | Pytorch   | inference | GPU         |
-| [pytorch-inference-tpu.2.0.transformers.4.35.0.py310](link_to_container_here)         | Pytorch   | inference | TPU         |
-| [pytorch-inference-cpu.2.0.transformers.4.35.0.py310](link_to_container_here)         | Pytorch   | inference | CPU         |
-| [text-generation-inference-gpu.2.0.transformers.4.35.0.py310](link_to_container_here) | -         | inference | GPU         |
-| [text-generation-inference-tpu.2.0.transformers.4.35.0.py310](link_to_container_here) | -         | inference | TPU         |
-| [text-embedding-inference-gpu.2.0.transformers.4.35.0.py310](link_to_container_here)  | -         | inference | GPU         |
-| [text-embedding-inference-cpu.2.0.transformers.4.35.0.py310](link_to_container_here)  | -         | inference | CPU         |
-| [jax-training-gpu.2.0.transformers.4.35.0.py310](link_to_container_here)              | Jax       | training  | GPU         |
-| [jax-training-tpu.2.0.transformers.4.35.0.py310](link_to_container_here)              | Jax       | training  | TPU         |
-| [jax-inference-gpu.2.0.transformers.4.35.0.py310](link_to_container_here)             | Jax       | inference | GPU         |
-| [jax-inference-tpu.2.0.transformers.4.35.0.py310](link_to_container_here)             | Jax       | inference | TPU         |
+| Container Tag                                                                 | Framework | Type      | Accelerator |
+| ----------------------------------------------------------------------------- | --------- | --------- | ----------- |
+| [pytorch-training-gpu.2.0.transformers.4.35.0.py310](link_to_container_here)  | Pytorch   | training  | GPU         |
+| [pytorch-training-tpu.2.0.transformers.4.35.0.py310](link_to_container_here)  | Pytorch   | training  | TPU         |
+| [pytorch-inference-gpu.2.0.transformers.4.35.0.py310](link_to_container_here) | Pytorch   | inference | GPU         |
+| [pytorch-inference-tpu.2.0.transformers.4.35.0.py310](link_to_container_here) | Pytorch   | inference | TPU         |
+| [pytorch-inference-cpu.2.0.transformers.4.35.0.py310](link_to_container_here) | Pytorch   | inference | CPU         |
+| [jax-training-gpu.2.0.transformers.4.35.0.py310](link_to_container_here)      | Jax       | training  | GPU         |
+| [jax-training-tpu.2.0.transformers.4.35.0.py310](link_to_container_here)      | Jax       | training  | TPU         |
+| [jax-inference-gpu.2.0.transformers.4.35.0.py310](link_to_container_here)     | Jax       | inference | GPU         |
+| [jax-inference-tpu.2.0.transformers.4.35.0.py310](link_to_container_here)     | Jax       | inference | TPU         |
+| [text-generation-inference-gpu.1.3.4](link_to_container_here)                 | -         | inference | GPU         |
+| [text-generation-inference-tpu.1.3.4](link_to_container_here)                 | -         | inference | TPU         |
+| [text-embedding-inference-gpu.0.6.0](link_to_container_here)                  | -         | inference | GPU         |
+| [text-embedding-inference-cpu.0.6.0](link_to_container_here)                  | -         | inference | CPU         |
 
 ## Directory Structure
 
