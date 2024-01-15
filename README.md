@@ -7,7 +7,7 @@ This repository contains Dockerfiles for building Hugging Face specific Deep Lea
 _Note: we added the latest TGI version as an example into the repository, which can be build with._
 
 ```bash
-docker build -t gcr.io/deeplearning-platform-release/pytorch-gpu.2-0.transformers.4-35-0.py310:latest -f pytorch/training/gpu/2.0/transformers/4.35.0/py310/Dockerfile .
+docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.3.4 -f tgi/gpu/1.3.4/Dockerfile .
 ```
 
 ## Configurations
