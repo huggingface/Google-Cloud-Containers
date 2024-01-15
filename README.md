@@ -10,6 +10,30 @@ _Note: we added the latest TGI version as an example into the repository, which 
 docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.3.4 -f tgi/gpu/1.3.4/Dockerfile .
 ```
 
+test the container on a GPU instance with
+
+```bash
+model=mistralai/Mistral-7B-Instruct-v0.2
+num_shard=1
+max_input_length=1562
+max_total_tokens=2048
+
+docker run --gpus all -ti -p 8080:80 \
+  -e MODEL_ID=$model \
+  -e NUM_SHARD=$num_shard \
+  -e MAX_INPUT_LENGTH=$max_input_length \
+  -e MAX_TOTAL_TOKENS=$max_total_tokens \
+  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.3.4  
+```
+
+Send request:
+``` 
+curl 127.0.0.1:8080/generate \
+    -X POST \
+    -d '{"inputs":"[INST] What is 10+10? [\/INST]","parameters":{"temperature":0.2, "top_p": 0.95, "max_new_tokens": 256}}' \
+    -H 'Content-Type: application/json'
+```
+
 ## Configurations
 
 > Need to be implemented
