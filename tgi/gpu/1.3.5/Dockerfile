@@ -1,22 +1,23 @@
 # Fetch and extract the TGI sources
 FROM alpine AS tgi
 RUN mkdir -p /tgi
-ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v1.0.2.tar.gz /tgi/sources.tar.gz
+ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v1.3.4.tar.gz /tgi/sources.tar.gz
 RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
 
-# Rust builder
-FROM lukemathwalker/cargo-chef:latest-rust-1.71 AS chef
+# Build cargo components (adapted from TGI original Dockerfile)
+# Note that the build image is aligned on the same Linux version as the base image (Debian bookworm/ Ubuntu 22.04)
+FROM lukemathwalker/cargo-chef:latest-rust-1.71-bookworm AS chef
 WORKDIR /usr/src
 
 ARG CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 FROM chef as planner
-COPY Cargo.toml Cargo.toml
-COPY rust-toolchain.toml rust-toolchain.toml
-COPY proto proto
-COPY benchmark benchmark
-COPY router router
-COPY launcher launcher
+COPY --from=tgi /tgi/Cargo.toml Cargo.toml
+COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
+COPY --from=tgi /tgi/proto proto
+COPY --from=tgi /tgi/benchmark benchmark
+COPY --from=tgi /tgi/router router
+COPY --from=tgi /tgi/launcher launcher
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
@@ -34,12 +35,12 @@ RUN PROTOC_ZIP=protoc-21.12-linux-x86_64.zip && \
 COPY --from=planner /usr/src/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
-COPY Cargo.toml Cargo.toml
-COPY rust-toolchain.toml rust-toolchain.toml
-COPY proto proto
-COPY benchmark benchmark
-COPY router router
-COPY launcher launcher
+COPY --from=tgi /tgi/Cargo.toml Cargo.toml
+COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
+COPY --from=tgi /tgi/proto proto
+COPY --from=tgi /tgi/benchmark benchmark
+COPY --from=tgi /tgi/router router
+COPY --from=tgi /tgi/launcher launcher
 RUN cargo build --release
 
 # Python builder
@@ -100,7 +101,7 @@ FROM kernel-builder as flash-att-builder
 
 WORKDIR /usr/src
 
-COPY server/Makefile-flash-att Makefile
+COPY --from=tgi /tgi/server/Makefile-flash-att Makefile
 
 # Build specific version of flash attention
 RUN make build-flash-attention
@@ -110,7 +111,7 @@ FROM kernel-builder as flash-att-v2-builder
 
 WORKDIR /usr/src
 
-COPY server/Makefile-flash-att-v2 Makefile
+COPY --from=tgi /tgi/server/Makefile-flash-att-v2 Makefile
 
 # Build specific version of flash attention v2
 RUN make build-flash-attention-v2-cuda
@@ -118,14 +119,14 @@ RUN make build-flash-attention-v2-cuda
 # Build Transformers exllama kernels
 FROM kernel-builder as exllama-kernels-builder
 WORKDIR /usr/src
-COPY server/exllama_kernels/ .
+COPY --from=tgi /tgi/server/exllama_kernels/ .
 
 RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" python setup.py build
 
 # Build Transformers exllama kernels
 FROM kernel-builder as exllamav2-kernels-builder
 WORKDIR /usr/src
-COPY server/exllamav2_kernels/ .
+COPY --from=tgi /tgi/server/exllamav2_kernels/ .
 
 # Build specific version of transformers
 RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" python setup.py build
@@ -133,21 +134,21 @@ RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" python setup.py build
 # Build Transformers awq kernels
 FROM kernel-builder as awq-kernels-builder
 WORKDIR /usr/src
-COPY server/Makefile-awq Makefile
+COPY --from=tgi /tgi/server/Makefile-awq Makefile
 # Build specific version of transformers
 RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" make build-awq
 
 # Build eetq kernels
 FROM kernel-builder as eetq-kernels-builder
 WORKDIR /usr/src
-COPY server/Makefile-eetq Makefile
+COPY --from=tgi /tgi/server/Makefile-eetq Makefile
 # Build specific version of transformers
 RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" make build-eetq
 
 # Build Transformers CUDA kernels
 FROM kernel-builder as custom-kernels-builder
 WORKDIR /usr/src
-COPY server/custom_kernels/ .
+COPY --from=tgi /tgi/server/custom_kernels/ .
 # Build specific version of transformers
 RUN python setup.py build
 
@@ -156,7 +157,7 @@ FROM kernel-builder as vllm-builder
 
 WORKDIR /usr/src
 
-COPY server/Makefile-vllm Makefile
+COPY --from=tgi /tgi/server/Makefile-vllm Makefile
 
 # Build specific version of vllm
 RUN make build-vllm-cuda
@@ -216,9 +217,9 @@ COPY --from=vllm-builder /usr/src/vllm/build/lib.linux-x86_64-cpython-310 /opt/c
 RUN pip install einops --no-cache-dir
 
 # Install server
-COPY proto proto
-COPY server server
-COPY server/Makefile server/Makefile
+COPY --from=tgi /tgi/proto proto
+COPY --from=tgi /tgi/server server
+COPY --from=tgi /tgi/server/Makefile server/Makefile
 RUN cd server && \
   make gen-server && \
   pip install -r requirements_cuda.txt && \
