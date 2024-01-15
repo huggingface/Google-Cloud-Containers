@@ -2,7 +2,17 @@
 
 This repository contains Dockerfiles for building Hugging Face specific Deep Learning Containers that are periodically synced and built by Google Cloud.
 
+## Building the Containers without (container.yaml)
+
+_Note: we added the latest TGI version as an example into the repository, which can be build with._
+
+```bash
+docker build -t gcr.io/deeplearning-platform-release/pytorch-gpu.2-0.transformers.4-35-0.py310:latest -f pytorch/training/gpu/2.0/transformers/4.35.0/py310/Dockerfile .
+```
+
 ## Configurations
+
+> Need to be implemented
 
 The [`container.yaml`](./container.yaml) file contains the configuration for the latest version of the container. Google uses this file to determine which container to build as the latest version. 
 
@@ -10,7 +20,9 @@ The [`container.yaml`](./container.yaml) file contains the configuration for the
 
 After the containers are built, you can run the tests in the `tests` directory to verify that they are working correctly.
 
-## Available Containers
+## Available Containers 
+
+> Placeholder for the table
 
 | Container Tag                                                                 | Framework | Type      | Accelerator |
 | ----------------------------------------------------------------------------- | --------- | --------- | ----------- |
