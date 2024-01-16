@@ -1,8 +1,16 @@
 # Fetch and extract the TGI sources
 FROM alpine AS tgi
 RUN mkdir -p /tgi
-ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v1.3.4.tar.gz /tgi/sources.tar.gz
-RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
+# TODO: add when support released
+# ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v1.3.4.tar.gz /tgi/sources.tar.gz
+# RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
+
+# TODO: remove below
+RUN apk update && apk upgrade && apk add git patch
+RUN git clone https://github.com/huggingface/text-generation-inference.git /tgi
+COPY tgi/gpu/1.3.4/support-vertex-endpoint.patch /tgi
+RUN patch -p1 -d /tgi < /tgi/support-vertex-endpoint.patch
+############# END TODO ##############
 
 # Build cargo components (adapted from TGI original Dockerfile)
 # Note that the build image is aligned on the same Linux version as the base image (Debian bookworm/ Ubuntu 22.04)
