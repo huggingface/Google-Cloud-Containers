@@ -1,13 +1,18 @@
 # Hugging Face Deep Learning Containers for Google Cloud
 
-This repository contains Dockerfiles for building Hugging Face specific Deep Learning Containers that are periodically synced and built by Google Cloud.
+This repository contains container files for building Hugging Face specific Deep Learning Containers, examples and tests for Google Cloud.
+
+## Examples 
+
+The [`examples`](./examples) directory contains examples for using the containers. 
+
 
 ## Building the Containers without (container.yaml)
 
 _Note: we added the latest TGI version as an example into the repository, which can be build with._
 
 ```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.3.4 -f tgi/gpu/1.3.4/Dockerfile .
+docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.3.4 -f containers/tgi/gpu/1.3.4/Dockerfile .
 ```
 
 test the container on a GPU instance with
@@ -38,7 +43,7 @@ curl 127.0.0.1:8080/generate \
 
 > Need to be implemented
 
-The [`container.yaml`](./container.yaml) file contains the configuration for the latest version of the container. Google uses this file to determine which container to build as the latest version. 
+The [`container.yaml`](./containers/container.yaml) file contains the configuration for the latest version of the container. Google uses this file to determine which container to build as the latest version. 
 
 ## Tests
 

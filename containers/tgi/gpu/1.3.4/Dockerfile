@@ -8,7 +8,7 @@ RUN mkdir -p /tgi
 # TODO: remove below
 RUN apk update && apk upgrade && apk add git patch
 RUN git clone https://github.com/huggingface/text-generation-inference.git /tgi
-COPY tgi/gpu/1.3.4/support-vertex-endpoint.patch /tgi
+COPY containers/tgi/gpu/1.3.4/support-vertex-endpoint.patch /tgi
 RUN patch -p1 -d /tgi < /tgi/support-vertex-endpoint.patch
 ############# END TODO ##############
 
