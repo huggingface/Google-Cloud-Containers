@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm
+  template:
+    metadata:
+      labels:
+        app: llm
+    spec:
+      containers:
+        - name: llm
+          image: ghcr.io/huggingface/text-generation-inference:1.3.4
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+          env:
+            - name: MODEL_ID
+              value: ${MODEL_ID}
+            - name: NUM_SHARD
+              value: "1"
+            - name: PORT
+              value: "8080"
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /data
+              name: data
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: data
+          emptyDir: {}
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+        cloud.google.com/gke-ephemeral-storage-local-ssd: "true"
+        cloud.google.com/gke-spot: "true"
