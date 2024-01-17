@@ -14,14 +14,12 @@ We assume that you have a Google Cloud account and have installed the following 
 
 First step is to login to your Google Cloud account, set the project id, the region, compute zone and enable the Google Kubernetes Engine API. 
 
-PROJECT_ID=<project-id>
-REGION=<region>
-ZONE=<zone>
+
 
 ```bash
-export PROJECT_ID=huggingface-ml
-export REGION=us-central1
-export CLUSTER_NAME=mistral-hf-gke
+export PROJECT_ID=
+export REGION=
+export CLUSTER_NAME=
 
 gcloud auth login
 gcloud config set project ${PROJECT_ID}
