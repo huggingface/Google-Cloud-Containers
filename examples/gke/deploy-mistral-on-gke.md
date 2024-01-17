@@ -96,16 +96,19 @@ yq e '.spec.template.spec.containers[0].env[] |= select(.name == "MODEL_ID").val
 Next we deploy the model:
 
 ```bash
-kubectl apply -f configs
+kubectl apply -f configs/
 ```
 
 We should see the following output:
 
 ```bash
 deployment.apps/llm created
+Warning: annotation "kubernetes.io/ingress.class" is deprecated, please use 'spec.ingressClassName' instead
 ingress.networking.k8s.io/llm-ingress created
 service/llm-service created
 ```
+
+Ignore the warning, see https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
 
 We can check the status of the deployment with the following command:
 
@@ -118,7 +121,7 @@ _Note: It can take a few minutes for the model to download and start serving req
 We can check the status of the Ingress controller with the following command:
 
 ```bash
-kubectl get ingress
+kubectl get ingress llm-ingress 
 ```
 
 _Note: It might take a few minutes for GKE to allocate an external IP address and set up forwarding rules before the load balancer is ready to serve your application. You might get errors such as HTTP 404 or HTTP 500 until the load balancer configuration is propagated across the globe._
