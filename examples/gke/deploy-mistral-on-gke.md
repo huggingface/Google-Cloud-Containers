@@ -121,14 +121,16 @@ We can check the status of the Ingress controller with the following command:
 kubectl get ingress
 ```
 
+_Note: It might take a few minutes for GKE to allocate an external IP address and set up forwarding rules before the load balancer is ready to serve your application. You might get errors such as HTTP 404 or HTTP 500 until the load balancer configuration is propagated across the globe._
+
 
 ## 4. Test the model
 
 We can test the model with the following command:
 
 ```bash
-CLUSTER_IP=$(kubectl get service mistral-tgi -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-curl ${CLUSTER_IP}/generate \
+INGRESS_IP=$(kubectl get ingress llm-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+curl http://${INGRESS_IP}/generate \
     -X POST \
     -d '{"inputs":"[INST] What is 10+10? [\/INST]","parameters":{"temperature":0.2, "top_p": 0.95, "max_new_tokens": 256}}' \
     -H 'Content-Type: application/json'
@@ -136,7 +138,7 @@ curl ${CLUSTER_IP}/generate \
 You should see the following output:
 
 ```json
-{"generated_text":"[INST] What is 10+10? [\/INST] 20"}
+{"generated_text":" The sum of 10 and 10 is 20. So, 10 + 10 = 20."}
 ```
 
 
@@ -151,5 +153,9 @@ gcloud container clusters delete ${CLUSTER_NAME}
 
 ## Optional Deploy Mistral on GKE Autopilot
 
+## Resources used
+
+https://cloud.google.com/kubernetes-engine/docs/tutorials/serve-multiple-gpu
 https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-gpus
 https://cloud.google.com/kubernetes-engine/docs/how-to/creating-an-autopilot-cluster
+https://cloud.google.com/kubernetes-engine/docs/tutorials/http-balancer
