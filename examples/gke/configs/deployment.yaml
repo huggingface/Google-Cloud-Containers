@@ -20,7 +20,7 @@ spec:
               nvidia.com/gpu: "1"
           env:
             - name: MODEL_ID
-              value: ${MODEL_ID}
+              value: mistralai/Mistral-7B-Instruct-v0.2
             - name: NUM_SHARD
               value: "1"
             - name: PORT

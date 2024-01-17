@@ -47,8 +47,9 @@ gcloud container clusters create ${CLUSTER_NAME} \
   --workload-pool=${PROJECT_ID}.svc.id.goog \
   --addons GcsFuseCsiDriver   \
   --machine-type ${MACHINE_TYPE} \
-  --num-nodes 1 --min-nodes 1 --max-nodes 3 \
-  --ephemeral-storage-local-ssd=count=2
+  --num-nodes 1 --min-nodes 1 --max-nodes 1 \
+  --ephemeral-storage-local-ssd=count=1 \
+  --addons HttpLoadBalancing
 ```
 
 Next we create a GPU node pool. We are creating the node pool scaled down to 0 nodes. You aren't paying for any GPUs until you start launching Kubernetes Pods that request GPUs. This node pool provisions [Spot VMs](https://cloud.google.com/kubernetes-engine/docs/how-to/spot-vms), which are priced lower than the default standard Compute Engine VMs. If you ran into availability issues, you can remove the `--spot` flag from this command, and the `cloud.google.com/gke-spot` node selector in the `mistral-tgi.yaml` config to use use on-demand VMs.
@@ -89,14 +90,37 @@ Before we can deploy the model we need to update the MODEL_ID in the `mistral-tg
 
 ```bash
 MODEL_ID=mistralai/Mistral-7B-Instruct-v0.2
-yq e '.spec.template.spec.containers[0].env[] |= select(.name == "MODEL_ID").value = "strenv(MODEL_ID)"' -i configs/deployment.yaml
+yq e '.spec.template.spec.containers[0].env[] |= select(.name == "MODEL_ID").value = "'${MODEL_ID}'"' -i configs/deployment.yaml
 ```
 
 Next we deploy the model:
 
 ```bash
-kubectl apply -f configs/mistral-tgi.yaml
+kubectl apply -f configs
 ```
+
+We should see the following output:
+
+```bash
+deployment.apps/llm created
+ingress.networking.k8s.io/llm-ingress created
+service/llm-service created
+```
+
+We can check the status of the deployment with the following command:
+
+```bash
+kubectl get pods
+```
+
+_Note: It can take a few minutes for the model to download and start serving requests._
+
+We can check the status of the Ingress controller with the following command:
+
+```bash
+kubectl get ingress
+```
+
 
 ## 4. Test the model
 
@@ -123,3 +147,9 @@ To avoid incurring charges to your Google Cloud account for the resources used i
 ```bash
 gcloud container clusters delete ${CLUSTER_NAME}
 ```
+
+
+## Optional Deploy Mistral on GKE Autopilot
+
+https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-gpus
+https://cloud.google.com/kubernetes-engine/docs/how-to/creating-an-autopilot-cluster
