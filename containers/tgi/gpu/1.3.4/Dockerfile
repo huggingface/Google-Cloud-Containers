@@ -6,10 +6,12 @@ RUN mkdir -p /tgi
 # RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
 
 # TODO: remove below
+
 RUN apk update && apk upgrade && apk add git patch
-RUN git clone https://github.com/huggingface/text-generation-inference.git /tgi
-COPY containers/tgi/gpu/1.3.4/support-vertex-endpoint.patch /tgi
-RUN patch -p1 -d /tgi < /tgi/support-vertex-endpoint.patch
+RUN git clone -b support-vertex-endpoint https://github.com/huggingface/text-generation-inference.git /tgi
+# Apply Golden Gate patch
+COPY containers/tgi/gpu/1.3.4/support-golden-gate.patch /tgi
+RUN patch -p1 -d /tgi < /tgi/support-golden-gate.patch
 ############# END TODO ##############
 
 # Build cargo components (adapted from TGI original Dockerfile)
@@ -49,7 +51,7 @@ COPY --from=tgi /tgi/proto proto
 COPY --from=tgi /tgi/benchmark benchmark
 COPY --from=tgi /tgi/router router
 COPY --from=tgi /tgi/launcher launcher
-RUN cargo build --release
+RUN cargo build --release --features google
 
 # Python builder
 # Adapted from: https://github.com/pytorch/pytorch/blob/master/Dockerfile
