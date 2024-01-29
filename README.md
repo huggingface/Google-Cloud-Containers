@@ -2,10 +2,9 @@
 
 This repository contains container files for building Hugging Face specific Deep Learning Containers, examples and tests for Google Cloud.
 
-## Examples 
+## Usage Examples
 
-The [`examples`](./examples) directory contains examples for using the containers. 
-
+The [`examples`](./examples) directory contains examples for using the containers.
 
 ## Building the Containers without (container.yaml)
 
@@ -15,7 +14,9 @@ _Note: we added the latest TGI version as an example into the repository, which 
 docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.3.4 -f containers/tgi/gpu/1.3.4/Dockerfile .
 ```
 
-test the container on a GPU instance with
+### Mistral 7B test
+
+test the container on a GPU instance (g2) with
 
 ```bash
 model=mistralai/Mistral-7B-Instruct-v0.2
@@ -32,24 +33,57 @@ docker run --gpus all -ti -p 8080:80 \
 ```
 
 Send request:
-``` 
+
+```bash
 curl 127.0.0.1:8080/generate \
     -X POST \
     -d '{"inputs":"[INST] What is 10+10? [\/INST]","parameters":{"temperature":0.2, "top_p": 0.95, "max_new_tokens": 256}}' \
     -H 'Content-Type: application/json'
 ```
 
+### Golden Gate Test
+
+```bash
+model=gg-hf/golden-gate-7b
+num_shard=1
+max_input_length=512
+max_total_tokens=1024
+max_batch_prefill_tokens=1512
+token=YOUR_TOKEN
+
+docker run --gpus all -ti -p 8080:80 \
+  -e MODEL_ID=$model \
+  -e NUM_SHARD=$num_shard \
+  -e MAX_INPUT_LENGTH=$max_input_length \
+  -e MAX_TOTAL_TOKENS=$max_total_tokens \
+  -e MAX_BATCH_PREFILL_TOKENS=$max_batch_prefill_tokens \
+  -e HUGGING_FACE_HUB_TOKEN=$token \
+  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.3.4
+```
+
+Send request:
+
+```bash
+curl 127.0.0.1:8080/generate \
+    -X POST \
+    -d '{"inputs":"Deep Learning is a","parameters":{"temperature":1.0, "top_p": 0.95, "max_new_tokens": 256}}' \
+    -H 'Content-Type: application/json'
+```
+
+For a Vertex AI example checkout [Deploy Golden Gate on Vertex AI](./examples//vertex-ai/deploy-golden-gate-on-vertex-ai.ipynb)
+
+
 ## Configurations
 
 > Need to be implemented
 
-The [`container.yaml`](./containers/container.yaml) file contains the configuration for the latest version of the container. Google uses this file to determine which container to build as the latest version. 
+The [`container.yaml`](./containers/container.yaml) file contains the configuration for the latest version of the container. Google uses this file to determine which container to build as the latest version.
 
 ## Tests
 
 After the containers are built, you can run the tests in the `tests` directory to verify that they are working correctly.
 
-## Available Containers 
+## Available Containers
 
 > Placeholder for the table
 
@@ -72,8 +106,6 @@ After the containers are built, you can run the tests in the `tests` directory t
 ## Directory Structure
 
 The container files are organized in a nested folder structure based on the container tag. For example, the Dockerfile for the container with the tag `pytorch-training-gpu.2.0.transformers.4.35.0.py310` is located at `pytorch/training/gpu/2.0/transformers/4.35.0/py310/Dockerfile`.
-
-
 
 ## Updates
 
