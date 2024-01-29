@@ -1,4 +1,7 @@
 #!/bin/bash
+####################################################################
+# Description: Pushes local TGI image to GCR for testing vertex AI #
+####################################################################
 
 REGION="us-central1"
 DOCKER_ARTIFACT_REPO="custom-tgi-example"

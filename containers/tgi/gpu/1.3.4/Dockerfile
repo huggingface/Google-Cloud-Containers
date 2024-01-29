@@ -6,7 +6,6 @@ RUN mkdir -p /tgi
 # RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
 
 # TODO: remove below
-
 RUN apk update && apk upgrade && apk add git patch
 RUN git clone -b support-vertex-endpoint https://github.com/huggingface/text-generation-inference.git /tgi
 # Apply Golden Gate patch
