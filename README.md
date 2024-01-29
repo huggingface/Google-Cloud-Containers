@@ -70,6 +70,9 @@ curl 127.0.0.1:8080/generate \
     -H 'Content-Type: application/json'
 ```
 
+For a Vertex AI example checkout [Deploy Golden Gate on Vertex AI](./examples//vertex-ai/deploy-golden-gate-on-vertex-ai.ipynb)
+
+
 ## Configurations
 
 > Need to be implemented
