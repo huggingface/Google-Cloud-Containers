@@ -22,7 +22,7 @@ ARG NOTEBOOK='7.0.6'
 ARG MARKUPSAFE='2.1.1'
 ARG JINJA2='3.1.2'
 ARG ATTRS='23.1.0'
-ARG FLASH_ATTN=='2.3.0'
+ARG FLASH_ATTN='2.3.0'
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
@@ -30,7 +30,7 @@ ENV PYTHONUNBUFFERED=1
 # update pip
 RUN python3 -m pip install --no-cache-dir --upgrade pip
 
-# Install Tensorboard
+# Upgrade Tensorboard
 RUN python3 -m pip install --no-cache-dir tensorboard==${TENSORBOARD}
 
 # Install DeepSpeed
