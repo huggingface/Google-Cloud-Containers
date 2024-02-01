@@ -11,7 +11,7 @@ ARG TRANSFORMERS='4.35.0'
 ARG DIFFUSERS='0.23.0'
 ARG PEFT='0.7.0'
 ARG TRL='0.7.4'
-ARG BITSANDBYTES='0.41.3'
+ARG BITSANDBYTES='0.42.0'
 ARG DATASETS='2.14.0'
 ARG ACCELERATE='0.23.0'
 ARG EVALUATE='0.4.1'
@@ -83,3 +83,17 @@ RUN MAX_JOBS=${MAX_JOBS} python3 -m pip install flash-attn==${FLASH_ATTN} --no-b
 
 # Check if all packages can be imported
 RUN python3 -c "import transformers, diffusers, datasets, accelerate, evaluate, peft, trl, sentence_transformers, deepspeed, bitsandbytes, flash_attn; print('All packages installed successfully.')"
+
+# Check if correct versions are installed
+RUN python3 -c "import torch; assert torch.__version__ == '${PYTORCH}+${CUDA}'"
+RUN python3 -c "import transformers; assert transformers.__version__ == '${TRANSFORMERS}'"
+RUN python3 -c "import diffusers; assert diffusers.__version__ == '${DIFFUSERS}'"
+RUN python3 -c "import datasets; assert datasets.__version__ == '${DATASETS}'"
+RUN python3 -c "import accelerate; assert accelerate.__version__ == '${ACCELERATE}'"
+RUN python3 -c "import evaluate; assert evaluate.__version__ == '${EVALUATE}'"
+RUN python3 -c "import peft; assert peft.__version__ == '${PEFT}'"
+RUN python3 -c "import trl; assert trl.__version__ == '${TRL}'"
+RUN python3 -c "import sentence_transformers; assert sentence_transformers.__version__ == '${SENTENCE_TRANSFORMERS}'"
+RUN python3 -c "import deepspeed; assert deepspeed.__version__ == '${DEEPSPEED}'"
+RUN python3 -c "import bitsandbytes; assert bitsandbytes.__version__ == '${BITSANDBYTES}'"
+RUN python3 -c "import flash_attn; assert flash_attn.__version__ == '${FLASH_ATTN}'"
