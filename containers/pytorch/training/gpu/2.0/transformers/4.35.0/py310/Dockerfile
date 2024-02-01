@@ -1,11 +1,11 @@
-FROM nvidia/cuda:12.1.0-cudnn8-devel-ubuntu20.04
+FROM nvidia/cuda:11.8.0-devel-ubuntu20.04
 LABEL maintainer="Hugging Face"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
 ARG PYTORCH='2.0.0' 
-ARG CUDA='cu121'
+ARG CUDA='cu118'
 ARG PYTHON='3.10'
 ARG TRANSFORMERS='4.35.0'
 ARG DIFFUSERS='0.23.0'
@@ -81,5 +81,5 @@ RUN python3 -m pip install --no-cache-dir \
   ninja
 RUN MAX_JOBS=${MAX_JOBS} python3 -m pip install flash-attn==${FLASH_ATTN} --no-build-isolation
 
-# Verify the installation
-RUN python3 -c "import transformers, diffusers, datasets, accelerate, evaluate, peft, trl, sentence_transformers, deepspeed, bitsandbytes, tensorboard; print('All packages installed successfully.')"
+# Check if all packages can be imported
+RUN python3 -c "import transformers, diffusers, datasets, accelerate, evaluate, peft, trl, sentence_transformers, deepspeed, bitsandbytes, flash_attn; print('All packages installed successfully.')"
