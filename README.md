@@ -91,7 +91,7 @@ After the containers are built, you can run the tests in the `tests` directory t
 | ----------------------------------------------------------------------------- | --------- | --------- | ----------- |
 | [pytorch-training-gpu.2.0.transformers.4.35.0.py310](./containers/pytorch/training/gpu/2.0/transformers/4.35.0/py310/Dockerfile)  | Pytorch   | training  | GPU         |
 | [pytorch-training-tpu.2.0.transformers.4.35.0.py310](link_to_container_here)  | Pytorch   | training  | TPU         |
-| [pytorch-inference-gpu.2.0.transformers.4.35.0.py310](link_to_container_here) | Pytorch   | inference | GPU         |
+| [pytorch-inference-gpu.2.0.transformers.4.36.0.py310](./containers/pytorch/training/gpu/2.0/transformers/4.36.0/py310/Dockerfile) | Pytorch   | inference | GPU         |
 | [pytorch-inference-tpu.2.0.transformers.4.35.0.py310](link_to_container_here) | Pytorch   | inference | TPU         |
 | [pytorch-inference-cpu.2.0.transformers.4.35.0.py310](link_to_container_here) | Pytorch   | inference | CPU         |
 | [jax-training-gpu.2.0.transformers.4.35.0.py310](link_to_container_here)      | Jax       | training  | GPU         |
