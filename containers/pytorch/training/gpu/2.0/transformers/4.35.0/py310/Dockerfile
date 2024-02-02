@@ -6,9 +6,6 @@ LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
-# ARG PYTORCH='2.0.0'
-# ARG CUDA='cu121'
-# ARG PYTHON='3.10.6'
 ARG TRANSFORMERS='4.35.0'
 ARG DIFFUSERS='0.23.0'
 ARG PEFT='0.7.0'
@@ -21,7 +18,6 @@ ARG SENTENCE_TRANSFORMERS='2.3.0'
 ARG DEEPSPEED='0.12.2'
 ARG FLASH_ATTN='2.3.0'
 ARG MAX_JOBS=4
-# ARG TRANSFORMERS_ENGINE='v1.1'
 
 RUN apt-get update \
     && apt-get install -y \
@@ -48,11 +44,8 @@ RUN pip install --no-cache-dir \
   ninja
 RUN MAX_JOBS=${MAX_JOBS} pip install flash-attn==${FLASH_ATTN} --no-build-isolation
 
-# If don't want to use TransformerEngine, then remove it
+# Remove TransformerEngine for using Flash-AttnV2 as the base image comes with TransformerEngine-0.8 whish is not compatible with Flash-AttnV2
 RUN pip uninstall -y transformer-engine
-
-# If want to use TransformerEngine with Flash-AttnV2, upgrade TransformerEngine to v1.1
-# RUN pip install git+https://github.com/NVIDIA/TransformerEngine.git@${TRANSFORMERS_ENGINE} --no-cache-dir
 
 # Install Hugging Face Libraries
 RUN pip install --upgrade --no-cache-dir \

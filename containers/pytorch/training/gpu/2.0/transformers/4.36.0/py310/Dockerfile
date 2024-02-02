@@ -1,12 +1,11 @@
-FROM nvidia/cuda:11.8.0-devel-ubuntu20.04
-LABEL maintainer="Hugging Face"
+FROM nvcr.io/nvidia/pytorch:23.05-py3
+# The image with PyTorch = 2.0.0, CUDA = 12.1.0, Python =  3.10.6"
+# You can read more about it here: https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/rel-23-05.html#rel-23-05
 
+LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
-ARG PYTORCH='2.0.0' 
-ARG CUDA='cu118'
-ARG PYTHON='3.10'
 ARG TRANSFORMERS='4.36.0'
 ARG DIFFUSERS='0.23.0'
 ARG PEFT='0.7.0'
@@ -17,14 +16,10 @@ ARG ACCELERATE='0.23.0'
 ARG EVALUATE='0.4.1'
 ARG SENTENCE_TRANSFORMERS='2.3.0'
 ARG DEEPSPEED='0.12.2'
-ARG TENSORBOARD='2.15.1'
 ARG FLASH_ATTN='2.3.0'
-ARG NOTEBOOK='7.0.6'
-ARG MARKUPSAFE='2.1.1'
 ARG MAX_JOBS=4
 
 RUN apt-get update \
-    && apt-get -y upgrade --only-upgrade systemd openssl cryptsetup \
     && apt-get install -y \
     bzip2 \
     curl \
@@ -40,27 +35,20 @@ RUN apt-get update \
     && apt-get clean autoremove --yes \
     && rm -rf /var/lib/{apt,dpkg,cache,log}
 
+# Update pip
+RUN pip install --upgrade pip
 
-# Install python 3.10
-RUN apt-get install -y software-properties-common && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt install -y python${PYTHON} python3.10-distutils
+# Install Flash attention
+RUN pip install --no-cache-dir \
+  packaging \
+  ninja
+RUN MAX_JOBS=${MAX_JOBS} pip install flash-attn==${FLASH_ATTN} --no-build-isolation
 
-# Install pip for Python 3.10
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON}
-
-# Set the default Python version
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON} 1
-
-
-# # update pip
-RUN python3 -m pip install --no-cache-dir --upgrade pip
-
-#Install PyTorch
-RUN python3 -m pip install --no-cache-dir -U torch==${PYTORCH} torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/${CUDA}
+# Remove TransformerEngine for using Flash-AttnV2 as the base image comes with TransformerEngine-0.8 whish is not compatible with Flash-AttnV2
+RUN pip uninstall -y transformer-engine
 
 # Install Hugging Face Libraries
-RUN python3 -m pip install --upgrade --no-cache-dir \
+RUN pip install --upgrade --no-cache-dir \
   transformers[sklearn,sentencepiece,vision]==${TRANSFORMERS} \
   diffusers==${DIFFUSERS} \
   datasets==${DATASETS} \
@@ -70,30 +58,11 @@ RUN python3 -m pip install --upgrade --no-cache-dir \
   trl==${TRL} \
   sentence-transformers==${SENTENCE_TRANSFORMERS} \
   deepspeed==${DEEPSPEED} \
-  bitsandbytes==${BITSANDBYTES} \
-  tensorboard==${TENSORBOARD} \
-  notebook==${NOTEBOOK} \
-  MarkupSafe==${MARKUPSAFE}
-
-# Install Flash attention
-RUN python3 -m pip install --no-cache-dir \
-  packaging \
-  ninja
-RUN MAX_JOBS=${MAX_JOBS} python3 -m pip install flash-attn==${FLASH_ATTN} --no-build-isolation
-
-# Check if all packages can be imported
-RUN python3 -c "import transformers, diffusers, datasets, accelerate, evaluate, peft, trl, sentence_transformers, deepspeed, bitsandbytes, flash_attn; print('All packages installed successfully.')"
+  bitsandbytes==${BITSANDBYTES}
 
 # Check if correct versions are installed
-RUN python3 -c "import torch; assert torch.__version__ == '${PYTORCH}+${CUDA}'"
-RUN python3 -c "import transformers; assert transformers.__version__ == '${TRANSFORMERS}'"
-RUN python3 -c "import diffusers; assert diffusers.__version__ == '${DIFFUSERS}'"
-RUN python3 -c "import datasets; assert datasets.__version__ == '${DATASETS}'"
-RUN python3 -c "import accelerate; assert accelerate.__version__ == '${ACCELERATE}'"
-RUN python3 -c "import evaluate; assert evaluate.__version__ == '${EVALUATE}'"
-RUN python3 -c "import peft; assert peft.__version__ == '${PEFT}'"
-RUN python3 -c "import trl; assert trl.__version__ == '${TRL}'"
-RUN python3 -c "import sentence_transformers; assert sentence_transformers.__version__ == '${SENTENCE_TRANSFORMERS}'"
-RUN python3 -c "import deepspeed; assert deepspeed.__version__ == '${DEEPSPEED}'"
-RUN python3 -c "import bitsandbytes; assert bitsandbytes.__version__ == '${BITSANDBYTES}'"
-RUN python3 -c "import flash_attn; assert flash_attn.__version__ == '${FLASH_ATTN}'"
+RUN python -c "import transformers, diffusers, datasets, accelerate, evaluate, peft, trl, sentence_transformers, deepspeed, bitsandbytes, flash_attn; \
+                assert all([mod.__version__ == version for mod, version in [(transformers, '${TRANSFORMERS}'), (diffusers, '${DIFFUSERS}'), \
+                (datasets, '${DATASETS}'), (accelerate, '${ACCELERATE}'), (evaluate, '${EVALUATE}'), (peft, '${PEFT}'), (trl, '${TRL}'), \
+                (sentence_transformers, '${SENTENCE_TRANSFORMERS}'), (deepspeed, '${DEEPSPEED}'), (bitsandbytes, '${BITSANDBYTES}'), \
+                (flash_attn, '${FLASH_ATTN}')]])"
