@@ -43,7 +43,7 @@ RUN apt-get update \
 RUN pip install --upgrade pip
 
 # Downgrade PyTorch
-RUN pip uninstall -y torch torchvision torchaudio torch-tensorrt \
+RUN pip uninstall -y torch torchvision torchaudio torch-tensorrt torchtext \
  && pip install --no-cache-dir -U torch==${PYTORCH} torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/${CUDA}
 
 
