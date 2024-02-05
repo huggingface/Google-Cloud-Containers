@@ -6,7 +6,9 @@ LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
-ARG FLASH_ATTN='2.4.2'
+ARG PYTORCH='2.1.2'
+ARG CUDA='cu121'
+ARG FLASH_ATTN='2.5.2'
 ARG TRANSFORMERS='4.37.2'
 ARG DIFFUSERS='0.26.1'
 ARG PEFT='0.8.2'
@@ -39,6 +41,14 @@ RUN apt-get update \
 
 # Update pip
 RUN pip install --upgrade pip
+
+# Downgrade PyTorch
+RUN pip uninstall -y torch torchvision torchaudio torch-tensorrt \
+ && pip install --no-cache-dir -U torch==${PYTORCH} torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/${CUDA}
+
+
+# Uninstall Transformer-Engine
+RUN pip uninstall -y transformer-engine
 
 # Upgrade FlashAttnV2
 RUN pip install --no-cache-dir \
@@ -79,4 +89,4 @@ RUN python -c "import transformers, diffusers, datasets, accelerate, evaluate, p
                 assert all([mod.__version__ == version for mod, version in [(transformers, '${TRANSFORMERS}'), (diffusers, '${DIFFUSERS}'), \
                 (datasets, '${DATASETS}'), (accelerate, '${ACCELERATE}'), (evaluate, '${EVALUATE}'), (peft, '${PEFT}'), (trl, '${TRL}'), \
                 (sentence_transformers, '${SENTENCE_TRANSFORMERS}'), (deepspeed, '${DEEPSPEED}'), (bitsandbytes, '${BITSANDBYTES}'), \
-                (torch, '2.2.0a0+81ea7a4'), (flash_attn, '${FLASH_ATTN}')]])" 
+                (torch, '${PYTORCH}+${CUDA}'), (flash_attn, '${FLASH_ATTN}')]])" 
