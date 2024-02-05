@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/pytorch:24.01-py3
+FROM nvcr.io/nvidia/pytorch:23.10-py3
 # The image with PyTorch = 2.2.0a0+81ea7a4, CUDA = 12.3.2, Python =  3.10.12"
 # You can read more about it here: https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/rel-24-01.html#rel-24-01
 
@@ -6,8 +6,6 @@ LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
-ARG PYTORCH='2.1.2'
-ARG CUDA='cu121'
 ARG FLASH_ATTN='2.5.2'
 ARG TRANSFORMERS='4.37.2'
 ARG DIFFUSERS='0.26.1'
@@ -41,11 +39,6 @@ RUN apt-get update \
 
 # Update pip
 RUN pip install --upgrade pip
-
-# Downgrade PyTorch
-RUN pip uninstall -y torch torchvision torchaudio torch-tensorrt torchtext \
- && pip install --no-cache-dir -U torch==${PYTORCH} torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/${CUDA}
-
 
 # Uninstall Transformer-Engine
 RUN pip uninstall -y transformer-engine
@@ -89,4 +82,4 @@ RUN python -c "import transformers, diffusers, datasets, accelerate, evaluate, p
                 assert all([mod.__version__ == version for mod, version in [(transformers, '${TRANSFORMERS}'), (diffusers, '${DIFFUSERS}'), \
                 (datasets, '${DATASETS}'), (accelerate, '${ACCELERATE}'), (evaluate, '${EVALUATE}'), (peft, '${PEFT}'), (trl, '${TRL}'), \
                 (sentence_transformers, '${SENTENCE_TRANSFORMERS}'), (deepspeed, '${DEEPSPEED}'), (bitsandbytes, '${BITSANDBYTES}'), \
-                (torch, '${PYTORCH}+${CUDA}'), (flash_attn, '${FLASH_ATTN}')]])" 
+                (torch, '2.1.0a0+32f93b1'), (flash_attn, '${FLASH_ATTN}')]])" 
