@@ -15,17 +15,28 @@ We use the [golden-gate-finetuning-clm-lora-sft.ipynb](https://github.com/huggin
  
 1. Clone the [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers)
 
-2. Build the docker image using the following command:
+
+2. You can choose one of the following method to install the transformers library with the gg-hf model integrated into it:
+
+a. Build the image with:
+
 ```bash
 cd Google-Cloud-Containers
-docker build -t pytorch-training-gpu.2.1.transformers.4.38.0.dev0.py310 -f containers/pytorch/training/gpu/2.1/transformers/4.37.2/py310/Dockerfile .
+docker build -t pytorch-training-gpu.2.1.transformers.4.37.2.py310 -f containers/pytorch/training/gpu/2.1/transformers/4.37.2/py310/Dockerfile .
 ```
 
-3. You can choose one of the following method to install the transformers library with the gg-hf model integrated into it:
+and then manually installing latest transformers after running the container. Use the following command after running the container:
 
-a. Using the existing image built in the previous step and then manually installing after running the container. This method is illustrated in Method 1: Pushing the image to the Google Cloud Artifact registry and running the notebook on Vertex AI and Method 2: Running the notebook locally.
+```bash
+git clone https://github.com/huggingface/new-model-addition-golden-gate
+cd new-model-addition-golden-gate
+git checkout add-golden-gate
+pip install -e .
+cd ..
+```
 
-b. Modifying the Dockerfile to use the latest version of the transformers library and then building the image again. For this method, you can follow the instructions in the section Modify Dockerfile to use the latest version of the transformers library. Add the following lines to the Dockerfile
+
+b. Modifying the [existing Dockerfile](https://github.com/huggingface/Google-Cloud-Containers/blob/main/containers/pytorch/training/gpu/2.1/transformers/4.37.2/py310/Dockerfile) to install the latest version of the transformers library and then building the image. For this method, you can follow add the following lines to the Dockerfile
   ```Dockerfile
   ARG GITHUB_TOKEN="" # Github token to access the private repository, define it while building the image. Read more about it here: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
 
@@ -38,13 +49,10 @@ b. Modifying the Dockerfile to use the latest version of the transformers librar
   docker build --build-arg="GITHUB_TOKEN=xxxxx" -t pytorch-training-gpu.2.1.transformers.4.38.0.dev0.py310 -f containers/pytorch/training/gpu/2.1/transformers/4.37.2/py310/Dockerfile .
   ```
 
-If you choose the second method, you can then test the model directly by running the notebook on the docker container as listed below in the section Steps to test the docker image.
-
 ### Steps to test the docker image:
-You can choose one of the following methods to test the docker image:
 
-#### Method 1: Pushing the image to the Google Cloud Artifact registry and running the notebook on Vertex AI
-You can push the image to the Google Cloud Artifact registry using the following script:
+#### Method 1: Pushing the image to the Google Cloud Artifact registry and running the notebook on Vertex AI Workbench
+You can push the image to the Google Cloud Artifact registry using the following script, make sure to replace the variables with your own values.:
 
 ```bash
 #!/bin/bash
@@ -52,9 +60,9 @@ You can push the image to the Google Cloud Artifact registry using the following
 # Description: Pushes local Deep Learning image to GAR for testing vertex AI 
 ####################################################################
 
-REGION=""
-DOCKER_ARTIFACT_REPO=""
-PROJECT_ID=""
+REGION="us-central1"
+DOCKER_ARTIFACT_REPO="deep-learning-images"
+PROJECT_ID="gcp-project-id"
 BASE_IMAGE="pytorch-training-gpu.2.1.transformers.4.38.0.dev0.py310"
 FRAMEWORK="pytorch"
 TYPE="training"
@@ -92,31 +100,15 @@ docker push "${SERVING_CONTAINER_IMAGE_URI}"
 
 ```
 
-Only needed when you haven't modified the Dockerfile to use the latest version of the transformers library. If you have modified the Dockerfile, you can skip this step.
-You can then spin up a Vertex AI Workbench and make sure to choose the image from the Artifact registry. In that notebook, you can install the transformers library with the gg-hf model integrated into it. You can do this by running the following command inside the notebook:
-```bash
-git clone https://github.com/huggingface/new-model-addition-golden-gate
-cd new-model-addition-golden-gate
-git checkout add-golden-gate
-pip install -e .
-cd ..
-```
-Copy the notebook file to the Vertex AI Workbench and test the model. 
+Once the image is pushed to the Google Cloud Artifact registry, you can use the Vertex AI Workbench to spin up a new instance with this image. After the instance is up and running, you can
+copy the [golden-gate-finetuning-clm-lora-sft.ipynb](https://github.com/huggingface/Google-Cloud-Containers/tree/add-example-notebook/examples/vertex-ai/finetuning-examples/golden-gate-finetuning-clm-lora-sft.ipynb) Notebook to the Vertex AI Workbench and test the model. 
 
 #### Method 2: Running the notebook locally
-Make sure you have the notebook file on your local machine. As we are mounting the current directory to the docker container.
+
+Make sure you have the [golden-gate-finetuning-clm-lora-sft.ipynb](https://github.com/huggingface/Google-Cloud-Containers/tree/add-example-notebook/examples/vertex-ai/finetuning-examples/golden-gate-finetuning-clm-lora-sft.ipynb) Notebook on your local machine. As we are mounting the current directory to the docker container.
 
 ```bash
 docker run -it --gpus all -p 8080:8080 -v $(pwd):/workspace pytorch-training-gpu.2.1.transformers.4.38.0.dev0.py310
-```
-Only needed when you haven't modified the Dockerfile to use the latest version of the transformers library. If you have modified the Dockerfile, you can skip this step.
-Install the transformers library with the gg-hf model integrated into it. You can do this by running the following command inside the docker container:
-```bash
-git clone https://github.com/huggingface/new-model-addition-golden-gate
-cd new-model-addition-golden-gate
-git checkout add-golden-gate
-pip install -e .
-cd ..
 ```
 
 Inside the docker container, you can run the following command to start the jupyter notebook:
@@ -124,7 +116,4 @@ Inside the docker container, you can run the following command to start the jupy
 jupyter notebook --ip 0.0.0.0 --port 8080 --no-browser --allow-root
 ```
 Access the notebook through your desktops browser on the link generated by the above command, which will look something like this:
-http://hostname:8888/?token=4843b2c524efb137a08421202ddc7c40acc1bb9ee151dbee
-
-```
-Now, you can run the notebook and test the model with the latest version of the transformers library.
+http://hostname:8080/?token=4843b2c524efb137a08421202ddc7c40acc1bb9ee151dbee
