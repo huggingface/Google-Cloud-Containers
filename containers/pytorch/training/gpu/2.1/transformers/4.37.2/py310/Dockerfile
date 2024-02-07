@@ -1,6 +1,6 @@
 FROM nvcr.io/nvidia/pytorch:23.10-py3
-# The image with PyTorch = 2.2.0a0+81ea7a4, CUDA = 12.3.2, Python =  3.10.12"
-# You can read more about it here: https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/rel-24-01.html#rel-24-01
+# The image with PyTorch = 2.1.0a0+32f93b1, CUDA = 12.2.2, Python =  3.10.12"
+# You can read more about it here: https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/rel-23-10.html
 
 LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
