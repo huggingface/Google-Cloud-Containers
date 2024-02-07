@@ -1,6 +1,7 @@
-# Instructions for building the docker image and testing it by running the notebook
-This file contains step by step instructions on how to build the docker image so that one can test the model and the notebook. 
+# Fine-tune GoldenGate 2B on Vertex AI WorkBench
 
+This file contains step by step instructions on how to build a docker image and then run it to test the Golden Gate model using the 
+[golden-gate-finetuning-clm-lora-sft.ipynb](https://github.com/huggingface/Google-Cloud-Containers/tree/add-example-notebook/examples/vertex-ai/golden-gate-finetuning-clm-lora-sft.ipynb) Notebook. 
 
 ### Pre-requisites:
 1. Access to [gg-hf](https://huggingface.co/gg-hf) on Hugging Face Hub in order to download the model and the tokenizer.
@@ -20,6 +21,11 @@ We use the [golden-gate-finetuning-clm-lora-sft.ipynb](https://github.com/huggin
 cd Google-Cloud-Containers
 docker build --build-arg="GITHUB_TOKEN=xxxxx" -t pytorch-training-gpu.2.1.transformers.4.38.0.dev0.py310 -f containers/pytorch/training/gpu/2.1/transformers/4.38.0.dev0/py310/Dockerfile .
 ```
+
+For setting the value of `GITHUB_TOKEN` please follow the detailed instructions mentioned in the following links: 
+- [Creating a fine-grained personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token)
+
+- [Creating a personal access token (classic)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic)
 
 ### Steps to test the docker image:
 
