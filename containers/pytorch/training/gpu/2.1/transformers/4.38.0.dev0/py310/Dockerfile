@@ -66,7 +66,7 @@ RUN pip install --upgrade --no-cache-dir \
   bitsandbytes==${BITSANDBYTES}
 
 # To install version that has golden-gate integrated into transformers
-RUN pip install git+https://${GITHUB_TOKEN}@github.com/huggingface/new-model-addition-golden-gate.git@add-golden-gate
+RUN pip install git+https://${GITHUB_TOKEN}@github.com/huggingface/new-model-addition-golden-gate.git@dbc976efd1bb131ae67de49440f63e0f4a77f6d8
 
 # Install Google Cloud Dependencies
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
