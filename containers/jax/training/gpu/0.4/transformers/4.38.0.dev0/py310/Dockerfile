@@ -6,6 +6,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
 
+#Mandatory GitHub token to access the private repository, read more about it here: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+ARG GITHUB_TOKEN
 #JAX Compatible with CUDA 12.2 
 ARG JAX='0.4.23' 
 ARG FLAX='0.8.1'
