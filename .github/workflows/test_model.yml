@@ -3,7 +3,7 @@ name: Model Test
 on:
   push:
     branches:
-      - draft_ci
+      - run_tests_against_images_*
 
 env:
   HF_HOME: /mnt/cache
@@ -12,7 +12,7 @@ env:
   HF_HUB_READ_TOKEN: ${{ secrets.HF_HUB_READ_TOKEN }}
 
 jobs:
-  github_repo:
+  run_test:
     name: github repo
     runs-on: [single-gpu, nvidia-gpu, a10, ci]
     container:
