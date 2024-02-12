@@ -1,5 +1,5 @@
-FROM nvcr.io/nvidia/pytorch:23.10-py3
-# The image with PyTorch = 2.1.0a0+32f93b1, CUDA = 12.2.2, Python =  3.10.12"
+FROM nvcr.io/nvidia/cuda:12.2.2-cudnn8-devel-ubuntu20.04
+# The image with CUDA = 12.2.2
 
 LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -11,16 +11,8 @@ ARG JAX='0.4.23'
 ARG FLAX='0.8.1'
 ARG TRANSFORMERS='4.37.2'
 ARG DIFFUSERS='0.26.1'
-ARG PEFT='0.8.2'
-ARG TRL='0.7.10'
-ARG BITSANDBYTES='0.42.0'
 ARG DATASETS='2.16.1'
-ARG ACCELERATE='0.27.0'
-ARG EVALUATE='0.4.1'
-ARG SENTENCE_TRANSFORMERS='2.3.1'
-ARG DEEPSPEED='0.13.1'
-ARG FLASH_ATTN='2.5.2'
-ARG MAX_JOBS=4
+
 
 RUN apt-get update \
     && apt-get install -y \
@@ -41,17 +33,19 @@ RUN apt-get update \
     && apt-get clean autoremove --yes 
 
 
+# Install python 3.10
+RUN apt-get install -y software-properties-common && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt install -y python3.10 python3.10-distutils python-is-python3
+
+# Install pip for Python 3.10
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
+
+# Set the default Python version
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
+
 # update pip
 RUN pip install --no-cache-dir --upgrade pip
-
-# Uninstall Transformer Engine
-RUN pip uninstall -y transformer-engine
-
-# Upgrade FlashAttnV2
-RUN pip install --no-cache-dir \
-  packaging \
-  ninja
-RUN MAX_JOBS=${MAX_JOBS} pip install flash-attn==${FLASH_ATTN} --no-build-isolation
 
 # Install JAX
 RUN pip install --upgrade jax==${JAX} jaxlib==${JAX}+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
@@ -61,16 +55,9 @@ RUN pip install --upgrade --no-cache-dir flax==${FLAX}
 
 #Install Hugging Face Libraries
 RUN pip install --upgrade --no-cache-dir \
-  transformers[sklearn,sentencepiece,vision]==${TRANSFORMERS} \
+  transformers==${TRANSFORMERS} \
   diffusers==${DIFFUSERS} \
-  datasets==${DATASETS} \
-  accelerate==${ACCELERATE} \
-  evaluate==${EVALUATE} \
-  peft==${PEFT} \
-  trl==${TRL} \
-  sentence-transformers==${SENTENCE_TRANSFORMERS} \
-  deepspeed==${DEEPSPEED} \
-  bitsandbytes==${BITSANDBYTES}
+  datasets==${DATASETS} 
 
 # Install Google Cloud Dependencies
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
@@ -88,9 +75,7 @@ RUN pip install --upgrade --no-cache-dir \
   google-cloud-logging
 
 
-# Check if correct versions are installed
-RUN python -c "import transformers, diffusers, datasets, accelerate, evaluate, peft, trl, sentence_transformers, deepspeed, bitsandbytes, flash_attn, jax, flax; \
+#Check if correct versions are installed
+RUN python -c "import transformers, diffusers, datasets, jax, flax; \
                 assert all([mod.__version__ == version for mod, version in [(transformers, '${TRANSFORMERS}'), (diffusers, '${DIFFUSERS}'), \
-                (datasets, '${DATASETS}'), (accelerate, '${ACCELERATE}'), (evaluate, '${EVALUATE}'), (peft, '${PEFT}'), (trl, '${TRL}'), \
-                (sentence_transformers, '${SENTENCE_TRANSFORMERS}'), (deepspeed, '${DEEPSPEED}'), (bitsandbytes, '${BITSANDBYTES}'), \
-                (jax, '${JAX}'), (flax, '${FLAX}')]])" 
+                (datasets, '${DATASETS}'), (jax, '${JAX}'), (flax, '${FLAX}')]])" 
