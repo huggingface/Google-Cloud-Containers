@@ -47,17 +47,17 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
 # update pip
 RUN pip install --no-cache-dir --upgrade pip
 
-# Install JAX
-RUN pip install --upgrade jax==${JAX} jaxlib==${JAX}+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
-
-# Install Flax
-RUN pip install --upgrade --no-cache-dir flax==${FLAX}
-
 #Install Hugging Face Libraries
 RUN pip install --upgrade --no-cache-dir \
   transformers==${TRANSFORMERS} \
   diffusers==${DIFFUSERS} \
   datasets==${DATASETS} 
+
+# Install JAX
+RUN pip install --upgrade jax==${JAX} jaxlib==${JAX}+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+# Install Flax
+RUN pip install --upgrade --no-cache-dir flax==${FLAX}
 
 # Install Google Cloud Dependencies
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
