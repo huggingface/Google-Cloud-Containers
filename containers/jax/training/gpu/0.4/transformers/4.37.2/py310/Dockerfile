@@ -12,6 +12,7 @@ ARG FLAX='0.8.1'
 ARG TRANSFORMERS='4.37.2'
 ARG DIFFUSERS='0.26.1'
 ARG DATASETS='2.16.1'
+ARG SENTENCEPIECE='0.1.99'
 
 
 RUN apt-get update \
@@ -33,31 +34,25 @@ RUN apt-get update \
     && apt-get clean autoremove --yes 
 
 
-# Install python 3.10
+# Install python 3.10, pip and set default python version
 RUN apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt install -y python3.10 python3.10-distutils python-is-python3
-
-# Install pip for Python 3.10
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
-
-# Set the default Python version
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
-
-# update pip
-RUN pip install --no-cache-dir --upgrade pip
+    apt install -y python3.10 python3.10-distutils python-is-python3 && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1 && \
+    pip install --no-cache-dir --upgrade pip
 
 #Install Hugging Face Libraries
 RUN pip install --upgrade --no-cache-dir \
   transformers==${TRANSFORMERS} \
   diffusers==${DIFFUSERS} \
-  datasets==${DATASETS} 
+  datasets==${DATASETS} \
+  sentencepiece==${SENTENCEPIECE}
 
-# Install JAX
-RUN pip install --upgrade jax==${JAX} jaxlib==${JAX}+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
-
-# Install Flax
-RUN pip install --upgrade --no-cache-dir flax==${FLAX}
+# Install JAX and Flax
+RUN \
+    pip install --upgrade jax==${JAX} jaxlib==${JAX}+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html && \
+    pip install --upgrade --no-cache-dir flax==${FLAX}
 
 # Install Google Cloud Dependencies
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
@@ -76,6 +71,6 @@ RUN pip install --upgrade --no-cache-dir \
 
 
 #Check if correct versions are installed
-RUN python -c "import transformers, diffusers, datasets, jax, flax; \
+RUN python -c "import transformers, diffusers, datasets, sentencepiece, jax, flax; \
                 assert all([mod.__version__ == version for mod, version in [(transformers, '${TRANSFORMERS}'), (diffusers, '${DIFFUSERS}'), \
-                (datasets, '${DATASETS}'), (jax, '${JAX}'), (flax, '${FLAX}')]])" 
+                (datasets, '${DATASETS}'), (sentencepiece, '${SENTENCEPIECE}'), (jax, '${JAX}'), (flax, '${FLAX}')]])" 
