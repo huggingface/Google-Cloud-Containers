@@ -18,7 +18,8 @@ Use the following command to build the docker image. Make sure to replace the va
 ```bash
 git clone https://github.com/huggingface/Google-Cloud-Containers
 cd Google-Cloud-Containers
-docker build --build-arg="GITHUB_TOKEN=xxxxx" -t pytorch-training-gpu.2.1.transformers.4.38.0.dev0.py310 -f containers/pytorch/training/gpu/2.1/transformers/4.38.0.dev0/py310/Dockerfile .
+export GITHUB_TOKEN=your-github-token
+docker build --secret id=GITHUB_TOKEN,env=GITHUB_TOKEN -t pytorch-training-gpu.2.1.transformers.4.38.0.dev0.py310 -f containers/pytorch/training/gpu/2.1/transformers/4.38.0.dev0/py310/Dockerfile .
 ```
 
 For setting the value of `GITHUB_TOKEN` please follow the detailed instructions mentioned in the following links: 

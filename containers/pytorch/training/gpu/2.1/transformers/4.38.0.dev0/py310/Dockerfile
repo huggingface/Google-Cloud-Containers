@@ -6,9 +6,6 @@ LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
-
-#Mandatory GitHub token to access the private repository, read more about it here: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
-ARG GITHUB_TOKEN
 ARG FLASH_ATTN='2.5.2'
 ARG TRANSFORMERS='4.37.2'
 ARG DIFFUSERS='0.26.1'
@@ -66,7 +63,8 @@ RUN pip install --upgrade --no-cache-dir \
   bitsandbytes==${BITSANDBYTES}
 
 # To install version that has golden-gate integrated into transformers
-RUN pip install git+https://${GITHUB_TOKEN}@github.com/huggingface/new-model-addition-golden-gate.git@add-golden-gate
+#Mandatory GitHub token to access the private repository, read more about it here: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+RUN --mount=type=secret,id=GITHUB_TOKEN pip install git+https://$(cat /run/secrets/GITHUB_TOKEN)@github.com/huggingface/new-model-addition-golden-gate.git@add-golden-gate
 
 # Install Google Cloud Dependencies
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
