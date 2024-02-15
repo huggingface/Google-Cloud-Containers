@@ -36,7 +36,6 @@ RUN apt-get update \
 # Update pip
 RUN pip install --upgrade pip
 
-
 # Install Hugging Face Libraries
 RUN pip install --upgrade --no-cache-dir \
   transformers[sklearn,sentencepiece,vision]==${TRANSFORMERS} \
