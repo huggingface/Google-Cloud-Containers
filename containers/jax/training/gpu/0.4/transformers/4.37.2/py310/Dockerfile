@@ -5,15 +5,15 @@ LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
-
-#JAX Compatible with CUDA 12.2 
-ARG JAX='0.4.23' 
-ARG FLAX='0.8.1'
+ARG CUDA="12"
+ARG CUDNN="89"
 ARG TRANSFORMERS='4.37.2'
 ARG DIFFUSERS='0.26.1'
 ARG DATASETS='2.16.1'
-ARG SENTENCEPIECE='0.1.99'
-
+# jax and flax compatible with transformers ["jax>=0.4.1,<=0.4.13", "jaxlib>=0.4.1,<=0.4.13", "flax>=0.4.1,<=0.7.0"] as mentioned in setup.py
+ARG JAX='0.4.13'
+ARG JAXLIB='0.4.13'
+ARG FLAX='0.7.0'
 
 RUN apt-get update \
     && apt-get install -y \
@@ -31,28 +31,22 @@ RUN apt-get update \
     apt-transport-https \
     gnupg \
     ca-certificates \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt install -y python3.10 python3.10-distutils python-is-python3 \
+    && curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
     && apt-get clean autoremove --yes 
 
-
-# Install python 3.10, pip and set default python version
-RUN apt-get install -y software-properties-common && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt install -y python3.10 python3.10-distutils python-is-python3 && \
-    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1 && \
+# Set Python 3.10 as the default python version and upgrade pip
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1 && \
     pip install --no-cache-dir --upgrade pip
 
-#Install Hugging Face Libraries
+#Install Hugging Face Libraries and JAXLIB with CUDA support
 RUN pip install --upgrade --no-cache-dir \
-  transformers==${TRANSFORMERS} \
+  transformers[flax,sentencepiece]==${TRANSFORMERS} \
   diffusers==${DIFFUSERS} \
   datasets==${DATASETS} \
-  sentencepiece==${SENTENCEPIECE}
-
-# Install JAX and Flax
-RUN \
-    pip install --upgrade jax==${JAX} jaxlib==${JAX}+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html && \
-    pip install --upgrade --no-cache-dir flax==${FLAX}
+  jaxlib==${JAX}+cuda${CUDA}.cudnn${CUDNN} -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
 # Install Google Cloud Dependencies
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
@@ -69,8 +63,7 @@ RUN pip install --upgrade --no-cache-dir \
   google-cloud-pubsub \
   google-cloud-logging
 
-
 #Check if correct versions are installed
-RUN python -c "import transformers, diffusers, datasets, sentencepiece, jax, flax; \
+RUN python -c "import transformers, diffusers, datasets, sentencepiece, jax, jaxlib, flax; \
                 assert all([mod.__version__ == version for mod, version in [(transformers, '${TRANSFORMERS}'), (diffusers, '${DIFFUSERS}'), \
-                (datasets, '${DATASETS}'), (sentencepiece, '${SENTENCEPIECE}'), (jax, '${JAX}'), (flax, '${FLAX}')]])" 
+                (datasets, '${DATASETS}'), (jax, '${JAX}'), (jaxlib, '${JAXLIB}'), (flax, '${FLAX}')]])"
