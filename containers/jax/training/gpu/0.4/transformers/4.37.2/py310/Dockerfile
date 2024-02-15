@@ -11,9 +11,7 @@ ARG TRANSFORMERS='4.37.2'
 ARG DIFFUSERS='0.26.1'
 ARG DATASETS='2.16.1'
 # jax and flax compatible with transformers ["jax>=0.4.1,<=0.4.13", "jaxlib>=0.4.1,<=0.4.13", "flax>=0.4.1,<=0.7.0"] as mentioned in setup.py
-ARG JAX='0.4.13'
 ARG JAXLIB='0.4.13'
-ARG FLAX='0.7.0'
 
 RUN apt-get update \
     && apt-get install -y \
@@ -66,4 +64,4 @@ RUN pip install --upgrade --no-cache-dir \
 #Check if correct versions are installed
 RUN python -c "import transformers, diffusers, datasets, sentencepiece, jax, jaxlib, flax; \
                 assert all([mod.__version__ == version for mod, version in [(transformers, '${TRANSFORMERS}'), (diffusers, '${DIFFUSERS}'), \
-                (datasets, '${DATASETS}'), (jax, '${JAX}'), (jaxlib, '${JAXLIB}'), (flax, '${FLAX}')]])"
+                (datasets, '${DATASETS}'), (jax, '0.4.13'), (jaxlib, '${JAXLIB}'), (flax, '0.7.0')]])"
