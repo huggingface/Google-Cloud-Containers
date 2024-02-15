@@ -44,7 +44,7 @@ RUN pip install --upgrade --no-cache-dir \
   transformers[flax,sentencepiece]==${TRANSFORMERS} \
   diffusers==${DIFFUSERS} \
   datasets==${DATASETS} \
-  jaxlib==${JAX}+cuda${CUDA}.cudnn${CUDNN} -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+  jaxlib==${JAXLIB}+cuda${CUDA}.cudnn${CUDNN} -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
 # Install Google Cloud Dependencies
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
