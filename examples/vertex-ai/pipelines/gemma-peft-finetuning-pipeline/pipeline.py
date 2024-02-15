@@ -3,9 +3,11 @@ from kfp.dsl import Output, Dataset, Input, Model
 from kfp import compiler
 import google.cloud.aiplatform as aip
 import argparse
+import os
 
-@dsl.component(base_image="python:3.10",
-              packages_to_install=["datasets==2.17.0"],
+# ToDo: Add the correct base_image
+@dsl.component(base_image="us-central1-docker.pkg.dev/xxxx/deep-learning-images/huggingface-pytorch-training-gpu.2.1.transformers.4.37.2.py310:latest",
+              packages_to_install=[],
               output_component_file=None)
 def download_dataset(dataset_id: str, 
                      raw_train_dataset_artifact: Output[Dataset],
@@ -18,9 +20,9 @@ def download_dataset(dataset_id: str,
     dataset["validation"].save_to_disk(raw_val_dataset_artifact.path)
     dataset["test"].save_to_disk(raw_test_dataset_artifact.path)
 
-
-@dsl.component(base_image="python:3.10",
-                packages_to_install=["datasets==2.17.0", "transformers==4.37.2"],
+# ToDo: Add the correct base_image
+@dsl.component(base_image="us-central1-docker.pkg.dev/xxxx/deep-learning-images/huggingface-pytorch-training-gpu.2.1.transformers.4.37.2.py310:latest",
+                packages_to_install=[],
                 output_component_file=None)
 def preprocess_dataset(
     raw_train_dataset_artifact: Input[Dataset],
@@ -50,25 +52,31 @@ def preprocess_dataset(
     
     raw_train_dataset = load_from_disk(raw_train_dataset_artifact.path)
     raw_validation_dataset = load_from_disk(raw_val_dataset_artifact.path)
+    
+    ## Check if the dataset has the columns that format_data function expects
+    expected_column_names = ["question", "answer", "references"]
+    for column_name in expected_column_names:
+        if column_name not in raw_train_dataset.column_names:
+            raise ValueError(f"Column {column_name} not found in the dataset, please write your own format_data function to handle the dataset.")
+    
     format_train_dataset = raw_train_dataset.map(format_data, remove_columns=list(raw_train_dataset.features))
     format_validation_dataset = raw_validation_dataset.map(format_data, remove_columns=list(raw_validation_dataset.features))
     
-    tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True, add_eos_token=True,)
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
     tokenizer.pad_token = tokenizer.eos_token
-    tokenized_train_dataset = format_train_dataset.map(lambda example: tokenizer(example["text"], padding="max_length", truncation=True, max_length=1024), batched=True, remove_columns=format_train_dataset.features)
-    tokenized_validation_dataset = format_validation_dataset.map(lambda example: tokenizer(example["text"], padding="max_length", truncation=True, max_length=1024), batched=True, remove_columns=format_validation_dataset.features)
+    tokenized_train_dataset = format_train_dataset.map(lambda example: tokenizer(example["text"], padding="max_length", truncation=True), batched=True, remove_columns=format_train_dataset.features)
+    tokenized_validation_dataset = format_validation_dataset.map(lambda example: tokenizer(example["text"], padding="max_length", truncation=True), batched=True, remove_columns=format_validation_dataset.features)
     
     tokenized_train_dataset.save_to_disk(processed_train_dataset_artifact.path)
     tokenized_validation_dataset.save_to_disk(processed_val_dataset_artifact.path)
 
 # ToDo: Add the correct base_image
-@dsl.component(base_image="us-central1-docker.pkg.dev/xxx/deep-learning-images/huggingface-pytorch-training-gpu.2.1.transformers.4.37.2.py310:latest")
+@dsl.component(base_image="us-central1-docker.pkg.dev/xxxxx/deep-learning-images/huggingface-pytorch-training-gpu.2.1.transformers.4.37.2.py310:latest")
 def train_model(model_id: str, 
                 processed_train_data_artifact: Input[Dataset], 
                 processed_val_data_artifact: Input[Dataset],
                 output_model_artifact: Output[Model],
-                warmup_steps: int,
-                max_steps: int, 
+                epochs: int,
                 learning_rate: float,
                 train_batch_size: int,
                 eval_batch_size: int,
@@ -76,12 +84,9 @@ def train_model(model_id: str,
                 fp16: bool,
                 gradient_checkpointing: bool,
                 weight_decay: float,
-                logging_steps: int,
                 logging_strategy: str,
                 save_strategy: str,
-                save_steps: int,
                 eval_strategy: str,
-                eval_steps: int,
                 optimizer: str,
                 peft_lora_rank: int,
                 peft_lora_alpha: int,
@@ -97,7 +102,7 @@ def train_model(model_id: str,
     train_dataset = load_from_disk(processed_train_data_artifact.path)
     eval_dataset = load_from_disk(processed_val_data_artifact.path)
     
-    tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
     tokenizer.pad_token = tokenizer.eos_token
     data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False)
     bnb_config=BitsAndBytesConfig(
@@ -108,10 +113,12 @@ def train_model(model_id: str,
         llm_int8_enable_fp32_cpu_offload=True,
     )
 
-    model = AutoModelForCausalLM.from_pretrained(model_id, device_map='auto', quantization_config=bnb_config, torch_dtype=torch.float16)
+    model = AutoModelForCausalLM.from_pretrained(model_id, 
+                                                 device_map='auto', 
+                                                 quantization_config=bnb_config,
+                                                 use_cache=False, 
+                                                 torch_dtype=torch.float16)
     
-    #gradient checkpointing to save memory
-    model.gradient_checkpointing_enable()
     # Freeze base model layers and cast layernorm in fp32
     model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=gradient_checkpointing)
     
@@ -119,9 +126,7 @@ def train_model(model_id: str,
         r=peft_lora_rank,
         lora_alpha=peft_lora_alpha,
         target_modules=[
-            'q_proj',
-            'k_proj',
-            'v_proj',
+            'q-proj', 'v-proj', 'k-proj'
         ],
         bias="none",
         lora_dropout=peft_lora_dropout,
@@ -132,27 +137,20 @@ def train_model(model_id: str,
     training_args=TrainingArguments(
         output_dir=output_model_artifact.path,
         overwrite_output_dir=True,
+        num_train_epochs=epochs,
         per_device_train_batch_size=train_batch_size,
         per_device_eval_batch_size=eval_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
-        gradient_checkpointing=True,  # Enable gradient checkpointing
-        gradient_checkpointing_kwargs={"use_reentrant": False},
-        warmup_steps=warmup_steps,
-        max_steps=max_steps, # Total number of training steps
-        learning_rate=learning_rate, # Learning rate
-        weight_decay=weight_decay, # Weight decay
-        optim=optimizer, # Keep the optimizer state and quantize it
-        fp16=fp16, # use fp16 16bit(mixed) precision training instead of 32-bit training.
+        gradient_checkpointing=gradient_checkpointing, 
+        learning_rate=learning_rate,
+        weight_decay=weight_decay, 
+        optim=optimizer, 
+        fp16=fp16,
         logging_strategy=logging_strategy,
-        logging_steps=logging_steps,
         save_strategy=save_strategy,
-        save_steps=save_steps,
         evaluation_strategy=eval_strategy,
-        eval_steps=eval_steps,
         load_best_model_at_end=True,
     )
-
-    peft_model.config.use_cache=False
 
     peft_trainer=Trainer(
         model=peft_model,
@@ -167,8 +165,7 @@ def train_model(model_id: str,
 def finetuning_pipeline(
     dataset_id: str,
     model_id: str, 
-    warmup_steps: int,
-    max_steps: int, 
+    epochs: int,
     learning_rate: float,
     train_batch_size: int,
     eval_batch_size: int,
@@ -176,12 +173,9 @@ def finetuning_pipeline(
     fp16: bool,
     gradient_checkpointing: bool,
     weight_decay: float,
-    logging_steps: int,
     logging_strategy: str,
     save_strategy: str,
-    save_steps: int,
     eval_strategy: str,
-    eval_steps: int,
     optimizer: str,
     peft_lora_rank: int,
     peft_lora_alpha: int,
@@ -193,9 +187,8 @@ def finetuning_pipeline(
                                         model_id=model_id).set_display_name("Preprocess Dataset")
     TrainTask = (train_model(model_id=model_id,
                             processed_train_data_artifact=PreprocessTask.outputs["processed_train_dataset_artifact"],
-                            processed_val_data_artifact=PreprocessTask.outputs["processed_val_dataset_artifact"], 
-                            warmup_steps=warmup_steps,
-                            max_steps=max_steps,
+                            processed_val_data_artifact=PreprocessTask.outputs["processed_val_dataset_artifact"],
+                            epochs=epochs, 
                             learning_rate=learning_rate,
                             train_batch_size=train_batch_size,
                             eval_batch_size=eval_batch_size,
@@ -203,12 +196,9 @@ def finetuning_pipeline(
                             fp16=fp16,
                             gradient_checkpointing=gradient_checkpointing,
                             weight_decay=weight_decay,
-                            logging_steps=logging_steps,
                             logging_strategy=logging_strategy,
                             save_strategy=save_strategy,
-                            save_steps=save_steps,
                             eval_strategy=eval_strategy,
-                            eval_steps=eval_steps,
                             optimizer=optimizer,
                             peft_lora_rank=peft_lora_rank,
                             peft_lora_alpha=peft_lora_alpha,
@@ -221,55 +211,56 @@ def finetuning_pipeline(
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run the pipeline")
-    parser.add_argument("--project_id", type=str, default="gcp-xxxx", help="The project id to use for the pipeline")
-    parser.add_argument("--location", type=str, default="us-central1", help="The location to use for the pipeline")
-    parser.add_argument("--vertex_sa", type=str, default="xxxx-xxx@developer.gserviceaccount.com")
-    parser.add_argument("--dataset_id", type=str, default="THUDM/webglm-qa", help="The dataset id to use for the pipeline")
-    parser.add_argument("--model_id", type=str, default="gemma-2b", help="The model id to use for the pipeline") #ToDo: Change and test with Gemma when launched
-    parser.add_argument("--warmup_steps", type=int, default=50, help="The warmup steps for the pipeline")
-    parser.add_argument("--max_steps", type=int, default=100, help="The max steps for the pipeline")
-    parser.add_argument("--learning_rate", type=float, default=5e-5, help="The learning rate for the pipeline")
-    parser.add_argument("--train_batch_size", type=int, default=2, help="The train batch size for the pipeline")
-    parser.add_argument("--eval_batch_size", type=int, default=2, help="The eval batch size for the pipeline")
-    parser.add_argument("--gradient_accumulation_steps", type=int, default=5, help="The gradient accumulation steps for the pipeline")
-    parser.add_argument("--fp16", type=bool, default=True, help="The fp16 for the pipeline")
-    parser.add_argument("--weight_decay", type=float, default=0.01, help="The weight decay for the pipeline")
-    parser.add_argument("--logging_steps", type=int, default=10, help="The logging steps for the pipeline")
-    parser.add_argument("--logging_strategy", type=str, default="steps", help="The logging strategy for the pipeline")
-    parser.add_argument("--save_strategy", type=str, default="steps", help="The save strategy for the pipeline")
-    parser.add_argument("--save_steps", type=int, default=100, help="The save steps for the pipeline")
-    parser.add_argument("--eval_strategy", type=str, default="steps", help="The eval strategy for the pipeline")
-    parser.add_argument("--eval_steps", type=int, default=50, help="The eval steps for the pipeline")
-    parser.add_argument("--optimizer", type=str, default="paged_adamw_8bit", help="The optimizer for the pipeline")
-    parser.add_argument("--gradient_checkpointing", type=bool, default=True, help="The gradient checkpointing for the pipeline")
-    parser.add_argument("--peft_lora_rank", type=int, default=16, help="The peft lora rank for the pipeline")
-    parser.add_argument("--peft_lora_alpha", type=int, default=32, help="The peft lora alpha for the pipeline")
-    parser.add_argument("--peft_lora_dropout", type=float, default=0.05, help="The peft lora dropout for the pipeline")
-    
+    parser.add_argument("--project_id", type=str, default="xxx", help="The project id to use for training the model")
+    parser.add_argument("--location", type=str, default="us-central1", help="The location to use for training the model")
+    parser.add_argument("--vertex_sa", type=str, default="xxxxx", help="The service account to use for training the model")
+    parser.add_argument("--compile", action="store_true", help="Whether to compile the pipeline")
+    parser.add_argument("--run", action="store_true", help="Whether to run the pipeline")
+    parser.add_argument("--compile_pipeline_path", type=str, default="finetuning_pipeline.yaml", help="The path to save the compiled pipeline to")
+    parser.add_argument("--dataset_id", type=str, default="THUDM/webglm-qa", help="The dataset id to use for training the model")
+    parser.add_argument("--model_id", type=str, default="gemma-2b", help="The model id to use for training") #ToDo: Change and test with Gemma when launched
+    parser.add_argument("--epochs", type=int, default=3, help="Number of epochs to train the model for")
+    parser.add_argument("--learning_rate", type=float, default=5e-5)
+    parser.add_argument("--train_batch_size", type=int, default=2, help="The batch size for training")
+    parser.add_argument("--eval_batch_size", type=int, default=2, help="The batch size for evaluation")
+    parser.add_argument("--gradient_accumulation_steps", type=int, default=5, help="Number of updates steps to accumulate the gradients for, before performing a backward/update pass.")
+    parser.add_argument("--fp16", type=bool, default=True, help=" Whether to use fp16 16-bit (mixed) precision training instead of 32-bit training.")
+    parser.add_argument("--weight_decay", type=float, default=0.01, help="The weight decay for training the model")
+    parser.add_argument("--logging_strategy", type=str, default="epochs", help="The logging strategy to adopt during training")
+    parser.add_argument("--save_strategy", type=str, default="epochs", help="The checkpoint save strategy to adopt during training.")
+    parser.add_argument("--eval_strategy", type=str, default="epochs", help="The evaluation strategy to adopt during training")
+    parser.add_argument("--optimizer", type=str, default="paged_adamw_8bit", help="Optimizer to use for training")
+    parser.add_argument("--gradient_checkpointing", type=bool, default=True, help="Whether to use gradient checkpointing for training the model")
+    parser.add_argument("--peft_lora_rank", type=int, default=16, help=" Lora attention dimension aka the rank.")
+    parser.add_argument("--peft_lora_alpha", type=int, default=32, help="The alpha parameter for Lora scaling.")
+    parser.add_argument("--peft_lora_dropout", type=float, default=0.05, help="the dropout probability for Lora layers.")    
     return parser.parse_args()
 
 def main():
-    
     args = parse_args()
-    
-    aip.init(project=args.project_id, location=args.location)
-    
-    # Compile Pipeline
-    compiler.Compiler().compile(
-        pipeline_func=finetuning_pipeline,
-        package_path=f"gs://{args.project_id}-vertex-ai-pipeline/finetuning_pipeline.yaml",
-        pipeline_parameters=vars(args),
-    )
+    if args.compile:
+        excluded_args = ['project_id', 'location', 'vertex_sa', 'compile', 'run', 'compile_pipeline_path']
+        pipeline_parameters = {key: value for key, value in vars(args).items() if key not in excluded_args}
+        
+        # Compile Pipeline
+        compiler.Compiler().compile(
+            pipeline_func=finetuning_pipeline,
+            package_path=args.compile_pipeline_path,
+            pipeline_parameters=pipeline_parameters,
+        )
 
-    # Define and Run Pipeline
-    job = aip.PipelineJob(
-    display_name="Finetuning-Gemma-CLM",
-    template_path=f"gs://{args.project_id}-vertex-ai-pipeline/finetuning_pipeline.yaml",
-    pipeline_root=f"gs://{args.project_id}-vertex-ai-pipeline",
-    enable_caching=True,
-    )
+    if args.run:
+        # Define and Run Pipeline
+        if not os.path.exists(args.compile_pipeline_path):
+            raise ValueError(f"You must compile the pipeline before running it.")
+        job = aip.PipelineJob(
+        display_name="Finetuning-Gemma-CLM",
+        template_path=args.compile_pipeline_path,
+        pipeline_root=f"gs://{args.project_id}-vertex-pipelines-{args.location}",
+        enable_caching=True,
+        )
 
-    job.run(args.vertex_sa)
+        job.run(service_account=args.vertex_sa)
 
 if __name__ == "__main__":
     main()
