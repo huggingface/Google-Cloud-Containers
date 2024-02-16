@@ -126,7 +126,7 @@ def train_model(model_id: str,
         r=peft_lora_rank,
         lora_alpha=peft_lora_alpha,
         target_modules=[
-            'q-proj', 'v-proj', 'k-proj'
+            'q_proj', 'v_proj', 'k_proj'
         ],
         bias="none",
         lora_dropout=peft_lora_dropout,
@@ -227,9 +227,9 @@ def parse_args():
     parser.add_argument("--gradient_accumulation_steps", type=int, default=5, help="Number of updates steps to accumulate the gradients for, before performing a backward/update pass.")
     parser.add_argument("--fp16", type=bool, default=True, help=" Whether to use fp16 16-bit (mixed) precision training instead of 32-bit training.")
     parser.add_argument("--weight_decay", type=float, default=0.01, help="The weight decay for training the model")
-    parser.add_argument("--logging_strategy", type=str, default="epochs", help="The logging strategy to adopt during training")
-    parser.add_argument("--save_strategy", type=str, default="epochs", help="The checkpoint save strategy to adopt during training.")
-    parser.add_argument("--eval_strategy", type=str, default="epochs", help="The evaluation strategy to adopt during training")
+    parser.add_argument("--logging_strategy", type=str, default="epoch", help="The logging strategy to adopt during training")
+    parser.add_argument("--save_strategy", type=str, default="epoch", help="The checkpoint save strategy to adopt during training.")
+    parser.add_argument("--eval_strategy", type=str, default="epoch", help="The evaluation strategy to adopt during training")
     parser.add_argument("--optimizer", type=str, default="paged_adamw_8bit", help="Optimizer to use for training")
     parser.add_argument("--gradient_checkpointing", type=bool, default=True, help="Whether to use gradient checkpointing for training the model")
     parser.add_argument("--peft_lora_rank", type=int, default=16, help=" Lora attention dimension aka the rank.")
