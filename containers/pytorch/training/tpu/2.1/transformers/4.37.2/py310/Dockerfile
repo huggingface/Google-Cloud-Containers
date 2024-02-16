@@ -14,6 +14,7 @@ ARG DATASETS='2.16.1'
 ARG ACCELERATE='0.27.0'
 ARG EVALUATE='0.4.1'
 ARG SENTENCE_TRANSFORMERS='2.3.1'
+ARG NOTEBOOK='7.1.0'
 
 RUN apt-get update \
     && apt-get install -y \
@@ -45,7 +46,8 @@ RUN pip install --upgrade --no-cache-dir \
   evaluate==${EVALUATE} \
   peft==${PEFT} \
   trl==${TRL} \
-  sentence-transformers==${SENTENCE_TRANSFORMERS} 
+  sentence-transformers==${SENTENCE_TRANSFORMERS} \
+  notebook==${NOTEBOOK}
 
 #Install Google Cloud Dependencies
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
