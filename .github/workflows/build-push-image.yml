@@ -1,0 +1,91 @@
+name: Build and Push to GCP Artifact Registry
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'containers/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'containers/**'
+
+env: 
+    REGION: us-central1
+    ARTIFACT_REGISTRY_REPOSITORY: deeplearning-platform-release
+    PROJECT_ID: ${{ secrets.PROJECT_ID }}
+
+
+jobs:
+    build-push-image:
+      name: Build and Push Docker Image to GCP Artifact Registry
+      runs-on: ubuntu-latest
+      permissions:
+        contents: 'read'
+        id-token: 'write'
+    
+      steps:
+        - id: 'checkout'
+          name: 'Checkout'
+          uses: 'actions/checkout@v4'
+        
+        - id: 'auth'
+          name: 'Authenticate with Google Cloud'
+          uses: 'google-github-actions/auth@v2.1.1'
+          with:
+            project_id: ${{ secrets.PROJECT_ID }}
+            workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+            service_account: ${{ secrets.SERVICE_ACCOUNT }}
+            token_format: 'access_token'
+            create_credentials_file: 'true'
+        
+        - id: 'setup-gcloud'
+          name: 'Set up Cloud SDK'
+          uses: 'google-github-actions/setup-gcloud@v2.1.0'
+            
+        - id: 'docker-login'
+          name: 'Docker Login to Artifact Registry'
+          run: |
+            docker login -u oauth2accesstoken -p ${{ steps.auth.outputs.access_token }} https://${REGION}-docker.pkg.dev
+        
+        - id: 'build-image'
+          name: 'Build Docker Image'
+          working-directory: './containers'
+          run: |
+            # Find all Dockerfiles in the repository
+            all_dockerfiles=$(find . -type f -name 'Dockerfile'  -type f)
+
+            # Iterate over each Dockerfile
+            for dockerfile in $all_dockerfiles; do
+              echo "Building image for $dockerfile"              
+              if [[ "$dockerfile" == *"tgi"* ]]; then
+                accelerator=$(echo $dockerfile | cut -d'/' -f3)
+                version=$(echo $dockerfile | cut -d'/' -f4)
+                tag="$REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_REPOSITORY/huggingface-text-generation-inference-${accelerator}.${version}:${GITHUB_SHA}"
+              elif [[ "$dockerfile" == *"tgi"* ]]; then
+                accelerator=$(echo $dockerfile | cut -d'/' -f3)
+                version=$(echo $dockerfile | cut -d'/' -f4)
+                tag="$REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_REPOSITORY/huggingface-text-embedding-inference-${accelerator}.${version}:${GITHUB_SHA}"
+              else
+                framework=$(echo $dockerfile | cut -d'/' -f2)
+                type=$(echo $dockerfile | cut -d'/' -f3)
+                accelerator=$(echo $dockerfile | cut -d'/' -f4)
+                framework_version=$(echo $dockerfile | cut -d'/' -f5)
+                transformers_version=$(echo $dockerfile | cut -d'/' -f7)
+                python_version=$(echo $dockerfile | cut -d'/' -f8)
+                tag="$REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_REPOSITORY/huggingface-${framework}-${type}-${accelerator}.${framework_version}.transformers.${transformers_version}.${python_version}:${GITHUB_SHA}"
+              fi
+              docker build -t tag -f $dockerfile .
+        - id: 'push-image'
+          name: 'Push Docker Image'
+          run : |
+            # get all images that contains us-central1-docker.pkg.dev
+            all_images=$(docker images | grep $REGION-docker.pkg.dev | awk '{print $1 ":" $2}')
+            # Iterate over each image
+            for image in $all_images; do
+              echo "Pushing image $image"
+              docker push $image
+            done
+
