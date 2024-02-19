@@ -39,6 +39,7 @@ jobs:
             workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
             service_account: ${{ secrets.SERVICE_ACCOUNT }}
             token_format: 'access_token'
+            access_token_lifetime: '3600s' # default value
             create_credentials_file: 'true'
         
         - id: 'setup-gcloud'
@@ -63,11 +64,11 @@ jobs:
               if [[ "$dockerfile" == *"tgi"* ]]; then
                 accelerator=$(echo $dockerfile | cut -d'/' -f3)
                 version=$(echo $dockerfile | cut -d'/' -f4)
-                tag="$REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_REPOSITORY/huggingface-text-generation-inference-${accelerator}.${version}:${GITHUB_SHA}"
+                tag="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REGISTRY_REPOSITORY}/huggingface-text-generation-inference-${accelerator}.${version}:${GITHUB_SHA}"
               elif [[ "$dockerfile" == *"tgi"* ]]; then
                 accelerator=$(echo $dockerfile | cut -d'/' -f3)
                 version=$(echo $dockerfile | cut -d'/' -f4)
-                tag="$REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_REPOSITORY/huggingface-text-embedding-inference-${accelerator}.${version}:${GITHUB_SHA}"
+                tag="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REGISTRY_REPOSITORY}/huggingface-text-embedding-inference-${accelerator}.${version}:${GITHUB_SHA}"
               else
                 framework=$(echo $dockerfile | cut -d'/' -f2)
                 type=$(echo $dockerfile | cut -d'/' -f3)
@@ -75,14 +76,14 @@ jobs:
                 framework_version=$(echo $dockerfile | cut -d'/' -f5)
                 transformers_version=$(echo $dockerfile | cut -d'/' -f7)
                 python_version=$(echo $dockerfile | cut -d'/' -f8)
-                tag="$REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_REPOSITORY/huggingface-${framework}-${type}-${accelerator}.${framework_version}.transformers.${transformers_version}.${python_version}:${GITHUB_SHA}"
+                tag="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REGISTRY_REPOSITORY}/huggingface-${framework}-${type}-${accelerator}.${framework_version}.transformers.${transformers_version}.${python_version}:${GITHUB_SHA}"
               fi
-              docker build -t tag -f $dockerfile .
+              docker build -t $tag -f $dockerfile .
         - id: 'push-image'
           name: 'Push Docker Image'
           run : |
             # get all images that contains us-central1-docker.pkg.dev
-            all_images=$(docker images | grep $REGION-docker.pkg.dev | awk '{print $1 ":" $2}')
+            all_images=$(docker images | grep ${REGION}-docker.pkg.dev | awk '{print $1 ":" $2}')
             # Iterate over each image
             for image in $all_images; do
               echo "Pushing image $image"
