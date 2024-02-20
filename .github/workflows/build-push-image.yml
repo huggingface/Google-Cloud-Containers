@@ -30,7 +30,7 @@ on:
 jobs:
     build-push-image-job:
       name: Build and Push Docker Image to GCP Artifact Registry
-      runs-on: ubuntu-latest
+      runs-on:  [intel-cpu, 8-cpu, ci]
       steps:
         - id: 'auth'
           name: 'Authenticate with Google Cloud'
