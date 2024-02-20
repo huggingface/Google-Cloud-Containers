@@ -1,0 +1,61 @@
+name: Build and Push to GCP Artifact Registry Resuable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      region:
+        description: 'Region where the Artifact Registry is located'
+        type: string
+        required: true
+      dockerfile_path:
+        description: 'Path to the Dockerfile'
+        type: string
+        required: true
+      docker_image_tag: # It should be in the form as mentioned in our internal docs. Just pass insensitive data here like huggingface-text-generation-inference-${accelerator}.${version}:latest
+        description: 'Docker Image Tag'
+        type: string
+        required: true
+      gcp_artifact_registry_repository:
+        description: 'GCP Artifact Registry Repository'
+        type: string
+        required: true
+    secrets:
+      GCP_SERVICE_ACCOUNT_JSON_KEY:
+        description: 'Service Account'
+        required: true
+      GCP_PROJECT_ID:
+        description: 'GCP Project ID'
+        required: true
+
+jobs:
+    build-push-image-job:
+      name: Build and Push Docker Image to GCP Artifact Registry
+      runs-on:  [intel-cpu, 8-cpu, ci]
+      steps:
+        - id: 'auth'
+          name: 'Authenticate with Google Cloud'
+          uses: 'google-github-actions/auth@v2.1.1'
+          with:
+            credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
+        
+        - id: 'setup-buildx'
+          name: 'Set up Docker Buildx'
+          uses: 'docker/setup-buildx-action@v3.0.0'
+        
+        - id: 'docker-login'
+          name: 'Docker Login'
+          uses: 'docker/login-action@v3.0.0'
+          with:
+            registry: ${{ inputs.region }}-docker.pkg.dev
+            username: _json_key
+            password: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
+        
+        - id: 'build-and-push'
+          name: 'Build and Push Docker Image'
+          uses: 'docker/build-push-action@v5.1.0'
+          with:
+            file: ${{ inputs.dockerfile_path }} # Read more about it here: https://github.com/marketplace/actions/build-and-push-docker-images#customizing
+            tags: ${{ inputs.region }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ inputs.gcp_artifact_registry_repository }}/${{ inputs.docker_image_tag }}
+            push: true
+
+          
