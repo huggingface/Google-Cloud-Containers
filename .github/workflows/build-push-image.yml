@@ -62,7 +62,6 @@ jobs:
           name: 'Build and Push Docker Image'
           uses: 'docker/build-push-action@v5.1.0'
           with:
-            context: .
             file: ${{ inputs.dockerfile_path }} # Read more about it here: https://github.com/marketplace/actions/build-and-push-docker-images#customizing
             tags: ${{ inputs.region }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ inputs.gcp_artifact_registry_repository }}/${{ inputs.docker_image_tag }}
             push: true
