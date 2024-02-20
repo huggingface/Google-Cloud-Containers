@@ -239,7 +239,8 @@ RUN cd server && \
   pip install ".[bnb, accelerate, quantize, peft]" --no-cache-dir
 
 # Build transformers from source with Gemma
-COPY new-model-addition-golden-gate-add-golden-gate /tgi/new-model-addition-golden-gate-add-golden-gate
+WORKDIR /tgi
+RUN git clone -b add-golden-gate https://github.com/huggingface/new-model-addition-golden-gate/
 WORKDIR /tgi/new-model-addition-golden-gate-add-golden-gate
 RUN pip install -e .
 
