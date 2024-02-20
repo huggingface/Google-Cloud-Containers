@@ -36,8 +36,6 @@ jobs:
         id-token: 'write'
     
       steps:
-        - name: Delete unnecessary tools folder
-          run: rm -rf /opt/hostedtoolcache
         - id: 'auth'
           name: 'Authenticate with Google Cloud'
           uses: 'google-github-actions/auth@v2.1.1'
