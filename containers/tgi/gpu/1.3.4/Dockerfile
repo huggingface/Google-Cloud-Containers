@@ -8,14 +8,15 @@ RUN mkdir -p /tgi
 # TODO: remove below
 RUN apk update && apk upgrade && apk add git patch
 RUN git clone -b support-vertex-endpoint https://github.com/huggingface/text-generation-inference.git /tgi
-# Apply Golden Gate patch
-COPY containers/tgi/gpu/1.3.4/support-golden-gate.patch /tgi
-RUN patch -p1 -d /tgi < /tgi/support-golden-gate.patch
-############# END TODO ##############
+
+# Apply Gemma patch
+COPY containers/tgi/gpu/1.3.4/support-gemma.patch /tgi
+RUN patch -p1 -d /tgi < /tgi/support-gemma.patch
+# ############# END TODO ##############
 
 # Build cargo components (adapted from TGI original Dockerfile)
 # Note that the build image is aligned on the same Linux version as the base image (Debian bookworm/ Ubuntu 22.04)
-FROM lukemathwalker/cargo-chef:latest-rust-1.71-bookworm AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.75-bookworm AS chef
 WORKDIR /usr/src
 
 ARG CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
@@ -225,6 +226,9 @@ COPY --from=vllm-builder /usr/src/vllm/build/lib.linux-x86_64-cpython-310 /opt/c
 # Install flash-attention dependencies
 RUN pip install einops --no-cache-dir
 
+# Install GCS library
+RUN pip install --upgrade google-cloud-storage
+
 # Install server
 COPY --from=tgi /tgi/proto proto
 COPY --from=tgi /tgi/server server
@@ -233,6 +237,11 @@ RUN cd server && \
   make gen-server && \
   pip install -r requirements_cuda.txt && \
   pip install ".[bnb, accelerate, quantize, peft]" --no-cache-dir
+
+# Build transformers from source with Gemma
+COPY new-model-addition-golden-gate-add-golden-gate /tgi/new-model-addition-golden-gate-add-golden-gate
+WORKDIR /tgi/new-model-addition-golden-gate-add-golden-gate
+RUN pip install -e .
 
 # Install benchmarker
 COPY --from=builder /usr/src/target/release/text-generation-benchmark /usr/local/bin/text-generation-benchmark

@@ -1,3 +1,184 @@
+diff --git a/router/src/lib.rs b/router/src/lib.rs
+index 20bcbb2..87ef19c 100644
+--- a/router/src/lib.rs
++++ b/router/src/lib.rs
+@@ -55,7 +55,7 @@ pub struct HubTokenizerConfig {
+ }
+ 
+ impl HubTokenizerConfig {
+-    pub fn from_file(filename: &str) -> Self {
++    pub fn from_file(filename: &std::path::Path) -> Self {
+         let content = std::fs::read_to_string(filename).unwrap();
+         serde_json::from_str(&content).unwrap_or_default()
+     }
+diff --git a/router/src/main.rs b/router/src/main.rs
+index 5295631..4b8d504 100644
+--- a/router/src/main.rs
++++ b/router/src/main.rs
+@@ -154,12 +154,6 @@ async fn main() -> Result<(), RouterError> {
+     let local_path = Path::new(&tokenizer_name);
+     let local_model = local_path.exists() && local_path.is_dir();
+ 
+-    // Load tokenizer config
+-    // This will be used to format the chat template
+-    let local_tokenizer_config_path =
+-        tokenizer_config_path.unwrap_or("tokenizer_config.json".to_string());
+-    let local_tokenizer_config = Path::new(&local_tokenizer_config_path).exists();
+-
+     // Shared API builder initialization
+     let api_builder = || {
+         let mut builder = ApiBuilder::new()
+@@ -230,24 +224,35 @@ async fn main() -> Result<(), RouterError> {
+     };
+ 
+     // Load tokenizer config if found locally, or check if we can get it from the API if needed
+-    let tokenizer_config = if local_tokenizer_config {
++    let tokenizer_config = if let Some(path) = tokenizer_config_path {
++        tracing::info!("Using local tokenizer config from user specified path");
++        HubTokenizerConfig::from_file(&std::path::PathBuf::from(path))
++    } else if local_model {
+         tracing::info!("Using local tokenizer config");
+-        HubTokenizerConfig::from_file(&local_tokenizer_config_path)
+-    } else if let Some(api) = api {
+-        tracing::info!("Using the Hugging Face API to retrieve tokenizer config");
+-        get_tokenizer_config(&api.repo(Repo::with_revision(
+-            tokenizer_name.to_string(),
+-            RepoType::Model,
+-            revision.unwrap_or_else(|| "main".to_string()),
+-        )))
+-        .await
+-        .unwrap_or_else(|| {
+-            tracing::warn!("Could not retrieve tokenizer config from the Hugging Face hub.");
+-            HubTokenizerConfig::default()
+-        })
++        HubTokenizerConfig::from_file(&local_path.join("tokenizer_config.json"))
+     } else {
+-        tracing::warn!("Could not find tokenizer config locally and no revision specified");
+-        HubTokenizerConfig::default()
++        match api {
++            Some(api) => {
++                tracing::info!("Using the Hugging Face API to retrieve tokenizer config");
++                let repo = Repo::with_revision(
++                    tokenizer_name.to_string(),
++                    RepoType::Model,
++                    revision.unwrap_or("main".to_string()),
++                );
++                get_tokenizer_config(&api.repo(repo))
++                    .await
++                    .unwrap_or_else(|| {
++                        tracing::warn!(
++                            "Could not retrieve tokenizer config from the Hugging Face hub."
++                        );
++                        HubTokenizerConfig::default()
++                    })
++            }
++            None => {
++                tracing::warn!("Could not find tokenizer config locally and no API specified");
++                HubTokenizerConfig::default()
++            }
++        }
+     };
+ 
+     if tokenizer.is_none() {
+diff --git a/launcher/src/main.rs b/launcher/src/main.rs
+index f0e4514..ad48227 100644
+--- a/launcher/src/main.rs
++++ b/launcher/src/main.rs
+@@ -762,7 +762,7 @@ enum LauncherError {
+     WebserverCannotStart,
+ }
+ 
+-fn download_convert_model(args: &Args, running: Arc<AtomicBool>) -> Result<(), LauncherError> {
++fn download_convert_model(args: &mut Args, running: Arc<AtomicBool>) -> Result<(), LauncherError> {
+     // Enter download tracing span
+     let _span = tracing::span!(tracing::Level::INFO, "download").entered();
+ 
+@@ -887,6 +887,9 @@ fn download_convert_model(args: &Args, running: Arc<AtomicBool>) -> Result<(), L
+         }
+         sleep(Duration::from_millis(100));
+     }
++    if args.model_id.starts_with("gs://") {
++       args.model_id = "/tmp/gcs_model/".to_string();
++    }
+     Ok(())
+ }
+ 
+@@ -1139,7 +1142,7 @@ fn terminate(process_name: &str, mut process: Child, timeout: Duration) -> io::R
+ 
+ fn main() -> Result<(), LauncherError> {
+     // Pattern match configuration
+-    let args: Args = Args::parse();
++    let mut args: Args = Args::parse();
+ 
+     // Filter events with LOG_LEVEL
+     let env_filter =
+@@ -1232,7 +1235,7 @@ fn main() -> Result<(), LauncherError> {
+     .expect("Error setting Ctrl-C handler");
+ 
+     // Download and convert model weights
+-    download_convert_model(&args, running.clone())?;
++    download_convert_model(&mut args, running.clone())?;
+ 
+     if !running.load(Ordering::SeqCst) {
+         // Launcher was asked to stop
+diff --git a/server/text_generation_server/server.py b/server/text_generation_server/server.py
+index d5adbd3..964068a 100644
+--- a/server/text_generation_server/server.py
++++ b/server/text_generation_server/server.py
+@@ -192,6 +192,8 @@ def serve(
+             local_url = unix_socket_template.format(uds_path, 0)
+             server_urls = [local_url]
+ 
++        if model_id.startswith("gs://"):
++           model_id = "/tmp/gcs_model"
+         try:
+             model = get_model(
+                 model_id,
+diff --git a/server/text_generation_server/cli.py b/server/text_generation_server/cli.py
+index 99be6c7..2246ec5 100644
+--- a/server/text_generation_server/cli.py
++++ b/server/text_generation_server/cli.py
+@@ -123,6 +123,32 @@ def download_weights(
+     # Import here after the logger is added to log potential import exceptions
+     from text_generation_server import utils
+ 
++    GCS_PREFIX = "gs://"
++    if model_id.startswith(GCS_PREFIX):
++        local_dir = "/tmp/gcs_model"
++        from google.cloud import storage
++        def download_gcs_dir_to_local(gcs_dir: str, local_dir: str):
++            if os.path.isdir(local_dir):
++                return
++            # gs://bucket_name/dir
++            bucket_name = gcs_dir.split('/')[2]
++            prefix = gcs_dir[len(GCS_PREFIX + bucket_name) :].strip('/') + '/'
++            client = storage.Client()
++            blobs = client.list_blobs(bucket_name, prefix=prefix)
++            if not blobs:
++                raise ValueError(f"No blobs found in {gcs_dir}")
++            for blob in blobs:
++                if blob.name[-1] == '/':
++                    continue
++                file_path = blob.name[len(prefix) :].strip('/')
++                local_file_path = os.path.join(local_dir, file_path)
++                os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
++                logger.info(f"==> Download {gcs_dir}/{file_path} to {local_file_path}.")
++                blob.download_to_filename(local_file_path)
++            logger.info("Download finished.")
++        download_gcs_dir_to_local(model_id, local_dir)
++        model_id = local_dir
++
+     # Test if files were already download
+     try:
+         utils.weight_files(model_id, revision, extension)
+@@ -135,7 +161,6 @@ def download_weights(
+     is_local_model = (Path(model_id).exists() and Path(model_id).is_dir()) or os.getenv(
+         "WEIGHTS_CACHE_OVERRIDE", None
+     ) is not None
+-
+     if not is_local_model:
+         try:
+             adapter_config_filename = hf_hub_download(
 diff --git a/integration-tests/models/test_flash_phi.py b/integration-tests/models/test_flash_phi.py
 index 6391f2a..0987b3a 100644
 --- a/integration-tests/models/test_flash_phi.py
@@ -113,26 +294,26 @@ index 0a9fecd..93a0e98 100644
      torch.testing.assert_close(output, output_tp_0 + output_tp_1)
 -
 diff --git a/server/text_generation_server/models/__init__.py b/server/text_generation_server/models/__init__.py
-index 679e1e2..1461cd0 100644
+index 679e1e2..ca64300 100644
 --- a/server/text_generation_server/models/__init__.py
 +++ b/server/text_generation_server/models/__init__.py
 @@ -52,6 +52,9 @@ try:
      from text_generation_server.models.flash_llama import (
          FlashLlama,
      )
-+    from text_generation_server.models.flash_golden_gate import (
-+        FlashGoldenGate,
++    from text_generation_server.models.flash_gemma import (
++        FlashGemma,
 +    )
      from text_generation_server.models.flash_santacoder import (
          FlashSantacoderSharded,
      )
-@@ -282,6 +285,26 @@ def get_model(
+@@ -282,6 +312,26 @@ def get_model(
                  dtype=dtype,
                  trust_remote_code=trust_remote_code,
              )
-+    if model_type == "golden_gate":
++    if model_type == "gemma":
 +        if FLASH_ATTENTION:
-+            return FlashGoldenGate(
++            return FlashGemma(
 +                model_id,
 +                revision,
 +                quantize=quantize,
@@ -141,7 +322,7 @@ index 679e1e2..1461cd0 100644
 +                use_medusa=use_medusa,
 +            )
 +        elif sharded:
-+            raise NotImplementedError(FLASH_ATT_ERROR_MESSAGE.format("Sharded Golden Gate"))
++            raise NotImplementedError(FLASH_ATT_ERROR_MESSAGE.format("Sharded Gemma"))
 +        else:
 +            return CausalLM(
 +                model_id,
@@ -153,11 +334,11 @@ index 679e1e2..1461cd0 100644
  
      if model_type in ["RefinedWeb", "RefinedWebModel", "falcon"]:
          if sharded:
-diff --git a/server/text_generation_server/models/custom_modeling/flash_golden_gate_modeling.py b/server/text_generation_server/models/custom_modeling/flash_golden_gate_modeling.py
+diff --git a/server/text_generation_server/models/custom_modeling/flash_gemma_modeling.py b/server/text_generation_server/models/custom_modeling/flash_gemma_modeling.py
 new file mode 100644
 index 0000000..ca5b595
 --- /dev/null
-+++ b/server/text_generation_server/models/custom_modeling/flash_golden_gate_modeling.py
++++ b/server/text_generation_server/models/custom_modeling/flash_gemma_modeling.py
 @@ -0,0 +1,447 @@
 +# coding=utf-8
 +# Copyright 2022 EleutherAI and the HuggingFace Inc. team. All rights reserved.
@@ -199,7 +380,7 @@ index 0000000..ca5b595
 +)
 +
 +
-+class GoldenGateConfig(PretrainedConfig):
++class GemmaConfig(PretrainedConfig):
 +    def __init__(
 +        self,
 +        vocab_size=256128,
@@ -254,7 +435,7 @@ index 0000000..ca5b595
 +            **kwargs,
 +        )
 +
-+class GoldenGateFastRMSNorm(FastRMSNorm):
++class GemmaFastRMSNorm(FastRMSNorm):
 +    @classmethod
 +    def load(cls, prefix, weights, eps=1e-6):
 +        weight = weights.get_tensor(f"{prefix}.weight") + 1
@@ -299,7 +480,7 @@ index 0000000..ca5b595
 +    )
 +
 +
-+class FlashGoldenGateAttention(torch.nn.Module):
++class FlashGemmaAttention(torch.nn.Module):
 +    def __init__(
 +        self,
 +        prefix: str,
@@ -403,7 +584,7 @@ index 0000000..ca5b595
 +        return self.o_proj(attn_output.view(-1, self.num_heads * self.head_size))
 +
 +
-+class GoldenGateMLP(nn.Module):
++class GemmaMLP(nn.Module):
 +    def __init__(self, prefix, config, weights):
 +        super().__init__()
 +        act = config.hidden_act
@@ -441,19 +622,19 @@ index 0000000..ca5b595
 +        return self.down_proj(self.act(gate_up_states[:, 0]) * gate_up_states[:, 1])
 +
 +
-+class FlashGoldenGateLayer(nn.Module):
++class FlashGemmaLayer(nn.Module):
 +    def __init__(self, layer_id, config, weights):
 +        super().__init__()
 +        prefix = f"model.layers.{layer_id}"
-+        self.self_attn = FlashGoldenGateAttention(
++        self.self_attn = FlashGemmaAttention(
 +            prefix=f"{prefix}.self_attn", config=config, weights=weights
 +        )
-+        self.mlp = GoldenGateMLP(prefix=f"{prefix}.mlp", config=config, weights=weights)
++        self.mlp = GemmaMLP(prefix=f"{prefix}.mlp", config=config, weights=weights)
 +
-+        self.input_layernorm = GoldenGateFastRMSNorm.load(
++        self.input_layernorm = GemmaFastRMSNorm.load(
 +            prefix=f"{prefix}.input_layernorm", weights=weights, eps=config.rms_norm_eps
 +        )
-+        self.post_attention_layernorm = GoldenGateFastRMSNorm.load(
++        self.post_attention_layernorm = GemmaFastRMSNorm.load(
 +            prefix=f"{prefix}.post_attention_layernorm",
 +            weights=weights,
 +            eps=config.rms_norm_eps,
@@ -497,7 +678,7 @@ index 0000000..ca5b595
 +        return mlp_output, attn_res
 +
 +
-+class FlashGoldenGateModel(torch.nn.Module):
++class FlashGemmaModel(torch.nn.Module):
 +    def __init__(self, config, weights):
 +        super().__init__()
 +
@@ -512,7 +693,7 @@ index 0000000..ca5b595
 +
 +        self.layers = nn.ModuleList(
 +            [
-+                FlashGoldenGateLayer(
++                FlashGemmaLayer(
 +                    layer_id,
 +                    config,
 +                    weights,
@@ -520,7 +701,7 @@ index 0000000..ca5b595
 +                for layer_id in range(config.num_hidden_layers)
 +            ]
 +        )
-+        self.norm = GoldenGateFastRMSNorm.load(
++        self.norm = GemmaFastRMSNorm.load(
 +            prefix="model.norm", weights=weights, eps=config.rms_norm_eps
 +        )
 +
@@ -569,11 +750,11 @@ index 0000000..ca5b595
 +        return hidden_states
 +
 +
-+class FlashGoldenGateForCausalLM(torch.nn.Module):
++class FlashGemmaForCausalLM(torch.nn.Module):
 +    def __init__(self, config, weights):
 +        super().__init__()
 +
-+        self.model = FlashGoldenGateModel(config, weights)
++        self.model = FlashGemmaModel(config, weights)
 +        self.lm_head = TensorParallelHead.load(
 +            config,
 +            prefix="model.embed_tokens" if config.tie_word_embeddings else "lm_head",
@@ -639,7 +820,7 @@ index 0000000..06516cb
 +
 +require_version("tokenizers>=0.13.3")
 +
-+GoldenGateTokenizer = None
++GemmaTokenizer = None
 +
 +logger = logging.get_logger(__name__)
 +VOCAB_FILES_NAMES = {"vocab_file": "tokenizer.model", "tokenizer_file": "tokenizer.json"}
@@ -664,13 +845,13 @@ index 0000000..06516cb
 +# fmt: on
 +
 +
-+class GoldenGateTokenizerFast(PreTrainedTokenizerFast):
++class GemmaTokenizerFast(PreTrainedTokenizerFast):
 +    """
-+    Construct a GoldenGate tokenizer. Based on byte-level Byte-Pair-Encoding.
++    Construct a Gemma tokenizer. Based on byte-level Byte-Pair-Encoding.
 +    This uses notably ByteFallback and no normalization.
 +    ```python
-+    >>> from transformers import GoldenGateTokenizerFast
-+    >>> tokenizer = GoldenGateTokenizerFast.from_pretrained("hf-internal-testing/llama-tokenizer")
++    >>> from transformers import GemmaTokenizerFast
++    >>> tokenizer = GemmaTokenizerFast.from_pretrained("hf-internal-testing/llama-tokenizer")
 +    >>> tokenizer.encode("Hello this is a test")
 +    [1, 15043, 445, 338, 263, 1243]
 +    ```
@@ -702,12 +883,12 @@ index 0000000..06516cb
 +        add_eos_token (`bool`, *optional*, defaults to `False`):
 +            Whether or not to add an `eos_token` at the end of sequences.
 +        use_default_system_prompt (`bool`, *optional*, defaults to `False`):
-+            Whether or not the default system prompt for GoldenGate should be used.
++            Whether or not the default system prompt for Gemma should be used.
 +    """
 +
 +    vocab_files_names = VOCAB_FILES_NAMES
 +    pretrained_vocab_files_map = PRETRAINED_VOCAB_FILES_MAP
-+    slow_tokenizer_class = GoldenGateTokenizer
++    slow_tokenizer_class = GemmaTokenizer
 +    padding_side = "left"
 +    model_input_names = ["input_ids", "attention_mask"]
 +
@@ -812,12 +993,12 @@ index 0000000..06516cb
 +        return (out_vocab_file,)
 +
 +    @property
-+    # Copied from transformers.models.llama.tokenization_llama.GoldenGateTokenizer.default_chat_template
++    # Copied from transformers.models.llama.tokenization_llama.GemmaTokenizer.default_chat_template
 +    def default_chat_template(self):
 +        raise NotImplementedError
 +
 +    # TODO ArthurZ let's rely on the template processor instead, refactor all fast tokenizers
-+    # Copied from transformers.models.llama.tokenization_llama.GoldenGateTokenizer.build_inputs_with_special_tokens
++    # Copied from transformers.models.llama.tokenization_llama.GemmaTokenizer.build_inputs_with_special_tokens
 +    def build_inputs_with_special_tokens(self, token_ids_0, token_ids_1=None):
 +        bos_token_id = [self.bos_token_id] if self.add_bos_token else []
 +        eos_token_id = [self.eos_token_id] if self.add_eos_token else []
@@ -829,11 +1010,11 @@ index 0000000..06516cb
 +
 +        return output
 \ No newline at end of file
-diff --git a/server/text_generation_server/models/flash_golden_gate.py b/server/text_generation_server/models/flash_golden_gate.py
+diff --git a/server/text_generation_server/models/flash_gemma.py b/server/text_generation_server/models/flash_gemma.py
 new file mode 100644
 index 0000000..ae5940d
 --- /dev/null
-+++ b/server/text_generation_server/models/flash_golden_gate.py
++++ b/server/text_generation_server/models/flash_gemma.py
 @@ -0,0 +1,105 @@
 +import torch
 +import torch.distributed
@@ -843,9 +1024,9 @@ index 0000000..ae5940d
 +from transformers import AutoTokenizer
 +
 +from text_generation_server.models import FlashCausalLM
-+from text_generation_server.models.custom_modeling.flash_golden_gate_modeling import (
-+    FlashGoldenGateForCausalLM,
-+    GoldenGateConfig,
++from text_generation_server.models.custom_modeling.flash_gemma_modeling import (
++    FlashGemmaForCausalLM,
++    GemmaConfig,
 +)
 +from text_generation_server.utils import (
 +    initialize_torch_distributed,
@@ -856,7 +1037,7 @@ index 0000000..ae5940d
 +tracer = trace.get_tracer(__name__)
 +
 +
-+class FlashGoldenGate(FlashCausalLM):
++class FlashGemma(FlashCausalLM):
 +    def __init__(
 +        self,
 +        model_id: str,
@@ -871,10 +1052,10 @@ index 0000000..ae5940d
 +            device = torch.device(f"cuda:{rank}")
 +            dtype = torch.float16 if dtype is None else dtype
 +        else:
-+            raise NotImplementedError("FlashGoldenGate is only available on GPU")
++            raise NotImplementedError("FlashGemma is only available on GPU")
 +
-+        from text_generation_server.models.custom_modeling.temp_tok import GoldenGateTokenizerFast
-+        tokenizer = GoldenGateTokenizerFast.from_pretrained(
++        from text_generation_server.models.custom_modeling.temp_tok import GemmaTokenizerFast
++        tokenizer = GemmaTokenizerFast.from_pretrained(
 +            model_id,
 +            revision=revision,
 +            padding_side="left",
@@ -884,7 +1065,7 @@ index 0000000..ae5940d
 +            from_slow=False,
 +        )
 +
-+        config = GoldenGateConfig.from_pretrained(
++        config = GemmaConfig.from_pretrained(
 +            model_id, revision=revision, trust_remote_code=trust_remote_code
 +        )
 +        config.quantize = quantize
@@ -896,7 +1077,7 @@ index 0000000..ae5940d
 +        if config.quantize in ["gptq", "awq"]:
 +            weights._set_gptq_params(model_id, revision)
 +
-+        model = FlashGoldenGateForCausalLM(config, weights)
++        model = FlashGemmaForCausalLM(config, weights)
 +        if use_medusa:
 +            from text_generation_server.utils.medusa import MedusaModel
 +            from huggingface_hub import hf_hub_download
@@ -929,7 +1110,7 @@ index 0000000..ae5940d
 +            model.lm_head = MedusaModel(config, weights, lm_head)
 +
 +        torch.distributed.barrier(group=self.process_group)
-+        super(FlashGoldenGate, self).__init__(
++        super(FlashGemma, self).__init__(
 +            model=model,
 +            tokenizer=tokenizer,
 +            num_layers=len(model.model.layers),
