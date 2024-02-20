@@ -11,13 +11,21 @@ on:
         description: 'Path to the Dockerfile'
         type: string
         required: true
-      docker_image_tag: # It should be in the form as expected by the Google Artifact Registry and as mentioned in our internal docs.
+      docker_image_tag: # It should be in the form as mentioned in our internal docs. Just pass insensitive data here like huggingface-text-generation-inference-${accelerator}.${version}:latest
         description: 'Docker Image Tag'
+        type: string
+        required: true
+      gcp_artifact_registry_repository:
+        description: 'GCP Artifact Registry Repository'
         type: string
         required: true
     secrets:
       GCP_SERVICE_ACCOUNT_JSON_KEY:
         description: 'Service Account'
+        required: true
+      GCP_PROJECT_ID:
+        description: 'GCP Project ID'
+        required: true
 
 jobs:
     build-push-image-job:
@@ -56,7 +64,7 @@ jobs:
           with:
             context: .
             file: ${{ inputs.dockerfile_path }} # Read more about it here: https://github.com/marketplace/actions/build-and-push-docker-images#customizing
-            tags: ${{ inputs.docker_image_tag }}
+            tags: ${{ inputs.region }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ inputs.gcp_artifact_registry_repository }}/${{ inputs.docker_image_tag }}
             push: true
 
           
