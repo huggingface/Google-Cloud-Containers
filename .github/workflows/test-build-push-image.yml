@@ -1,5 +1,8 @@
 name: Test Build and Push Image Reusable Workflow
 on:
+  push:
+    branches:
+      - feature/build-push-image-workflow
   workflow_dispatch:
 
 jobs:
