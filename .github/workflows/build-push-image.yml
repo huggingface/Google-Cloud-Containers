@@ -31,10 +31,6 @@ jobs:
     build-push-image-job:
       name: Build and Push Docker Image to GCP Artifact Registry
       runs-on: ubuntu-latest
-      permissions:
-        contents: 'read'
-        id-token: 'write'
-    
       steps:
         - id: 'auth'
           name: 'Authenticate with Google Cloud'

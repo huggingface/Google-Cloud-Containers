@@ -8,9 +8,6 @@ on:
 jobs:
   test-reusable-workflow:
     uses: ./.github/workflows/build-push-image.yml
-    permissions:
-      contents: 'read'
-      id-token: 'write'
     with:
       region: us-central1
       dockerfile_path: ./containers/pytorch/training/gpu/2.1/transformers/4.37.2/py310/Dockerfile
