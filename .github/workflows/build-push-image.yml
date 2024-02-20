@@ -37,10 +37,6 @@ jobs:
           uses: 'google-github-actions/auth@v2.1.1'
           with:
             credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
-
-        - id: 'setup-qemu' # By default, this action uses the Git context, so you don't need to use the actions/checkout
-          name: 'Set up QEMU'
-          uses: 'docker/setup-qemu-action@v3.0.0'
         
         - id: 'setup-buildx'
           name: 'Set up Docker Buildx'
