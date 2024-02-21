@@ -1,6 +1,6 @@
 # Train BERT for emotion classification using Hugging Face PyTorch TPU DLC on Google Cloud TPU(v5e)
 
-This example demonstrates how to train a emotion classification model using Hugging Face's DLCs on Google Cloud TPU(v5e). We use the [transformers](https://huggingface.co/docs/transformers/) library to fine-tune a pre-trained BERT model for emotion classification. The dataset used for this example is the [dair-ai/emotion ](https://huggingface.co/datasets/dair-ai/emotion) dataset from Hugging Face's [datasets](https://huggingface.co/docs/datasets/en/index) library. 
+This example demonstrates how to train a emotion classification model using Hugging Face's DLCs on Google Cloud single-host TPU(v5e) VM. We use the [transformers](https://huggingface.co/docs/transformers/) library to fine-tune a pre-trained BERT model for emotion classification. The dataset used for this example is the [dair-ai/emotion ](https://huggingface.co/datasets/dair-ai/emotion) dataset from Hugging Face's [datasets](https://huggingface.co/docs/datasets/en/index) library. 
 
 
 
@@ -12,7 +12,7 @@ Advantages of using TPUs include:
 
 - Designed to scale cost-efficiently for a wide range of AI workloads, spanning training, fine-tuning, and inference.
 - Optimized for TensorFlow, PyTorch, and JAX, and are available in a variety of form factors, including edge devices, workstations, and cloud-based infrastructure.
-- TPUs are available in [Google Cloud](https://cloud.google.com/tpu/docs/intro-to-tpu), and has been integrated with [Vertex AI](https://cloud.google.com/vertex-ai/docs/training/training-with-tpu-vm), and [Google Kubernetes Engine (GKE)](https://cloud.google.com/tpu?hl=en#cloud-tpu-in-gke).
+- TPUs are available in [Google Cloud](https://cloud.google.com/tpu/docs/intro-to-tpu), and have been integrated with [Vertex AI](https://cloud.google.com/vertex-ai/docs/training/training-with-tpu-vm), and [Google Kubernetes Engine (GKE)](https://cloud.google.com/tpu?hl=en#cloud-tpu-in-gke).
 - 
 
 ## Before you begin
@@ -48,7 +48,8 @@ gcloud services enable tpu.googleapis.com
 
 ## Spin up a TPU VM on Google Cloud
 
-We will be using [Cloud TPU v5e](https://cloud.google.com/tpu/docs/v5e-training), Google Cloud's latest generation AI accelerator. To [set up a TPU VM](https://cloud.google.com/tpu/docs/setup-gcp-account#set-up-env), follow the steps below:
+We will be using [Cloud TPU v5e](https://cloud.google.com/tpu/docs/v5e-training), Google Cloud's latest generation AI accelerator. We will setup a single-host TPU(v5e) VM to train the model. You can read more about Single-host and Multi-host TPU VMs on [Google Cloud TPU configurations](https://cloud.google.com/tpu/docs/supported-tpu-configurations).
+To [set up a TPU VM](https://cloud.google.com/tpu/docs/setup-gcp-account#set-up-env), follow the steps below:
 
 <!-- TODO: Update this script to directly use the Hugging Face PyTorch TPU DLC -->
 
