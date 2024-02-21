@@ -7,7 +7,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Versions
 ARG CUDA="12"
 ARG CUDNN="89"
-ARG TRANSFORMERS='4.37.2'
+ARG TRANSFORMERS='4.38.0'
 ARG DIFFUSERS='0.26.1'
 ARG DATASETS='2.16.1'
 # jax and flax compatible with transformers ["jax>=0.4.1,<=0.4.13", "jaxlib>=0.4.1,<=0.4.13", "flax>=0.4.1,<=0.7.0"] as mentioned in setup.py

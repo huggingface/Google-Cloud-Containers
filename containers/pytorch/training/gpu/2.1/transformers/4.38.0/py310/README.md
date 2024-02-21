@@ -18,15 +18,8 @@ Use the following command to build the docker image. Make sure to replace the va
 ```bash
 git clone https://github.com/huggingface/Google-Cloud-Containers
 cd Google-Cloud-Containers
-export GITHUB_TOKEN=your-github-token
-docker build --secret id=GITHUB_TOKEN,env=GITHUB_TOKEN -t pytorch-training-gpu.2.1.transformers.4.38.0.dev0.py310 -f containers/pytorch/training/gpu/2.1/transformers/4.38.0.dev0/py310/Dockerfile .
+docker build -t pytorch-training-gpu.2.1.transformers.4.38.0.py310 -f containers/pytorch/training/gpu/2.1/transformers/4.38.0/py310/Dockerfile .
 ```
-
-For setting the value of `GITHUB_TOKEN` please follow the detailed instructions mentioned in the following links: 
-- [Creating a fine-grained personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token)
-
-- [Creating a personal access token (classic)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic)
-
 
 ## Using Vertex AI WorkBench Instance to fine-tune the Gemma-2B model
 
@@ -56,12 +49,12 @@ Now, you can push the image to the Google Cloud Artifact registry using the foll
 REGION="us-central1"
 DOCKER_ARTIFACT_REPO="deep-learning-images"
 PROJECT_ID="gcp-project-id"
-BASE_IMAGE="pytorch-training-gpu.2.1.transformers.4.38.0.dev0.py310"
+BASE_IMAGE="pytorch-training-gpu.2.1.transformers.4.38.0.py310"
 FRAMEWORK="pytorch"
 TYPE="training"
 ACCELERATOR="gpu"
 FRAMEWORK_VERSION="2.1"
-TRANSFORMERS_VERISON="4.38.0.dev0"
+TRANSFORMERS_VERISON="4.38.0"
 PYTHON_VERSION="py310"
 
 SERVING_CONTAINER_IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${DOCKER_ARTIFACT_REPO}/huggingface-${FRAMEWORK}-${TYPE}-${ACCELERATOR}.${FRAMEWORK_VERSION}.transformers.${TRANSFORMERS_VERISON}.${PYTHON_VERSION}:latest"
@@ -109,7 +102,7 @@ We will use the Google Cloud CLI to create a Vertex AI WorkBench instance from a
 
 ```bash
 gcloud notebooks instances create example-instance-1 \
-    --container-repository=us-central1-docker.pkg.dev/gcp-project-id/deep-learning-images/huggingface-pytorch-training-gpu.2.1.transformers.4.38.0.dev0.py310 \
+    --container-repository=us-central1-docker.pkg.dev/gcp-project-id/deep-learning-images/huggingface-pytorch-training-gpu.2.1.transformers.4.38.0.py310 \
     --container-tag=latest \
     --machine-type=n1-standard-4 \
     --location=us-central1-c \
@@ -137,7 +130,7 @@ Then, you can access the [gemma-finetuning-clm-lora-sft.ipynb](https://github.co
 Make sure you have the [gemma-finetuning-clm-lora-sft.ipynb](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/vertex-ai/gemma-finetuning-clm-lora-sft.ipynb) Notebook on your local machine. As we are mounting the current directory to the docker container.
 
 ```bash
-docker run -it --gpus all -p 8080:8080 -v $(pwd):/workspace pytorch-training-gpu.2.1.transformers.4.38.0.dev0.py310
+docker run -it --gpus all -p 8080:8080 -v $(pwd):/workspace pytorch-training-gpu.2.1.transformers.4.38.0.py310
 ```
 
 Inside the docker container, you can run the following command to start the jupyter notebook:
