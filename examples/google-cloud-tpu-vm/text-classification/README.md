@@ -3,7 +3,6 @@
 This example demonstrates how to train a emotion classification model using Hugging Face's DLCs on Google Cloud single-host TPU(v5e) VM. We use the [transformers](https://huggingface.co/docs/transformers/) library to fine-tune a pre-trained BERT model for emotion classification. The dataset used for this example is the [dair-ai/emotion ](https://huggingface.co/datasets/dair-ai/emotion) dataset from Hugging Face's [datasets](https://huggingface.co/docs/datasets/en/index) library. 
 
 
-
 ## What are TPUs?
 
 Google Cloud TPUs are custom-designed AI accelerators, which are optimized for training and inference of large AI models. They are ideal for a variety of use cases, such as chatbots, code generation, media content generation, synthetic speech, vision services, recommendation engines, personalization models, among others.
@@ -48,7 +47,12 @@ gcloud services enable tpu.googleapis.com
 
 ## Spin up a TPU VM on Google Cloud
 
-We will be using [Cloud TPU v5e](https://cloud.google.com/tpu/docs/v5e-training), Google Cloud's latest generation AI accelerator. We will setup a single-host TPU(v5e) VM to train the model. You can read more about Single-host and Multi-host TPU VMs on [Google Cloud TPU configurations](https://cloud.google.com/tpu/docs/supported-tpu-configurations).
+We will be using [Cloud TPU v5e](https://cloud.google.com/tpu/docs/v5e-training), Google Cloud's latest generation AI accelerator. We will setup a single-host TPU(v5e) VM to train the model. 
+
+You can read more about Single-host(8 chips) and Multi-host(> 8 chips) TPU VMs on [Google Cloud TPU configurations](https://cloud.google.com/tpu/docs/supported-tpu-configurations).
+
+Note: Steps to run the example would differ for multi-host TPU VMs. One would need to use [SAX](https://github.com/google/saxml) for multi-host training and multi-host inference.
+
 To [set up a TPU VM](https://cloud.google.com/tpu/docs/setup-gcp-account#set-up-env), follow the steps below:
 
 <!-- TODO: Update this script to directly use the Hugging Face PyTorch TPU DLC -->
