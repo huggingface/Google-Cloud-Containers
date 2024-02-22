@@ -31,7 +31,7 @@ jobs:
 
     runs-on: [intel-cpu, 8-cpu, ci]
     container:
-      image: ${{ secrets.GCP_PROJECT_ID }}
+      image: "${{ secrets.GCP_PROJECT_ID }}"
       credentials:
         username: _json_key
         password: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
