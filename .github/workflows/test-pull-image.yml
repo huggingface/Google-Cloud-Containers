@@ -33,6 +33,9 @@ jobs:
     container:
       image: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/deep-learning-images/huggingface-pytorch-transformers-4.37.2-py310
       options: --shm-size "16gb"
+      credentials:
+        username: _json_key_base64
+        password: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_JSON }}
     steps:
       - name: Echo
         shell: bash
