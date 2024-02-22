@@ -1,12 +1,11 @@
-# Fine-tune Gemma-2B on Vertex AI WorkBench
+# Fine-tune Gemma-7B on Vertex AI WorkBench
 
-This file contains step by step instructions on how to build a docker image and then run it to test the Gemma-2B model using the 
+This file contains step by step instructions on how to build a docker image and then run it to test the Gemma-7B model using the 
 [gemma-finetuning-clm-lora-sft.ipynb](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/vertex-ai/gemma-finetuning-clm-lora-sft.ipynb) Notebook on a Vertex AI WorkBench instance and on your local machine.
 
 ## Pre-requisites:
-1. Access to [gg-hf](https://huggingface.co/gg-hf) on Hugging Face Hub in order to download the model and the tokenizer.
+1. Access Terms and Conditions on [Hugging Face Hub](https://huggingface.co/google/gemma-7b) in order to download the model and the tokenizer.
 2. Access to [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers) GitHub repository in order to access the docker file.
-3. Access to [new-model-addition-golden-gate](https://github.com/huggingface/new-model-addition-golden-gate/) GitHub repository in order to use transformer library with the gg-hf model integrated into it.
 
 
 We use the [gemma-finetuning-clm-lora-sft.ipynb](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/vertex-ai/gemma-finetuning-clm-lora-sft.ipynb) Notebook to test the model.
@@ -18,10 +17,10 @@ Use the following command to build the docker image. Make sure to replace the va
 ```bash
 git clone https://github.com/huggingface/Google-Cloud-Containers
 cd Google-Cloud-Containers
-docker build -t pytorch-training-gpu.2.1.transformers.4.38.0.py310 -f containers/pytorch/training/gpu/2.1/transformers/4.38.0/py310/Dockerfile .
+docker build -t pytorch-training-gpu.2.1.transformers.4.38.1.py310 -f containers/pytorch/training/gpu/2.1/transformers/4.38.1/py310/Dockerfile .
 ```
 
-## Using Vertex AI WorkBench Instance to fine-tune the Gemma-2B model
+## Using Vertex AI WorkBench Instance to fine-tune the Gemma-7B model
 
 It consists of the following steps:
 1. Push the docker image to the Google Cloud Artifact registry.
@@ -49,12 +48,12 @@ Now, you can push the image to the Google Cloud Artifact registry using the foll
 REGION="us-central1"
 DOCKER_ARTIFACT_REPO="deep-learning-images"
 PROJECT_ID="gcp-project-id"
-BASE_IMAGE="pytorch-training-gpu.2.1.transformers.4.38.0.py310"
+BASE_IMAGE="pytorch-training-gpu.2.1.transformers.4.38.1.py310"
 FRAMEWORK="pytorch"
 TYPE="training"
 ACCELERATOR="gpu"
 FRAMEWORK_VERSION="2.1"
-TRANSFORMERS_VERISON="4.38.0"
+TRANSFORMERS_VERISON="4.38.1"
 PYTHON_VERSION="py310"
 
 SERVING_CONTAINER_IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${DOCKER_ARTIFACT_REPO}/huggingface-${FRAMEWORK}-${TYPE}-${ACCELERATOR}.${FRAMEWORK_VERSION}.transformers.${TRANSFORMERS_VERISON}.${PYTHON_VERSION}:latest"
@@ -102,7 +101,7 @@ We will use the Google Cloud CLI to create a Vertex AI WorkBench instance from a
 
 ```bash
 gcloud notebooks instances create example-instance-1 \
-    --container-repository=us-central1-docker.pkg.dev/gcp-project-id/deep-learning-images/huggingface-pytorch-training-gpu.2.1.transformers.4.38.0.py310 \
+    --container-repository=us-central1-docker.pkg.dev/gcp-project-id/deep-learning-images/huggingface-pytorch-training-gpu.2.1.transformers.4.38.1.py310 \
     --container-tag=latest \
     --machine-type=n1-standard-4 \
     --location=us-central1-c \
@@ -130,7 +129,7 @@ Then, you can access the [gemma-finetuning-clm-lora-sft.ipynb](https://github.co
 Make sure you have the [gemma-finetuning-clm-lora-sft.ipynb](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/vertex-ai/gemma-finetuning-clm-lora-sft.ipynb) Notebook on your local machine. As we are mounting the current directory to the docker container.
 
 ```bash
-docker run -it --gpus all -p 8080:8080 -v $(pwd):/workspace pytorch-training-gpu.2.1.transformers.4.38.0.py310
+docker run -it --gpus all -p 8080:8080 -v $(pwd):/workspace pytorch-training-gpu.2.1.transformers.4.38.1.py310
 ```
 
 Inside the docker container, you can run the following command to start the jupyter notebook:
