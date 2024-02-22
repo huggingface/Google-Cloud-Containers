@@ -7,24 +7,35 @@ on:
 
 
 jobs:
-    pull-image-job:
-      name: Build and Push Docker Image to GCP Artifact Registry
-      runs-on:  [intel-cpu, 8-cpu, ci]
-      steps:
-        - id: 'auth'
-          name: 'Authenticate with Google Cloud'
-          uses: 'google-github-actions/auth@v2.1.1'
-          with:
-            credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
+  pull-image-job:
+#      name: Build and Push Docker Image to GCP Artifact Registry
+#      runs-on:  [intel-cpu, 8-cpu, ci]
+#      steps:
+#        - id: 'auth'
+#          name: 'Authenticate with Google Cloud'
+#          uses: 'google-github-actions/auth@v2.1.1'
+#          with:
+#            credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
+#
+#        - id: 'setup-buildx'
+#          name: 'Set up Docker Buildx'
+#          uses: 'docker/setup-buildx-action@v3.0.0'
+#
+#        - id: 'docker-login'
+#          name: 'Docker Login'
+#          uses: 'docker/login-action@v3.0.0'
+#          with:
+#            registry: us-central1-docker.pkg.dev
+#            username: _json_key
+#            password: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
 
-        - id: 'setup-buildx'
-          name: 'Set up Docker Buildx'
-          uses: 'docker/setup-buildx-action@v3.0.0'
-
-        - id: 'docker-login'
-          name: 'Docker Login'
-          uses: 'docker/login-action@v3.0.0'
-          with:
-            registry: us-central1-docker.pkg.dev
-            username: _json_key
-            password: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
+    runs-on: [intel-cpu, 8-cpu, ci]
+    container:
+      image: huggingface/transformers-all-latest-gpu
+      options: --shm-size "16gb"
+    steps:
+      - name: Echo
+        shell: bash
+        run: |
+          ls -l
+          ls -la
