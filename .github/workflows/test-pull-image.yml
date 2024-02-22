@@ -1,0 +1,26 @@
+name: Build and Push to GCP Artifact Registry Resuable Workflow
+
+on:
+  push:
+    branches:
+      - pull_image
+
+
+jobs:
+    pull-image-job:
+      name: Build and Push Docker Image to GCP Artifact Registry
+      runs-on:  [intel-cpu, 8-cpu, ci]
+      steps:
+        - id: 'auth'
+          name: 'Authenticate with Google Cloud'
+          uses: 'google-github-actions/auth@v2.1.1'
+          with:
+            credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
+
+        - id: 'docker-login'
+          name: 'Docker Login'
+          uses: 'docker/login-action@v3.0.0'
+          with:
+            registry: us-central1-docker.pkg.dev
+            username: _json_key
+            password: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
