@@ -35,7 +35,7 @@ jobs:
       options: --shm-size "16gb"
       credentials:
         username: _json_key_base64
-        password: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_JSON }}
+        password: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
     steps:
       - name: Echo
         shell: bash
