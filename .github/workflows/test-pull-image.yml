@@ -31,7 +31,7 @@ jobs:
 
     runs-on: [intel-cpu, 8-cpu, ci]
     container:
-      image: "us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/deep-learning-images/huggingface-pytorch-transformers-4.37.2-py310"
+      image: us-central1-docker.pkg.dev/deep-learning-images/huggingface-pytorch-transformers-4.37.2-py310
       options: --shm-size "16gb"
       credentials:
         username: _json_key_base64
