@@ -165,7 +165,7 @@ RUN make build-vllm-cuda
 # Build mamba kernels
 FROM kernel-builder as mamba-builder
 WORKDIR /usr/src
-COPY server/Makefile-selective-scan Makefile
+COPY --from=tgi /tgi/server/Makefile-selective-scan Makefile
 RUN make build-all
 
 # Build megablocks
