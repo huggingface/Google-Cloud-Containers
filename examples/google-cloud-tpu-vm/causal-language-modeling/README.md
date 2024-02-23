@@ -1,6 +1,6 @@
-# Train BERT for emotion classification using Hugging Face PyTorch TPU DLC on Google Cloud TPU(v5e)
+# Finetune Facebook OPT-350M on Dolly using Hugging Face PyTorch TPU DLC on Google Cloud TPU(v5e)
 
-This example demonstrates how to train a emotion classification model using Hugging Face's DLCs on Google Cloud single-host TPU(v5e) VM. We use the [transformers](https://huggingface.co/docs/transformers/) library to fine-tune a pre-trained BERT model for emotion classification. The dataset used for this example is the [dair-ai/emotion ](https://huggingface.co/datasets/dair-ai/emotion) dataset from Hugging Face's [datasets](https://huggingface.co/docs/datasets/en/index) library. 
+This example demonstrates how to finetune [Facebook OPT-350M](https://huggingface.co/facebook/opt-350m) using Hugging Face's DLCs on Google Cloud single-host TPU(v5e) VM. We use the [transformers](https://huggingface.co/docs/transformers/), [TRL](https://huggingface.co/docs/trl/en/index), and [PEFT](https://huggingface.co/docs/peft/index) library to fine-tune. The dataset used for this example is the [Doly-15k](databricks/databricks-dolly-15k) dataset which can be easily accessed from Hugging Face's [Datasets](https://huggingface.co/datasets) Hub. 
 
 
 ## What are TPUs?
@@ -95,12 +95,10 @@ Now, you can run the following commands to train the model:
 
 ```bash
 cd /workspace
-python google-partnership/Google-Cloud-Containers/examples/google-cloud-tpu-vm/text-classification/train.py \ 
---model_id bert-base-uncased \
+python google-partnership/Google-Cloud-Containers/examples/google-cloud-tpu-vm/causal-language-modeling/peft_lora_trl_dolly_clm.py \ 
+--model_id facebook/opt-350m \
 --num_epochs 3 \
---num_workers 8 \
---train_batch_size 16 \
---test_batch_size 16 \
+--train_batch_size 8 \
 --num_cores 8 \
---lr 1e-2
+--lr 3e-4
 ```
