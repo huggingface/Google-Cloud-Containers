@@ -60,11 +60,7 @@ def train_model(args):
     training_args = TrainingArguments(
         output_dir="output",
         per_device_train_batch_size=args.train_batch_size,
-        per_device_eval_batch_size=args.test_batch_size,
         learning_rate=lr,
-        gradient_accumulation_steps=2,  # number of steps before performing a backward/update pass
-        gradient_checkpointing=True,  # use gradient checkpointing to save memory
-        optim="adamw_torch_fused",
         num_train_epochs=args.num_epochs,
         logging_strategy="steps",
         logging_steps=10,
