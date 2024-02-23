@@ -10,6 +10,6 @@ jobs:
       dockerfile_path: ./containers/pytorch/training/gpu/2.1/transformers/4.37.2/py310/Dockerfile
       docker_image_tag: huggingface-pytorch-training-gpu-2.1.transformers.4.37.2.py310:latest
       gcp_artifact_registry_repository: deep-learning-images
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
     secrets:
-      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       GCP_SERVICE_ACCOUNT_JSON_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
