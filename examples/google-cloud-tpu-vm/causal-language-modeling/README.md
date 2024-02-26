@@ -95,7 +95,7 @@ Now, you can run the following commands to train the model:
 
 ```bash
 cd /workspace
-python google-partnership/Google-Cloud-Containers/examples/google-cloud-tpu-vm/causal-language-modeling/peft_lora_trl_dolly_clm.py \ 
+python google-partnership/Google-Cloud-Containers/examples/google-cloud-tpu-vm/causal-language-modeling/peft-lora-trl-dolly-clm.py \ 
 --model_id facebook/opt-350m \
 --num_epochs 3 \
 --train_batch_size 8 \
