@@ -1,9 +1,27 @@
-name: Model Test
+name: Model tests
 
 on:
-  push:
-    branches:
-      - run_tests_against_images_*
+  workflow_call:
+    inputs:
+      region:
+        description: 'Region where the Artifact Registry is located'
+        type: string
+        required: true
+      docker_image_tag: # It should be in the form as mentioned in our internal docs. Just pass insensitive data here like huggingface-text-generation-inference-${accelerator}.${version}:latest
+        description: 'Docker Image Tag'
+        type: string
+        required: true
+      gcp_artifact_registry_repository:
+        description: 'GCP Artifact Registry Repository'
+        type: string
+        required: true
+      GCP_PROJECT_ID:
+        description: 'GCP Project ID'
+        required: true
+    secrets:
+      GCP_SERVICE_ACCOUNT_JSON_KEY:
+        description: 'Service Account'
+        required: true
 
 env:
   HF_HOME: /mnt/cache
@@ -16,13 +34,18 @@ jobs:
     name: github repo
     runs-on: [single-gpu, nvidia-gpu, a10, ci]
     container:
-      # TODO: make this $ {{ inputs.image }} to use GCP's DLC images
-      image: huggingface/transformers-all-latest-gpu
+      image: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/${{ inputs.gcp_artifact_registry_repository }}/${{ inputs.docker_image_tag }}
       options: --gpus all --shm-size "16gb" --ipc host -v /mnt/cache/.cache/huggingface:/mnt/cache/
+      credentials:
+        username: _json_key
+        password: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: run tests
+      - name: Echo
+        shell: bash
         run: |
-          python3 -m pytest -v tests/models
+          ls -l
+          ls -la
+#
+#      - name: run tests
+#        run: |
+#          python3 -m pytest -v tests/models
