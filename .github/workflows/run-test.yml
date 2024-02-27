@@ -1,0 +1,23 @@
+name: Run model tests
+
+on:
+  push:
+    branches:
+      - run_tests_against_images_*
+
+env:
+  HF_HOME: /mnt/cache
+  # For gated repositories, we still need to agree to share information on the Hub repo. page in order to get access.
+  # This token is created under the bot `hf-transformers-bot`.
+  HF_HUB_READ_TOKEN: ${{ secrets.HF_HUB_READ_TOKEN }}
+
+jobs:
+  model_test:
+    uses: ./.github/workflows/test_model.yml
+    with:
+      region: us-central1
+      docker_image_tag: huggingface-pytorch-training-gpu-2.1.transformers.4.37.2.py310:latest
+      gcp_artifact_registry_repository: deep-learning-images
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+    secrets:
+      GCP_SERVICE_ACCOUNT_JSON_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}

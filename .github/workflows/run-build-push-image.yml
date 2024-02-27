@@ -1,9 +1,12 @@
-name: Test Build and Push Image Reusable Workflow
+name: Run build and push images
+
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - build_docker_images_*
 
 jobs:
-  test-reusable-workflow:
+  build-push-image:
     uses: ./.github/workflows/build-push-image.yml
     with:
       region: us-central1
