@@ -57,7 +57,54 @@ gcloud alpha compute tpus tpu-vm delete tpu-gemma-philipp --zone=us-west4-a
 
 ## Multi-TPU training
 
-TODO: Add multi-TPU training example
+1. create TPU VM
+```bash
+gcloud alpha compute tpus tpu-vm create tpu-gemma-philipp --zone=us-west4-a --accelerator-type=v5litepod-8 --version v2-alpha-tpuv5-lite
+```
+_Note: Creating an queuing a TPU instance can take some time 5-10 minutes._
+2. SSH into the TPU VM
+```bash
+gcloud alpha compute tpus tpu-vm ssh tpu-gemma-philipp --zone=us-west4-a
+```
+3. install the required packages
+```bash
+sudo apt-get update
+sudo apt-get install libopenblas-dev -y
+pip install numpy
+pip install typing-extensions
+pip install torch~=2.2.0 torch_xla[tpu]~=2.2.0 -f https://storage.googleapis.com/libtpu-releases/index.html
+pip install transformers datasets accelerate evaluate scikit-learn peft trl tensorboard
+```
+4. Copy the example script into the TPU VM
+```bash
+wget https://raw.githubusercontent.com/huggingface/transformers/v4.38.1/examples/pytorch/language-modeling/run_clm.py
+```
+5. create FSDP config file
+```bash
+echo '{
+  "fsdp_transformer_layer_cls_to_wrap": [
+    "LlamaDecoderLayer"
+  ],
+  "xla": true,
+  "xla_fsdp_v2": true,
+  "xla_fsdp_grad_ckpt": true
+}' > fsdp_config.json
+```
+6. Set the environment variables
+```bash
+export HF_TOKEN=xxx # add you token
+export PJRT_DEVICE=TPU 
+export XLA_USE_SPMD=1
+export XLA_USE_BF16=1
+# export XLA_IR_DEBUG=1
+# export XLA_HLO_DEBUG=1
+```
+
+7. run llama script
+```bash
+ python3 run_clm.py --model_name_or_path   meta-llama/Llama-2-7b-hf  --dataset_name timdettmers/openassistant-guanaco      --per_device_train_batch_size 8     --do_train     --output_dir ./test-clm     --block_size 1024     --optim adafactor     --save_steps 50 --max_steps 100     --logging_steps 10 --fsdp "full_shard" --fsdp_config fsdp_config.json --torch_dtype bfloat16 --dataloader_drop_last yes
+```
+_Note_ 
 
 
 # Resources
