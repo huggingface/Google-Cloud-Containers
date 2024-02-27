@@ -21,6 +21,7 @@ on:
         required: true
       GCP_PROJECT_ID:
         description: 'GCP Project ID'
+        type: string
         required: true
     secrets:
       GCP_SERVICE_ACCOUNT_JSON_KEY:
