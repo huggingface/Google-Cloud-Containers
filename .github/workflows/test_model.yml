@@ -38,7 +38,7 @@ jobs:
         password: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Prepare `transformers` examples/pytorch directory
         shell: bash
