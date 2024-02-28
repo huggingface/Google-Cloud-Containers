@@ -1,19 +1,19 @@
-FROM us-central1-docker.pkg.dev/tpu-pytorch-releases/docker/xla:r2.1.0_3.10_tpuvm
-# The image with PyTorch = 2.1, Python=3.10
+FROM us-central1-docker.pkg.dev/tpu-pytorch-releases/docker/xla@sha256:8f1dcd5b03f993e4da5c20d17c77aff6a5f22d5455f8eb042d2e4b16ac460526
+# The nightly image with PyTorch = 2.3, Python=3.10
 # Read more about it here: https://github.com/pytorch/xla?tab=readme-ov-file#docker
 
 LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
-ARG TRANSFORMERS='4.37.2'
-ARG DIFFUSERS='0.26.1'
+ARG TRANSFORMERS='4.38.1'
+ARG DIFFUSERS='0.26.3'
 ARG PEFT='0.8.2'
-ARG TRL='0.7.10'
-ARG DATASETS='2.16.1'
-ARG ACCELERATE='0.27.0'
+ARG TRL='0.7.11'
+ARG DATASETS='2.17.1'
+ARG ACCELERATE='0.27.2'
 ARG EVALUATE='0.4.1'
-ARG NOTEBOOK='7.1.0'
+ARG NOTEBOOK='7.1.1'
 
 RUN apt-get update \
     && apt-get install -y \
@@ -66,4 +66,4 @@ RUN pip install --upgrade --no-cache-dir \
 RUN python -c "import transformers, diffusers, datasets, accelerate, evaluate, peft, trl, torch; \
                 assert all([mod.__version__ == version for mod, version in [(transformers, '${TRANSFORMERS}'), (diffusers, '${DIFFUSERS}'), \
                 (datasets, '${DATASETS}'), (accelerate, '${ACCELERATE}'), (evaluate, '${EVALUATE}'), (peft, '${PEFT}'), (trl, '${TRL}'), \
-                (torch, '2.1.0')]])" 
+                (torch, '2.3.0')]])" 

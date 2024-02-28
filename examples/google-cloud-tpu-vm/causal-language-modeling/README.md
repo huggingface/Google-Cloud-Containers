@@ -1,6 +1,6 @@
-# Finetune Facebook OPT-350M on Dolly using Hugging Face PyTorch TPU DLC on Google Cloud TPU(v5e)
+# Finetune Gemma-2B using Hugging Face PyTorch TPU DLC on Google Cloud TPU(v5e)
 
-This example demonstrates how to finetune [Facebook OPT-350M](https://huggingface.co/facebook/opt-350m) using Hugging Face's DLCs on Google Cloud single-host TPU(v5e) VM. We use the [transformers](https://huggingface.co/docs/transformers/), [TRL](https://huggingface.co/docs/trl/en/index), and [PEFT](https://huggingface.co/docs/peft/index) library to fine-tune. The dataset used for this example is the [Doly-15k](databricks/databricks-dolly-15k) dataset which can be easily accessed from Hugging Face's [Datasets](https://huggingface.co/datasets) Hub. 
+This example demonstrates how to finetune [gemma-2b](https://huggingface.co/google/gemma-2b) using Hugging Face's DLCs on Google Cloud single-host TPU(v5e) VM. We use the [transformers](https://huggingface.co/docs/transformers/), [TRL](https://huggingface.co/docs/trl/en/index), and [PEFT](https://huggingface.co/docs/peft/index) library to fine-tune. The dataset used for this example is the [Dolly-15k](databricks/databricks-dolly-15k) dataset which can be easily accessed from Hugging Face's [Datasets](https://huggingface.co/datasets) Hub. 
 
 
 ## What are TPUs?
@@ -81,24 +81,23 @@ You now need to build the environment using Hugging Face's PyTorch TPU DLC [Dock
 ```bash
 git clone https://github.com/huggingface/Google-Cloud-Containers.git
 cd Google-Cloud-Containers
-sudo docker build -t huggingface-pytorch-training-tpu-2.1.transformers.4.37.2.py310:latest -f containers/pytorch/training/tpu/2.1/transformers/4.37.2/py310/Dockerfile .
+sudo docker build -t huggingface-pytorch-training-tpu-2.3.transformers.4.38.1.py310:latest -f containers/pytorch/training/tpu/2.3/transformers/4.38.1/py310/Dockerfile .
 ```
 
 ## Train the model
 Once, the docker image is built, we need to run the docker container in order to activate the enviroment. You can use the following commands to run the docker container:
 
 ```bash
-sudo docker run -it -v $(pwd):/workspace --privileged huggingface-pytorch-training-tpu-2.1.transformers.4.37.2.py310:latest bash
+sudo docker run -it -v $(pwd):/workspace --privileged huggingface-pytorch-training-tpu-2.3.transformers.4.38.1.py310:latest bash
 ```
 
 Now, you can run the following commands to train the model:
 
 ```bash
+export PJRT_DEVICE=TPU XLA_USE_BF16=1 XLA_USE_SPMD=1
 cd /workspace
-python google-partnership/Google-Cloud-Containers/examples/google-cloud-tpu-vm/causal-language-modeling/peft-lora-trl-dolly-clm.py \ 
---model_id facebook/opt-350m \
+python examples/google-cloud-tpu-vm/causal-language-modeling/finetune-gemma-lora-dolly.py \ 
 --num_epochs 3 \
---train_batch_size 8 \
---num_cores 8 \
+--train_batch_size 16 \
 --lr 3e-4
 ```
