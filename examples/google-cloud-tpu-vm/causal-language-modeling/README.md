@@ -95,6 +95,7 @@ Now, you can run the following commands to train the model:
 
 ```bash
 export PJRT_DEVICE=TPU XLA_USE_BF16=1 XLA_USE_SPMD=1
+export HF_TOKEN=<YOUR_HF_TOKEN>
 cd /workspace
 python examples/google-cloud-tpu-vm/causal-language-modeling/finetune-gemma-lora-dolly.py \ 
 --num_epochs 3 \
