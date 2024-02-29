@@ -53,3 +53,8 @@ jobs:
         run: |
           export TRANSFORMERS_DIR=/__w/Google-Cloud-Containers/Google-Cloud-Containers/transformers
           python3 -m pytest -v tests/models
+
+      # TODO: Integrate the script as a test file and merged with the previous step
+      - name: run llama script
+        run: |
+          python3 tests/models/llama/test_llama.py
