@@ -1,4 +1,4 @@
-name: Build and Push to GCP Artifact Registry Resuable Workflow
+name: Build and push images
 
 on:
   workflow_call:
@@ -19,16 +19,13 @@ on:
         description: 'GCP Artifact Registry Repository'
         type: string
         required: true
-    secrets:
-      GCP_SERVICE_ACCOUNT_JSON_KEY:
-        description: 'Service Account'
-        required: true
       GCP_PROJECT_ID:
         description: 'GCP Project ID'
+        type: string
         required: true
 
 jobs:
-    build-push-image-job:
+    build-push-image:
       name: Build and Push Docker Image to GCP Artifact Registry
       runs-on:  [intel-cpu, 8-cpu, ci]
       steps:
@@ -55,7 +52,5 @@ jobs:
           uses: 'docker/build-push-action@v5.1.0'
           with:
             file: ${{ inputs.dockerfile_path }} # Read more about it here: https://github.com/marketplace/actions/build-and-push-docker-images#customizing
-            tags: ${{ inputs.region }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ inputs.gcp_artifact_registry_repository }}/${{ inputs.docker_image_tag }}
+            tags: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/${{ inputs.gcp_artifact_registry_repository }}/${{ inputs.docker_image_tag }}
             push: true
-
-          

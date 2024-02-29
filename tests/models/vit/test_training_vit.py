@@ -4,14 +4,8 @@ import sys
 from ..test_model import ModelTrainingTestMixin, TestCasePlus
 
 
-# So far, the image we use has a `/transformers` directory.
-# TODO: Find a way to get the installed `transformers` directory.
-SRC_DIRS = [
-    os.path.join("/transformers/examples/pytorch", dirname)
-    for dirname in [
-        "image-classification",
-    ]
-]
+# `TRANSFORMERS_DIR` is an environment variable pointing to a `transformers` source directory (containing `examples`)
+SRC_DIRS = [os.path.join(os.getenv("TRANSFORMERS_DIR"), "examples/pytorch", dirname) for dirname in ["image-classification"]]
 sys.path.extend(SRC_DIRS)
 
 
