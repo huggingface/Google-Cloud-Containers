@@ -1,4 +1,4 @@
-FROM us-central1-docker.pkg.dev/tpu-pytorch-releases/docker/xla@sha256:8f1dcd5b03f993e4da5c20d17c77aff6a5f22d5455f8eb042d2e4b16ac460526
+FROM us-central1-docker.pkg.dev/tpu-pytorch-releases/docker/xla:nightly_3.10_tpuvm_20240229
 # The nightly image with PyTorch = 2.3, Python=3.10
 # Read more about it here: https://github.com/pytorch/xla?tab=readme-ov-file#docker
 
