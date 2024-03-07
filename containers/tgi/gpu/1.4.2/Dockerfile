@@ -256,8 +256,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
 # Add license files
 RUN apt-get update && apt-get -y upgrade
 RUN apt-get install -y --no-install-recommends wget
-RUN wget -P /opt/conda/lib/python3.10/site-packages/text_generation_server-1.4.2.dist-info/ https://github.com/huggingface/text-generation-inference/blob/main/LICENSE 
-RUN wget -P /opt/conda/lib/python3.10/site-packages/torch-2.1.1-py3.10.egg-info/ https://github.com/pytorch/pytorch/blob/main/LICENSE
+RUN wget -P /opt/conda/lib/python3.10/site-packages/text_generation_server-1.4.2.dist-info/ https://raw.githubusercontent.com/huggingface/text-generation-inference/main/LICENSE
+RUN wget -P /opt/conda/lib/python3.10/site-packages/torch-2.1.1-py3.10.egg-info/ https://raw.githubusercontent.com/pytorch/pytorch/main/LICENSE
 
 ENTRYPOINT ["text-generation-launcher"]
 CMD ["--json-output"]
