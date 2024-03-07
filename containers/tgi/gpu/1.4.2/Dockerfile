@@ -5,7 +5,7 @@ RUN mkdir -p /tgi
 ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v1.4.2.tar.gz /tgi/sources.tar.gz
 RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
 
-
+# Patch TGI to support GCS
 RUN apk update && apk upgrade && apk add patch
 COPY containers/tgi/gpu/1.4.2/support-gcs.patch /tgi
 RUN patch -p1 -d /tgi < /tgi/support-gcs.patch
