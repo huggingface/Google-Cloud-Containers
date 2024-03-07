@@ -1,8 +1,14 @@
 # Fetch and extract the TGI sources
 FROM alpine AS tgi
 RUN mkdir -p /tgi
+
 ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v1.4.2.tar.gz /tgi/sources.tar.gz
 RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
+
+
+RUN apk update && apk upgrade && apk add patch
+COPY containers/tgi/gpu/1.4.2/support-gcs.patch /tgi
+RUN patch -p1 -d /tgi < /tgi/support-gcs.patch
 
 # Build cargo components (adapted from TGI original Dockerfile)
 # Note that the build image is aligned on the same Linux version as the base image (Debian bookworm/ Ubuntu 22.04)
@@ -226,9 +232,6 @@ COPY --from=mamba-builder /usr/src/causal-conv1d/build/lib.linux-x86_64-cpython-
 # Install flash-attention dependencies
 RUN pip install einops --no-cache-dir
 
-# Install GCS library
-RUN pip install --upgrade google-cloud-storage
-
 # Install server
 COPY --from=tgi /tgi/proto proto
 COPY --from=tgi /tgi/server server
@@ -237,12 +240,6 @@ RUN cd server && \
   make gen-server && \
   pip install -r requirements_cuda.txt && \
   pip install ".[bnb, accelerate, quantize, peft, outlines]" --no-cache-dir
-
-# Build transformers from source with Gemma
-WORKDIR /tgi
-RUN git clone -b add-golden-gate https://github.com/huggingface/new-model-addition-golden-gate/
-WORKDIR /tgi/new-model-addition-golden-gate-add-golden-gate
-RUN pip install -e .
 
 # Install benchmarker
 COPY --from=builder /usr/src/target/release/text-generation-benchmark /usr/local/bin/text-generation-benchmark
@@ -255,6 +252,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   build-essential \
   g++ \
   && rm -rf /var/lib/apt/lists/*
+
+# Add license files
+RUN apt-get update && apt-get -y upgrade
+RUN apt-get install -y --no-install-recommends wget
+RUN wget -P /opt/conda/lib/python3.10/site-packages/text_generation_server-1.4.2.dist-info/ https://github.com/huggingface/text-generation-inference/blob/main/LICENSE 
+RUN wget -P /opt/conda/lib/python3.10/site-packages/torch-2.1.1-py3.10.egg-info/ https://github.com/pytorch/pytorch/blob/main/LICENSE
 
 ENTRYPOINT ["text-generation-launcher"]
 CMD ["--json-output"]

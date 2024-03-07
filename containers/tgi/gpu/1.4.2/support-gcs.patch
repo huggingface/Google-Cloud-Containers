@@ -1,0 +1,157 @@
+diff --git a/launcher/src/main.rs b/launcher/src/main.rs
+index d52e266..64e8bfd 100644
+--- a/launcher/src/main.rs
++++ b/launcher/src/main.rs
+@@ -782,7 +782,7 @@ enum LauncherError {
+     WebserverCannotStart,
+ }
+ 
+-fn download_convert_model(args: &Args, running: Arc<AtomicBool>) -> Result<(), LauncherError> {
++fn download_convert_model(args: &mut Args, running: Arc<AtomicBool>) -> Result<(), LauncherError> {
+     // Enter download tracing span
+     let _span = tracing::span!(tracing::Level::INFO, "download").entered();
+ 
+@@ -907,6 +907,9 @@ fn download_convert_model(args: &Args, running: Arc<AtomicBool>) -> Result<(), L
+         }
+         sleep(Duration::from_millis(100));
+     }
++    if args.model_id.starts_with("gs://") {
++        args.model_id = "/tmp/gcs_model/".to_string();
++    }
+     Ok(())
+ }
+ 
+@@ -1192,7 +1195,7 @@ fn terminate(process_name: &str, mut process: Child, timeout: Duration) -> io::R
+ 
+ fn main() -> Result<(), LauncherError> {
+     // Pattern match configuration
+-    let args: Args = Args::parse();
++    let mut args: Args = Args::parse();
+ 
+     // Filter events with LOG_LEVEL
+     let env_filter =
+@@ -1285,7 +1288,7 @@ fn main() -> Result<(), LauncherError> {
+     .expect("Error setting Ctrl-C handler");
+ 
+     // Download and convert model weights
+-    download_convert_model(&args, running.clone())?;
++    download_convert_model(&mut args, running.clone())?;
+ 
+     if !running.load(Ordering::SeqCst) {
+         // Launcher was asked to stop
+diff --git a/server/requirements_common.txt b/server/requirements_common.txt
+index 5a32183..696c115 100644
+--- a/server/requirements_common.txt
++++ b/server/requirements_common.txt
+@@ -8,6 +8,7 @@ einops==0.6.1 ; python_version >= "3.9" and python_version < "3.13"
+ filelock==3.13.1 ; python_version >= "3.9" and python_version < "3.13"
+ fsspec==2023.10.0 ; python_version >= "3.9" and python_version < "3.13"
+ googleapis-common-protos==1.61.0 ; python_version >= "3.9" and python_version < "3.13"
++google-cloud-storage==2.14.0 ; python_version >= "3.9" and python_version < "3.13"
+ grpc-interceptor==0.15.4 ; python_version >= "3.9" and python_version < "3.13"
+ grpcio-reflection==1.59.3 ; python_version >= "3.9" and python_version < "3.13"
+ grpcio-status==1.59.3 ; python_version >= "3.9" and python_version < "3.13"
+diff --git a/server/requirements_cuda.txt b/server/requirements_cuda.txt
+index 1e3477b..d9e75ab 100644
+--- a/server/requirements_cuda.txt
++++ b/server/requirements_cuda.txt
+@@ -9,6 +9,7 @@ einops==0.6.1 ; python_version >= "3.9" and python_version < "3.13"
+ filelock==3.13.1 ; python_version >= "3.9" and python_version < "3.13"
+ fsspec==2023.10.0 ; python_version >= "3.9" and python_version < "3.13"
+ googleapis-common-protos==1.62.0 ; python_version >= "3.9" and python_version < "3.13"
++google-cloud-storage==2.14.0 ; python_version >= "3.9" and python_version < "3.13"
+ grpc-interceptor==0.15.4 ; python_version >= "3.9" and python_version < "3.13"
+ grpcio-reflection==1.60.1 ; python_version >= "3.9" and python_version < "3.13"
+ grpcio-status==1.60.1 ; python_version >= "3.9" and python_version < "3.13"
+diff --git a/server/requirements_rocm.txt b/server/requirements_rocm.txt
+index 3912abd..718dd97 100644
+--- a/server/requirements_rocm.txt
++++ b/server/requirements_rocm.txt
+@@ -8,6 +8,7 @@ einops==0.6.1 ; python_version >= "3.9" and python_version < "3.13"
+ filelock==3.13.1 ; python_version >= "3.9" and python_version < "3.13"
+ fsspec==2023.10.0 ; python_version >= "3.9" and python_version < "3.13"
+ googleapis-common-protos==1.62.0 ; python_version >= "3.9" and python_version < "3.13"
++google-cloud-storage==2.14.0 ; python_version >= "3.9" and python_version < "3.13"
+ grpc-interceptor==0.15.4 ; python_version >= "3.9" and python_version < "3.13"
+ grpcio-reflection==1.60.1 ; python_version >= "3.9" and python_version < "3.13"
+ grpcio-status==1.60.1 ; python_version >= "3.9" and python_version < "3.13"
+diff --git a/server/text_generation_server/cli.py b/server/text_generation_server/cli.py
+index b74fbe3..47d6849 100644
+--- a/server/text_generation_server/cli.py
++++ b/server/text_generation_server/cli.py
+@@ -123,6 +123,10 @@ def download_weights(
+     # Import here after the logger is added to log potential import exceptions
+     from text_generation_server import utils
+ 
++    if model_id.startswith(utils.GCS_PREFIX):
++        utils.download_gcs_dir_to_local(model_id, utils.GCS_LOCAL_DIR)
++        model_id = utils.GCS_LOCAL_DIR
++
+     # Test if files were already download
+     try:
+         utils.weight_files(model_id, revision, extension)
+diff --git a/server/text_generation_server/models/__init__.py b/server/text_generation_server/models/__init__.py
+index abab348..db58d6b 100644
+--- a/server/text_generation_server/models/__init__.py
++++ b/server/text_generation_server/models/__init__.py
+@@ -327,7 +327,7 @@ def get_model(
+             )
+         elif sharded:
+             raise NotImplementedError(
+-                FLASH_ATT_ERROR_MESSAGE.format("Sharded Golden Gate")
++                FLASH_ATT_ERROR_MESSAGE.format("Sharded Gemma")
+             )
+         else:
+             return CausalLM(
+diff --git a/server/text_generation_server/utils/__init__.py b/server/text_generation_server/utils/__init__.py
+index 08ba808..a9f67c0 100644
+--- a/server/text_generation_server/utils/__init__.py
++++ b/server/text_generation_server/utils/__init__.py
+@@ -19,6 +19,7 @@ from text_generation_server.utils.tokens import (
+     Sampling,
+     Greedy,
+ )
++from text_generation_server.utils.gcs import GCS_PREFIX, GCS_LOCAL_DIR, download_gcs_dir_to_local
+ 
+ __all__ = [
+     "convert_file",
+@@ -39,4 +40,7 @@ __all__ = [
+     "StopSequenceCriteria",
+     "FinishReason",
+     "Weights",
++    "GCS_PREFIX",
++    "GCS_LOCAL_DIR",
++    "download_gcs_dir_to_local",
+ ]
+diff --git a/server/text_generation_server/utils/gcs.py b/server/text_generation_server/utils/gcs.py
+new file mode 100644
+index 0000000..993f7c3
+--- /dev/null
++++ b/server/text_generation_server/utils/gcs.py
+@@ -0,0 +1,26 @@
++import os
++from google.cloud import storage
++from loguru import logger
++
++GCS_PREFIX = "gs://"   
++GCS_LOCAL_DIR = "/tmp/gcs_model"
++
++def download_gcs_dir_to_local(gcs_dir: str, local_dir: str):
++    if os.path.isdir(local_dir):
++        return
++    # gs://bucket_name/dir
++    bucket_name = gcs_dir.split('/')[2]
++    prefix = gcs_dir[len(GCS_PREFIX + bucket_name) :].strip('/') + '/'
++    client = storage.Client()
++    blobs = client.list_blobs(bucket_name, prefix=prefix)
++    if not blobs:
++        raise ValueError(f"No blobs found in {gcs_dir}")
++    for blob in blobs:
++        if blob.name[-1] == '/':
++            continue
++        file_path = blob.name[len(prefix) :].strip('/')
++        local_file_path = os.path.join(local_dir, file_path)
++        os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
++        logger.info(f"==> Download {gcs_dir}/{file_path} to {local_file_path}.")
++        blob.download_to_filename(local_file_path)
++    logger.info("Download finished.")
