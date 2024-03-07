@@ -1,22 +1,12 @@
 # Fetch and extract the TGI sources
 FROM alpine AS tgi
 RUN mkdir -p /tgi
-# TODO: add when support released
-# ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v1.3.4.tar.gz /tgi/sources.tar.gz
-# RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
-
-# TODO: remove below
-RUN apk update && apk upgrade && apk add git patch
-RUN git clone -b support-vertex-endpoint https://github.com/huggingface/text-generation-inference.git /tgi
-
-# Apply Gemma patch
-COPY containers/tgi/gpu/1.3.4/support-gemma.patch /tgi
-RUN patch -p1 -d /tgi < /tgi/support-gemma.patch
-# ############# END TODO ##############
+ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v1.4.2.tar.gz /tgi/sources.tar.gz
+RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
 
 # Build cargo components (adapted from TGI original Dockerfile)
 # Note that the build image is aligned on the same Linux version as the base image (Debian bookworm/ Ubuntu 22.04)
-FROM lukemathwalker/cargo-chef:latest-rust-1.75-bookworm AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.75 AS chef
 WORKDIR /usr/src
 
 ARG CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
@@ -55,7 +45,7 @@ RUN cargo build --release --features google
 
 # Python builder
 # Adapted from: https://github.com/pytorch/pytorch/blob/master/Dockerfile
-FROM nvidia/cuda:12.1.0-devel-ubuntu20.04 as pytorch-install
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04 as pytorch-install
 
 ARG PYTORCH_VERSION=2.1.1
 ARG PYTHON_VERSION=3.10
@@ -100,7 +90,7 @@ RUN case ${TARGETPLATFORM} in \
 # CUDA kernels builder image
 FROM pytorch-install as kernel-builder
 
-ARG MAX_JOBS=8
+ARG MAX_JOBS=4
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   ninja-build \
@@ -172,6 +162,12 @@ COPY --from=tgi /tgi/server/Makefile-vllm Makefile
 # Build specific version of vllm
 RUN make build-vllm-cuda
 
+# Build mamba kernels
+FROM kernel-builder as mamba-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/Makefile-selective-scan Makefile
+RUN make build-all
+
 # Build megablocks
 FROM kernel-builder as megablocks-builder
 
@@ -223,6 +219,10 @@ COPY --from=eetq-kernels-builder /usr/src/eetq/build/lib.linux-x86_64-cpython-31
 # Copy builds artifacts from vllm builder
 COPY --from=vllm-builder /usr/src/vllm/build/lib.linux-x86_64-cpython-310 /opt/conda/lib/python3.10/site-packages
 
+# Copy build artifacts from mamba builder
+COPY --from=mamba-builder /usr/src/mamba/build/lib.linux-x86_64-cpython-310/ /opt/conda/lib/python3.10/site-packages
+COPY --from=mamba-builder /usr/src/causal-conv1d/build/lib.linux-x86_64-cpython-310/ /opt/conda/lib/python3.10/site-packages
+
 # Install flash-attention dependencies
 RUN pip install einops --no-cache-dir
 
@@ -236,7 +236,7 @@ COPY --from=tgi /tgi/server/Makefile server/Makefile
 RUN cd server && \
   make gen-server && \
   pip install -r requirements_cuda.txt && \
-  pip install ".[bnb, accelerate, quantize, peft]" --no-cache-dir
+  pip install ".[bnb, accelerate, quantize, peft, outlines]" --no-cache-dir
 
 # Build transformers from source with Gemma
 WORKDIR /tgi

@@ -11,7 +11,7 @@ The [`examples`](./examples) directory contains examples for using the container
 _Note: we added the latest TGI version as an example into the repository, which can be build with._
 
 ```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.3.4 -f containers/tgi/gpu/1.3.4/Dockerfile .
+docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.4.2 -f containers/tgi/gpu/1.4.2/Dockerfile .
 ```
 
 ### Mistral 7B test
@@ -29,7 +29,7 @@ docker run --gpus all -ti -p 8080:80 \
   -e NUM_SHARD=$num_shard \
   -e MAX_INPUT_LENGTH=$max_input_length \
   -e MAX_TOTAL_TOKENS=$max_total_tokens \
-  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.3.4  
+  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.4.2  
 ```
 
 Send request:
@@ -41,10 +41,10 @@ curl 127.0.0.1:8080/generate \
     -H 'Content-Type: application/json'
 ```
 
-### Golden Gate Test
+### Gemma Test
 
 ```bash
-model=gg-hf/golden-gate-7b
+model=google/gemma-7b
 num_shard=1
 max_input_length=512
 max_total_tokens=1024
@@ -58,7 +58,7 @@ docker run --gpus all -ti -p 8080:80 \
   -e MAX_TOTAL_TOKENS=$max_total_tokens \
   -e MAX_BATCH_PREFILL_TOKENS=$max_batch_prefill_tokens \
   -e HUGGING_FACE_HUB_TOKEN=$token \
-  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.3.4
+  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.4.2
 ```
 
 Send request:
@@ -70,7 +70,7 @@ curl 127.0.0.1:8080/generate \
     -H 'Content-Type: application/json'
 ```
 
-For a Vertex AI example checkout [Deploy Golden Gate on Vertex AI](./examples//vertex-ai/deploy-golden-gate-on-vertex-ai.ipynb)
+For a Vertex AI example checkout [Deploy Gemma on Vertex AI](./examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai.ipynb)
 
 
 ## Configurations
@@ -87,13 +87,13 @@ After the containers are built, you can run the tests in the `tests` directory t
 
 | Container Tag                                                                 | Framework | Type      | Accelerator |
 | ----------------------------------------------------------------------------- | --------- | --------- | ----------- |
-| [pytorch-training-gpu.2.1.transformers.4.37.2.py310](./containers/pytorch/training/gpu/2.1/transformers/4.37.2/py310/Dockerfile)  | Pytorch   | training  | GPU         |
-| [text-generation-inference-gpu.1.3.4](https://github.com/huggingface/Google-Cloud-Containers/blob/main/containers/tgi/gpu/1.3.4/Dockerfile)                 | -         | inference | GPU         |
+| [pytorch-training-gpu.2.1.transformers.4.38.1.py310](./containers/pytorch/training/gpu/2.1/transformers/4.38.1/py310/Dockerfile)  | Pytorch   | training  | GPU         |
+| [text-generation-inference-gpu.1.4.2](./containers/tgi/gpu/1.4.2/Dockerfile)                 | -         | inference | GPU         |
 
 ## Directory Structure
 
-The container files are organized in a nested folder structure based on the container tag. For example, the Dockerfile for the container with the tag `pytorch-training-gpu.2.0.transformers.4.35.0.py310` is located at `pytorch/training/gpu/2.0/transformers/4.35.0/py310/Dockerfile`.
+The container files are organized in a nested folder structure based on the container tag. For example, the Dockerfile for the container with the tag `pytorch-training-gpu.2.1.transformers.4.38.1.py310` is located at `pytorch/training/gpu/2.1/transformers/4.38.1/py310/Dockerfile`.
 
 ## Updates
 
-When we update the transformers version, we add a new folder in the `transformers` directory. For example, if we update the transformers version to 4.36.0, we would add a new folder at `pytorch/training/gpu/2.0/transformers/4.36.0`.
+When we update the transformers version, we add a new folder in the `transformers` directory. For example, if we update the transformers version to 4.39.0, we would add a new folder at `pytorch/training/gpu/2.0/transformers/4.39.0`.

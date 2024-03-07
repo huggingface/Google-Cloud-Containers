@@ -1,9 +1,24 @@
-name: Model Test
+name: Model tests
 
 on:
-  push:
-    branches:
-      - run_tests_against_images_*
+  workflow_call:
+    inputs:
+      region:
+        description: 'Region where the Artifact Registry is located'
+        type: string
+        required: true
+      docker_image_tag: # It should be in the form as mentioned in our internal docs. Just pass insensitive data here like huggingface-text-generation-inference-${accelerator}.${version}:latest
+        description: 'Docker Image Tag'
+        type: string
+        required: true
+      gcp_artifact_registry_repository:
+        description: 'GCP Artifact Registry Repository'
+        type: string
+        required: true
+      GCP_PROJECT_ID:
+        description: 'GCP Project ID'
+        type: string
+        required: true
 
 env:
   HF_HOME: /mnt/cache
@@ -13,16 +28,28 @@ env:
 
 jobs:
   run_test:
-    name: github repo
+    name: Run model tests
     runs-on: [single-gpu, nvidia-gpu, a10, ci]
     container:
-      # TODO: make this $ {{ inputs.image }} to use GCP's DLC images
-      image: huggingface/transformers-all-latest-gpu
+      image: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/${{ inputs.gcp_artifact_registry_repository }}/${{ inputs.docker_image_tag }}
       options: --gpus all --shm-size "16gb" --ipc host -v /mnt/cache/.cache/huggingface:/mnt/cache/
+      credentials:
+        username: _json_key
+        password: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON_KEY }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Prepare `transformers` examples/pytorch directory
+        shell: bash
+        run: |
+          git config --global --add safe.directory /__w/Google-Cloud-Containers/Google-Cloud-Containers
+          git clone https://github.com/huggingface/transformers.git
+          cd transformers
+          git checkout tags/v4.38.1
+          git log -n 1
 
       - name: run tests
         run: |
+          export TRANSFORMERS_DIR=/__w/Google-Cloud-Containers/Google-Cloud-Containers/transformers
           python3 -m pytest -v tests/models
