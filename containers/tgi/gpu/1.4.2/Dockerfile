@@ -13,6 +13,7 @@ ARG CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 FROM chef as planner
 COPY --from=tgi /tgi/Cargo.toml Cargo.toml
+COPY --from=tgi /tgi/Cargo.lock Cargo.lock
 COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
 COPY --from=tgi /tgi/proto proto
 COPY --from=tgi /tgi/benchmark benchmark
@@ -36,6 +37,7 @@ COPY --from=planner /usr/src/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
 COPY --from=tgi /tgi/Cargo.toml Cargo.toml
+COPY --from=tgi /tgi/Cargo.lock Cargo.lock
 COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
 COPY --from=tgi /tgi/proto proto
 COPY --from=tgi /tgi/benchmark benchmark
