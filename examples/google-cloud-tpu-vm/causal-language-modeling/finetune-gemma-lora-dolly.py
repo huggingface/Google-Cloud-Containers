@@ -8,7 +8,6 @@ from peft import LoraConfig, TaskType
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
-    DataCollatorForLanguageModeling,
     TrainingArguments,
 )
 from trl import SFTTrainer
@@ -45,10 +44,10 @@ def train_gemma(args):
     # Load model
     model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16)
     lora_config = LoraConfig(
-        r=16,
+        r=8,
         target_modules=["q_proj", "v_proj"],
         task_type=TaskType.CAUSAL_LM,
-        lora_alpha=32,
+        lora_alpha=16,
         lora_dropout=0.05,
     )
 
@@ -69,7 +68,7 @@ def train_gemma(args):
         learning_rate=args.lr,
         num_train_epochs=args.num_epochs,
         logging_strategy="steps",
-        logging_steps=20,
+        logging_steps=args.logging_steps,
         save_steps=args.save_steps,
         dataloader_drop_last=True,  # Required for SPMD.
         fsdp="full_shard",
@@ -85,18 +84,19 @@ def train_gemma(args):
         packing=True,
         train_dataset=format_dataset,
         tokenizer=tokenizer,
-        data_collator=DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False),
     )
     # Train the model
     trainer.train()
+    trainer.save_model()
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--num_epochs", default=3, type=int)
-    parser.add_argument("--train_batch_size", default=16, type=int)
+    parser.add_argument("--train_batch_size", default=64, type=int)
     parser.add_argument("--lr", default=3e-4, type=float)
     parser.add_argument("--save_steps", default=100, type=int)
+    parser.add_argument("--logging_steps", default=20, type=int)
     args = parser.parse_args()
     return args
 

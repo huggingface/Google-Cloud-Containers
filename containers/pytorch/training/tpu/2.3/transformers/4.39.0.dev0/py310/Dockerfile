@@ -45,7 +45,10 @@ RUN pip install --upgrade --no-cache-dir \
   evaluate==${EVALUATE} \
   peft==${PEFT} \
   trl==${TRL} \
-  notebook==${NOTEBOOK}
+  notebook==${NOTEBOOK} 
+  
+RUN pip install --upgrade git+https://github.com/huggingface/transformers.git \
+  git+https://github.com/huggingface/trl.git
 
 #Install Google Cloud Dependencies
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
@@ -64,6 +67,6 @@ RUN pip install --upgrade --no-cache-dir \
 
 # Check if correct versions are installed
 RUN python -c "import transformers, diffusers, datasets, accelerate, evaluate, peft, trl, torch; \
-                assert all([mod.__version__ == version for mod, version in [(transformers, '${TRANSFORMERS}'), (diffusers, '${DIFFUSERS}'), \
-                (datasets, '${DATASETS}'), (accelerate, '${ACCELERATE}'), (evaluate, '${EVALUATE}'), (peft, '${PEFT}'), (trl, '${TRL}'), \
+                assert all([mod.__version__ == version for mod, version in [(diffusers, '${DIFFUSERS}'), \
+                (datasets, '${DATASETS}'), (accelerate, '${ACCELERATE}'), (evaluate, '${EVALUATE}'), (peft, '${PEFT}'), \
                 (torch, '2.3.0')]])" 
