@@ -76,19 +76,19 @@ gcloud alpha compute tpus tpu-vm ssh dev-tpu-vm --zone=us-west4-a
 ```
 
 <!-- TODO: Update the link to the Dockerfile and remove the part where docker image needs to be build once DLCs are released-->
-You now need to build the environment using Hugging Face's PyTorch TPU DLC [Dockerfile](https://github.com/huggingface/Google-Cloud-Containers/blob/feature/pytorch-tpu-container/containers/pytorch/training/tpu/2.1/transformers/4.37.2/py310/Dockerfile). You can use the following commands to build the environment:
+You now need to build the environment using Hugging Face's PyTorch TPU DLC [Dockerfile](https://github.com/huggingface/Google-Cloud-Containers/blob/main/containers/pytorch/training/tpu/2.3/transformers/4.39.0.dev0/py310/Dockerfile). You can use the following commands to build the environment:
 
 ```bash
 git clone https://github.com/huggingface/Google-Cloud-Containers.git
 cd Google-Cloud-Containers
-sudo docker build -t huggingface-pytorch-training-tpu-2.3.transformers.4.38.1.py310:latest -f containers/pytorch/training/tpu/2.3/transformers/4.38.1/py310/Dockerfile .
+sudo docker build -t huggingface-pytorch-training-tpu-2.3.transformers.4.39.0.dev0.py310:latest -f containers/pytorch/training/tpu/2.3/transformers/4.39.0.dev0/py310/Dockerfile .
 ```
 
 ## Train the model
 Once, the docker image is built, we need to run the docker container in order to activate the enviroment. You can use the following commands to run the docker container:
 
 ```bash
-sudo docker run -it -v $(pwd):/workspace --privileged huggingface-pytorch-training-tpu-2.3.transformers.4.38.1.py310:latest bash
+sudo docker run -it -v $(pwd):/workspace --privileged huggingface-pytorch-training-tpu-2.3.transformers.4.39.0.dev0.py310:latest bash
 ```
 
 Now, you can run the following commands to train the model:
@@ -99,6 +99,6 @@ export HF_TOKEN=<YOUR_HF_TOKEN>
 cd /workspace
 python examples/google-cloud-tpu-vm/causal-language-modeling/finetune-gemma-lora-dolly.py \ 
 --num_epochs 3 \
---train_batch_size 16 \
+--train_batch_size 64 \
 --lr 3e-4
 ```
