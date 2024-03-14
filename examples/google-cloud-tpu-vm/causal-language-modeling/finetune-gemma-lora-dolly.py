@@ -45,7 +45,7 @@ def train_gemma(args):
     model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16)
     lora_config = LoraConfig(
         r=8,
-        target_modules=["q_proj", "v_proj"],
+        target_modules="all-linear",
         task_type=TaskType.CAUSAL_LM,
         lora_alpha=16,
         lora_dropout=0.05,
@@ -70,6 +70,10 @@ def train_gemma(args):
         logging_strategy="steps",
         logging_steps=args.logging_steps,
         save_steps=args.save_steps,
+        bf16=True,
+        max_grad_norm=0.3,                      # max gradient norm based on QLoRA paper
+        warmup_ratio=0.03,                      # warmup ratio based on QLoRA paper
+        lr_scheduler_type="constant", 
         dataloader_drop_last=True,  # Required for SPMD.
         fsdp="full_shard",
         fsdp_config=fsdp_config,
@@ -93,7 +97,7 @@ def train_gemma(args):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--num_epochs", default=3, type=int)
-    parser.add_argument("--train_batch_size", default=64, type=int)
+    parser.add_argument("--train_batch_size", default=32, type=int)
     parser.add_argument("--lr", default=3e-4, type=float)
     parser.add_argument("--save_steps", default=100, type=int)
     parser.add_argument("--logging_steps", default=20, type=int)
