@@ -9,7 +9,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
 from trl import SFTTrainer
 
 
-def train_gemma(args):
+def train_llama(args):
     raw_dataset = load_dataset("timdettmers/openassistant-guanaco", split="train")
     model_id = "meta-llama/Llama-2-7b-hf"
 
@@ -84,4 +84,4 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    train_gemma(args)
+    train_llama(args)
