@@ -6,11 +6,11 @@ LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
-ARG TRANSFORMERS='4.38.1'
-ARG DIFFUSERS='0.26.3'
-ARG PEFT='0.8.2'
-ARG TRL='0.7.11'
-ARG DATASETS='2.17.1'
+ARG TRANSFORMERS='4.39.0'
+ARG DIFFUSERS='0.27.1'
+ARG PEFT='0.9.0'
+ARG TRL='0.8.1'
+ARG DATASETS='2.18.0'
 ARG ACCELERATE='0.27.2'
 ARG EVALUATE='0.4.1'
 ARG NOTEBOOK='7.1.1'
@@ -45,10 +45,11 @@ RUN pip install --upgrade --no-cache-dir \
   evaluate==${EVALUATE} \
   peft==${PEFT} \
   trl==${TRL} \
-  notebook==${NOTEBOOK} 
-  
-RUN pip install --upgrade git+https://github.com/huggingface/transformers.git \
-  git+https://github.com/huggingface/trl.git
+  notebook==${NOTEBOOK}
+
+# fix about saving checkpoints on TPU when using FSDPv2
+# can be removed once https://github.com/huggingface/transformers/pull/29780 is merged and new release is made
+RUN pip install --upgrade git+https://github.com/shub-kris/transformers.git@fix/checkpointing-on-tpu-with-fsdpv2
 
 #Install Google Cloud Dependencies
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
@@ -68,5 +69,5 @@ RUN pip install --upgrade --no-cache-dir \
 # Check if correct versions are installed
 RUN python -c "import transformers, diffusers, datasets, accelerate, evaluate, peft, trl, torch; \
                 assert all([mod.__version__ == version for mod, version in [(diffusers, '${DIFFUSERS}'), \
-                (datasets, '${DATASETS}'), (accelerate, '${ACCELERATE}'), (evaluate, '${EVALUATE}'), (peft, '${PEFT}'), \
+                (datasets, '${DATASETS}'), (accelerate, '${ACCELERATE}'), (evaluate, '${EVALUATE}'), (peft, '${PEFT}'), (trl, '${TRL}'), \
                 (torch, '2.3.0')]])" 

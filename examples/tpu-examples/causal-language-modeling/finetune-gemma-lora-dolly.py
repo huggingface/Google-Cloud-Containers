@@ -2,16 +2,32 @@ import argparse
 
 import torch
 import torch_xla
-import torch_xla.core.xla_model as xm
 from datasets import load_dataset
-from peft import LoraConfig, TaskType
+from peft import LoraConfig, PeftModel, TaskType
 from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
 from trl import SFTTrainer
 
 
+def inference(model, tokenizer):
+    prompts = [
+        "Why can camels survive for long without water?",
+        "Are the following items candy bars or gum: trident, Twix, hubba bubba, snickers, three musketeers, and wrigleys.",
+    ]
+
+    for prompt in prompts:
+        text = f"### Instruction\n {prompt}"
+        device = "cpu"
+        inputs = tokenizer(text, return_tensors="pt").to(device)
+        outputs = model.generate(
+            **inputs, max_new_tokens=50
+        )  # model.generate only supported on GPU and CPU
+        print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+        print("\n\n")
+
+
 def train_gemma(args):
     raw_dataset = load_dataset("databricks/databricks-dolly-15k", split="train")
-    model_id = "google/gemma-2b"
+    model_id = args.model_id
 
     def format_dolly(sample):
         instruction = f"### Instruction\n{sample['instruction']}"
@@ -33,9 +49,7 @@ def train_gemma(args):
 
     # Load Tokenizer
     tokenizer = AutoTokenizer.from_pretrained(model_id)
-    tokenizer.pad_token = tokenizer.eos_token
-
-    device = xm.xla_device()
+    tokenizer.padding_side = "right"  # to prevent warnings
 
     # Load model
     model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16)
@@ -66,10 +80,8 @@ def train_gemma(args):
         logging_strategy="steps",
         logging_steps=args.logging_steps,
         save_steps=args.save_steps,
+        optim="adafactor",
         bf16=True,
-        max_grad_norm=0.3,  # max gradient norm based on QLoRA paper
-        warmup_ratio=0.03,  # warmup ratio based on QLoRA paper
-        lr_scheduler_type="constant",
         dataloader_drop_last=True,  # Required for SPMD.
         fsdp="full_shard",
         fsdp_config=fsdp_config,
@@ -89,13 +101,19 @@ def train_gemma(args):
     trainer.train()
     trainer.save_model()
 
+    # Inference
+    model = AutoModelForCausalLM.from_pretrained(model_id)
+    trained_peft_model = PeftModel.from_pretrained(model, "output")
+    inference(trained_peft_model, tokenizer)
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--model_id", default="google/gemma-7b", type=str)
     parser.add_argument("--num_epochs", default=3, type=int)
     parser.add_argument("--train_batch_size", default=32, type=int)
     parser.add_argument("--lr", default=3e-4, type=float)
-    parser.add_argument("--save_steps", default=100, type=int)
+    parser.add_argument("--save_steps", default=500, type=int)
     parser.add_argument("--logging_steps", default=1, type=int)
     args = parser.parse_args()
     return args
