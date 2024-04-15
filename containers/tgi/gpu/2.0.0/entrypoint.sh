@@ -25,4 +25,4 @@ if [[ $AIP_STORAGE_URI == gcs://* ]]; then
 fi
 
 # launch TGI either from MODEL_ID (HF repo) or local directory
-text-generation-launcher --port 8080
+text-generation-launcher --port 8080 --json-output
