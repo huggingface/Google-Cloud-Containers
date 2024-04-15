@@ -1,11 +1,11 @@
 # Fetch and extract the TGI sources
 FROM alpine AS tgi
 RUN mkdir -p /tgi
-ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v1.4.4.tar.gz /tgi/sources.tar.gz
+ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v2.0.0.tar.gz /tgi/sources.tar.gz
 RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
 
 # Build cargo components (adapted from TGI original Dockerfile)
-# Note that the build image is aligned on the same Linux version as the base image (Debian bookworm/ Ubuntu 22.04)
+# Rust builder
 FROM lukemathwalker/cargo-chef:latest-rust-1.75 AS chef
 WORKDIR /usr/src
 
@@ -13,7 +13,6 @@ ARG CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 FROM chef as planner
 COPY --from=tgi /tgi/Cargo.toml Cargo.toml
-COPY --from=tgi /tgi/Cargo.lock Cargo.lock
 COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
 COPY --from=tgi /tgi/proto proto
 COPY --from=tgi /tgi/benchmark benchmark
@@ -37,7 +36,6 @@ COPY --from=planner /usr/src/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
 COPY --from=tgi /tgi/Cargo.toml Cargo.toml
-COPY --from=tgi /tgi/Cargo.lock Cargo.lock
 COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
 COPY --from=tgi /tgi/proto proto
 COPY --from=tgi /tgi/benchmark benchmark
@@ -95,7 +93,7 @@ FROM pytorch-install as kernel-builder
 ARG MAX_JOBS=4
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  ninja-build \
+  ninja-build cmake \
   && rm -rf /var/lib/apt/lists/*
 
 # Build Flash Attention CUDA kernels
@@ -170,11 +168,6 @@ WORKDIR /usr/src
 COPY --from=tgi /tgi/server/Makefile-selective-scan Makefile
 RUN make build-all
 
-# Build megablocks
-FROM kernel-builder as megablocks-builder
-
-RUN pip install git+https://github.com/OlivierDehaene/megablocks@181709df192de9a941fdf3a641cdc65a0462996e
-
 # Text Generation Inference base image
 FROM nvidia/cuda:12.1.0-base-ubuntu22.04 as base
 
@@ -196,8 +189,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   curl \
   && rm -rf /var/lib/apt/lists/*
 
-# Copy conda with PyTorch and Megablocks installed
-COPY --from=megablocks-builder /opt/conda /opt/conda
+# Copy conda with PyTorch installed
+COPY --from=pytorch-install /opt/conda /opt/conda
 
 # Copy build artifacts from flash attention builder
 COPY --from=flash-att-builder /usr/src/flash-attention/build/lib.linux-x86_64-cpython-310 /opt/conda/lib/python3.10/site-packages
@@ -225,7 +218,7 @@ COPY --from=vllm-builder /usr/src/vllm/build/lib.linux-x86_64-cpython-310 /opt/c
 COPY --from=mamba-builder /usr/src/mamba/build/lib.linux-x86_64-cpython-310/ /opt/conda/lib/python3.10/site-packages
 COPY --from=mamba-builder /usr/src/causal-conv1d/build/lib.linux-x86_64-cpython-310/ /opt/conda/lib/python3.10/site-packages
 
-# Install flash-attention dependencies
+# Install vllm/flash-attention dependencies
 RUN pip install einops --no-cache-dir
 
 # Install server
