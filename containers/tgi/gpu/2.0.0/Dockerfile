@@ -166,7 +166,7 @@ RUN make build-vllm-cuda
 FROM kernel-builder as mamba-builder
 WORKDIR /usr/src
 COPY --from=tgi /tgi/server/Makefile-selective-scan Makefile
-RUN make build-all
+RUN make build-ll
 
 # Text Generation Inference base image
 FROM nvidia/cuda:12.1.0-base-ubuntu22.04 as base
@@ -242,5 +242,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   g++ \
   && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["text-generation-launcher"]
-CMD ["--json-output"]
+# Install Google CLI single command
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && apt-get update -y && apt-get install google-cloud-sdk -y && rm -rf /var/lib/apt/lists/*
+
+# COPY custom entrypoint for Google
+COPY --chmod=775 containers/tgi/gpu/2.0.0/entrypoint.sh entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
