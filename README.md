@@ -85,10 +85,10 @@ After the containers are built, you can run the tests in the `tests` directory t
 
 ## Available Containers
 
-| Container Tag                                                                 | Framework | Type      | Accelerator |
-| ----------------------------------------------------------------------------- | --------- | --------- | ----------- |
-| [pytorch-training-gpu.2.1.transformers.4.38.1.py310](./containers/pytorch/training/gpu/2.1/transformers/4.38.1/py310/Dockerfile)  | Pytorch   | training  | GPU         |
-| [text-generation-inference-gpu.1.4.2](./containers/tgi/gpu/1.4.2/Dockerfile)                 | -         | inference | GPU         |
+| Container Tag                                                                                                                    | Framework | Type      | Accelerator |
+| -------------------------------------------------------------------------------------------------------------------------------- | --------- | --------- | ----------- |
+| [pytorch-training-gpu.2.1.transformers.4.38.1.py310](./containers/pytorch/training/gpu/2.1/transformers/4.38.1/py310/Dockerfile) | Pytorch   | training  | GPU         |
+| [text-generation-inference-gpu.2.0.0](./containers/tgi/gpu/2.0.0/Dockerfile)                                                     | -         | inference | GPU         |
 
 ## Directory Structure
 
