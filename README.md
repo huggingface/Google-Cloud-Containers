@@ -8,7 +8,7 @@ The [`examples`](./examples) directory contains examples for using the container
 
 ## Building the Containers without (container.yaml)
 
-_Note: we added the latest TGI version as an example into the repository, which can be build with._
+_Note: we added the latest TGI version as an example into the repository, which can be built with._
 
 ```bash
 docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.4.2 -f containers/tgi/gpu/1.4.2/Dockerfile .
