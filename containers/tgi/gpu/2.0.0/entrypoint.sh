@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Check if MODEL_ID starts with "gcs://"
-if [[ $AIP_STORAGE_URI == gcs://* ]]; then
-    echo "AIP_STORAGE_URI set and starts with 'gcs://', proceeding to download from GCS."
+if [[ $AIP_STORAGE_URI == gs://* ]]; then
+    echo "AIP_STORAGE_URI set and starts with 'gs://', proceeding to download from GCS."
 
     # Define the target directory
     TARGET_DIR="/tmp/model"
