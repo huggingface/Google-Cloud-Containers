@@ -1,7 +1,7 @@
 # Fetch and extract the TGI sources
 FROM alpine AS tei
 RUN mkdir -p /tei
-ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.2.1.tar.gz /tei/sources.tar.gz
+ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.2.2.tar.gz /tei/sources.tar.gz
 RUN tar -C /tei -xf /tei/sources.tar.gz --strip-components=1
 
 # Build cargo components (adapted from TEI original Dockerfile)
