@@ -28,11 +28,11 @@ FROM base-builder AS planner
 
 WORKDIR /usr/src
 
-COPY --from=tei backends backends
-COPY --from=tei core core
-COPY --from=tei router router
-COPY --from=tei Cargo.toml ./
-COPY --from=tei Cargo.lock ./
+COPY --from=tei /tei/backends backends
+COPY --from=tei /tei/core core
+COPY --from=tei /tei/router router
+COPY --from=tei /tei/Cargo.toml ./
+COPY --from=tei /tei/Cargo.lock ./
 
 RUN cargo chef prepare  --recipe-path recipe.json
 
@@ -55,11 +55,11 @@ FROM builder as builder-75
 
 RUN CUDA_COMPUTE_CAP=75 cargo chef cook --release --features google --features candle-cuda-turing --features http --no-default-features --recipe-path recipe.json && sccache -s
 
-COPY --from=tei backends backends
-COPY --from=tei core core
-COPY --from=tei router router
-COPY --from=tei Cargo.toml ./
-COPY --from=tei Cargo.lock ./
+COPY --from=tei /tei/backends backends
+COPY --from=tei /tei/core core
+COPY --from=tei /tei/router router
+COPY --from=tei /tei/Cargo.toml ./
+COPY --from=tei /tei/Cargo.lock ./
 
 RUN CUDA_COMPUTE_CAP=75 cargo build --release --bin text-embeddings-router -F candle-cuda-turing -F http -F google --no-default-features && sccache -s
 
@@ -68,11 +68,11 @@ FROM builder as builder-80
 
 RUN CUDA_COMPUTE_CAP=80 cargo chef cook --release --features google --features candle-cuda --features http --no-default-features --recipe-path recipe.json && sccache -s
 
-COPY --from=tei backends backends
-COPY --from=tei core core
-COPY --from=tei router router
-COPY --from=tei Cargo.toml ./
-COPY --from=tei Cargo.lock ./
+COPY --from=tei /tei/backends backends
+COPY --from=tei /tei/core core
+COPY --from=tei /tei/router router
+COPY --from=tei /tei/Cargo.toml ./
+COPY --from=tei /tei/Cargo.lock ./
 
 RUN CUDA_COMPUTE_CAP=80 cargo build --release --bin text-embeddings-router -F candle-cuda -F http -F google --no-default-features && sccache -s
 
@@ -80,11 +80,11 @@ FROM builder as builder-90
 
 RUN CUDA_COMPUTE_CAP=90 cargo chef cook --release --features google --features candle-cuda --features http --no-default-features --recipe-path recipe.json && sccache -s
 
-COPY --from=tei backends backends
-COPY --from=tei core core
-COPY --from=tei router router
-COPY --from=tei Cargo.toml ./
-COPY --from=tei Cargo.lock ./
+COPY --from=tei /tei/backends backends
+COPY --from=tei /tei/core core
+COPY --from=tei /tei/router router
+COPY --from=tei /tei/Cargo.toml ./
+COPY --from=tei /tei/Cargo.lock ./
 
 RUN CUDA_COMPUTE_CAP=90 cargo build --release --bin text-embeddings-router -F candle-cuda -F http -F google --no-default-features && sccache -s
 
@@ -100,7 +100,7 @@ COPY --from=builder-75 /usr/src/target/release/text-embeddings-router /usr/local
 COPY --from=builder-80 /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router-80
 COPY --from=builder-90 /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router-90
 
-COPY --from=tei cuda-all-entrypoint.sh entrypoint.sh
+COPY --from=tei /tei/cuda-all-entrypoint.sh entrypoint.sh
 RUN chmod +x entrypoint.sh
 
 ENTRYPOINT ["./entrypoint.sh"]

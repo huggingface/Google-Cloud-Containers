@@ -17,11 +17,11 @@ RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v$SCCACHE/sc
 
 FROM chef AS planner
 
-COPY --from=tei backends backends
-COPY --from=tei core core
-COPY --from=tei router router
-COPY --from=tei Cargo.toml ./
-COPY --from=tei Cargo.lock ./
+COPY --from=tei /tei/backends backends
+COPY --from=tei /tei/core core
+COPY --from=tei /tei/router router
+COPY --from=tei /tei/Cargo.toml ./
+COPY --from=tei /tei/Cargo.lock ./
 
 RUN cargo chef prepare  --recipe-path recipe.json
 
@@ -52,11 +52,11 @@ COPY --from=planner /usr/src/recipe.json recipe.json
 
 RUN cargo chef cook --release --features google --features candle --features mkl-dynamic --no-default-features --recipe-path recipe.json && sccache -s
 
-COPY --from=tei backends backends
-COPY --from=tei core core
-COPY --from=tei router router
-COPY --from=tei Cargo.toml ./
-COPY --from=tei Cargo.lock ./
+COPY --from=tei /tei/backends backends
+COPY --from=tei /tei/core core
+COPY --from=tei /tei/router router
+COPY --from=tei /tei/Cargo.toml ./
+COPY --from=tei /tei/Cargo.lock ./
 
 FROM builder as http-builder
 
@@ -70,7 +70,7 @@ RUN PROTOC_ZIP=protoc-21.12-linux-x86_64.zip && \
   unzip -o $PROTOC_ZIP -d /usr/local 'include/*' && \
   rm -f $PROTOC_ZIP
 
-COPY --from=tei proto proto
+COPY --from=tei /tei/proto proto
 
 RUN cargo build --release --bin text-embeddings-router -F google -F grpc -F candle -F mkl-dynamic --no-default-features && sccache -s
 
