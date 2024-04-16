@@ -8,10 +8,20 @@ The [`examples`](./examples) directory contains examples for using the container
 
 ## Building the Containers without (container.yaml)
 
+### Text Generation Inference
+
 _Note: we added the latest TGI version as an example into the repository, which can be build with._
 
 ```bash
 docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.4.2 -f containers/tgi/gpu/1.4.2/Dockerfile .
+```
+
+### Text Embedding Inference
+
+_Note: we added the latest TGI version as an example into the repository, which can be build with._
+
+```bash
+docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embedding-inference-gpu.1.2.1 -f containers/tei/gpu/1.2.1/Dockerfile .
 ```
 
 ### Mistral 7B test
@@ -89,6 +99,8 @@ After the containers are built, you can run the tests in the `tests` directory t
 | -------------------------------------------------------------------------------------------------------------------------------- | --------- | --------- | ----------- |
 | [pytorch-training-gpu.2.1.transformers.4.38.1.py310](./containers/pytorch/training/gpu/2.1/transformers/4.38.1/py310/Dockerfile) | Pytorch   | training  | GPU         |
 | [text-generation-inference-gpu.2.0.0](./containers/tgi/gpu/2.0.0/Dockerfile)                                                     | -         | inference | GPU         |
+| [text-embedding-inference-cpu.1.2.1](./containers/tei/cpu/1.2.1/Dockerfile)                                                      | -         | inference | CPU         |
+| [text-embedding-inference-gpu.1.2.1](./containers/tei/gpu/1.2.1/Dockerfile)                                                      | -         | inference | GPU         |
 
 ## Directory Structure
 
