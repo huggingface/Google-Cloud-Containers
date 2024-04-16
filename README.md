@@ -8,8 +8,8 @@ The [`examples`](./examples) directory contains examples for using the container
 
 ## Building the Containers manually
 
-* [Text Embedding Inference](./containers/tei/README.md)
 * [Text Generation Inference](./containers/tgi/README.md)
+* [Text Embedding Inference](./containers/tei/README.md)
 
 ## Configurations
 
