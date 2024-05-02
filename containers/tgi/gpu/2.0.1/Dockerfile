@@ -242,5 +242,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   g++ \
   && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["text-generation-launcher"]
-CMD ["--json-output"]
+COPY --from=tgi /tgi/tgi-entrypoint.sh /tgi-entrypoint.sh
+
+ENTRYPOINT ["/tgi-entrypoint.sh"]
