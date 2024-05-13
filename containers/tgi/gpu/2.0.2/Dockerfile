@@ -1,7 +1,7 @@
 # Fetch and extract the TGI sources
 FROM alpine AS tgi
 RUN mkdir -p /tgi
-ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v2.0.1.tar.gz /tgi/sources.tar.gz
+ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v2.0.2.tar.gz /tgi/sources.tar.gz
 RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
 
 # Build cargo components (adapted from TGI original Dockerfile)
@@ -22,9 +22,6 @@ RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 
-# TODO: Not sure if needed
-# ARG GIT_SHA
-# ARG DOCKER_LABEL
 
 RUN PROTOC_ZIP=protoc-21.12-linux-x86_64.zip && \
   curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v21.12/$PROTOC_ZIP && \
@@ -47,7 +44,7 @@ RUN cargo build --release --features google
 # Adapted from: https://github.com/pytorch/pytorch/blob/master/Dockerfile
 FROM nvidia/cuda:12.1.0-devel-ubuntu22.04 as pytorch-install
 
-ARG PYTORCH_VERSION=2.1.1
+ARG PYTORCH_VERSION=2.3.0
 ARG PYTHON_VERSION=3.10
 # Keep in sync with `server/pyproject.toml
 ARG CUDA_VERSION=12.1
@@ -157,6 +154,8 @@ FROM kernel-builder as vllm-builder
 
 WORKDIR /usr/src
 
+ENV TORCH_CUDA_ARCH_LIST="7.0 7.5 8.0 8.6 8.9 9.0+PTX"
+
 COPY --from=tgi /tgi/server/Makefile-vllm Makefile
 
 # Build specific version of vllm
@@ -218,7 +217,7 @@ COPY --from=vllm-builder /usr/src/vllm/build/lib.linux-x86_64-cpython-310 /opt/c
 COPY --from=mamba-builder /usr/src/mamba/build/lib.linux-x86_64-cpython-310/ /opt/conda/lib/python3.10/site-packages
 COPY --from=mamba-builder /usr/src/causal-conv1d/build/lib.linux-x86_64-cpython-310/ /opt/conda/lib/python3.10/site-packages
 
-# Install vllm/flash-attention dependencies
+# Install flash-attention dependencies
 RUN pip install einops --no-cache-dir
 
 # Install server
@@ -242,7 +241,17 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   g++ \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=tgi /tgi/tgi-entrypoint.sh /tgi-entrypoint.sh
+# Final image
+FROM base
 
-ENTRYPOINT ["/tgi-entrypoint.sh"]
-CMD ["--json-output"]
+# Install Google CLI single command
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+    | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+    | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
+    apt-get update -y && \
+    apt-get install google-cloud-sdk -y
+    
+# COPY custom entrypoint for Google
+COPY --chmod=775 containers/tgi/gpu/2.0.2/entrypoint.sh entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
