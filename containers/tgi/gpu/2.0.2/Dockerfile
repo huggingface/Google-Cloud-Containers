@@ -242,14 +242,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   g++ \
   && rm -rf /var/lib/apt/lists/*
 
-# Install Google CLI single command
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
-    | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
-    | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
-    apt-get update -y && \
-    apt-get install google-cloud-sdk -y
-    
-# COPY custom entrypoint for Google
-COPY --chmod=775 containers/tgi/gpu/2.0.0/entrypoint.sh entrypoint.sh
+COPY --from=tgi /tgi/tgi-entrypoint.sh /tgi-entrypoint.sh
+
+ENTRYPOINT ["/tgi-entrypoint.sh"]
 CMD ["--json-output"]
