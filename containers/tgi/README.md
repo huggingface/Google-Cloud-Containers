@@ -9,7 +9,7 @@ Below are the instructions to build and test the Text-generation-Inference conta
 Build the container with the following command:
 
 ```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.0.1 -f containers/tgi/gpu/2.0.1/Dockerfile .
+docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.0.2 -f containers/tgi/gpu/2.0.2/Dockerfile .
 ```
 
 ### Mistral 7B test
@@ -17,17 +17,17 @@ docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingfa
 test the container on a GPU instance (g2) with
 
 ```bash
-model=mistralai/Mistral-7B-Instruct-v0.2
+model=HuggingFaceH4/zephyr-7b-beta
 num_shard=1
 max_input_length=1562
 max_total_tokens=2048
 
-docker run --gpus all -ti -p 8080:80 \
+docker run --gpus all -ti -p 8080:8080 \
   -e MODEL_ID=$model \
   -e NUM_SHARD=$num_shard \
   -e MAX_INPUT_LENGTH=$max_input_length \
   -e MAX_TOTAL_TOKENS=$max_total_tokens \
-  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.4.2  
+  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.0.2  
 ```
 
 Send request:
