@@ -1,12 +1,12 @@
 # Fetch and extract the TGI sources
 FROM alpine AS tgi
 RUN mkdir -p /tgi
-ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v2.0.2.tar.gz /tgi/sources.tar.gz
+ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v2.0.3.tar.gz /tgi/sources.tar.gz
 RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
 
 # Build cargo components (adapted from TGI original Dockerfile)
 # Rust builder
-FROM lukemathwalker/cargo-chef:latest-rust-1.75 AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.78 AS chef
 WORKDIR /usr/src
 
 ARG CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
@@ -22,12 +22,11 @@ RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 
-
 RUN PROTOC_ZIP=protoc-21.12-linux-x86_64.zip && \
-  curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v21.12/$PROTOC_ZIP && \
-  unzip -o $PROTOC_ZIP -d /usr/local bin/protoc && \
-  unzip -o $PROTOC_ZIP -d /usr/local 'include/*' && \
-  rm -f $PROTOC_ZIP
+    curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v21.12/$PROTOC_ZIP && \
+    unzip -o $PROTOC_ZIP -d /usr/local bin/protoc && \
+    unzip -o $PROTOC_ZIP -d /usr/local 'include/*' && \
+    rm -f $PROTOC_ZIP
 
 COPY --from=planner /usr/src/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
@@ -48,7 +47,7 @@ ARG PYTORCH_VERSION=2.3.0
 ARG PYTHON_VERSION=3.10
 # Keep in sync with `server/pyproject.toml
 ARG CUDA_VERSION=12.1
-ARG MAMBA_VERSION=23.3.1-1
+ARG MAMBA_VERSION=24.3.0-0
 ARG CUDA_CHANNEL=nvidia
 ARG INSTALL_CHANNEL=pytorch
 # Automatically set by buildx
@@ -57,32 +56,32 @@ ARG TARGETPLATFORM
 ENV PATH /opt/conda/bin:$PATH
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  build-essential \
-  ca-certificates \
-  ccache \
-  curl \
-  git && \
-  rm -rf /var/lib/apt/lists/*
+        build-essential \
+        ca-certificates \
+        ccache \
+        curl \
+        git && \
+        rm -rf /var/lib/apt/lists/*
 
 # Install conda
 # translating Docker's TARGETPLATFORM into mamba arches
 RUN case ${TARGETPLATFORM} in \
-  "linux/arm64")  MAMBA_ARCH=aarch64  ;; \
-  *)              MAMBA_ARCH=x86_64   ;; \
-  esac && \
-  curl -fsSL -v -o ~/mambaforge.sh -O  "https://github.com/conda-forge/miniforge/releases/download/${MAMBA_VERSION}/Mambaforge-${MAMBA_VERSION}-Linux-${MAMBA_ARCH}.sh"
+         "linux/arm64")  MAMBA_ARCH=aarch64  ;; \
+         *)              MAMBA_ARCH=x86_64   ;; \
+    esac && \
+    curl -fsSL -v -o ~/mambaforge.sh -O  "https://github.com/conda-forge/miniforge/releases/download/${MAMBA_VERSION}/Mambaforge-${MAMBA_VERSION}-Linux-${MAMBA_ARCH}.sh"
 RUN chmod +x ~/mambaforge.sh && \
-  bash ~/mambaforge.sh -b -p /opt/conda && \
-  rm ~/mambaforge.sh
+    bash ~/mambaforge.sh -b -p /opt/conda && \
+    rm ~/mambaforge.sh
 
 # Install pytorch
 # On arm64 we exit with an error code
 RUN case ${TARGETPLATFORM} in \
-  "linux/arm64")  exit 1 ;; \
-  *)              /opt/conda/bin/conda update -y conda &&  \
-  /opt/conda/bin/conda install -c "${INSTALL_CHANNEL}" -c "${CUDA_CHANNEL}" -y "python=${PYTHON_VERSION}" "pytorch=$PYTORCH_VERSION" "pytorch-cuda=$(echo $CUDA_VERSION | cut -d'.' -f 1-2)"  ;; \
-  esac && \
-  /opt/conda/bin/conda clean -ya
+         "linux/arm64")  exit 1 ;; \
+         *)              /opt/conda/bin/conda update -y conda &&  \
+                         /opt/conda/bin/conda install -c "${INSTALL_CHANNEL}" -c "${CUDA_CHANNEL}" -y "python=${PYTHON_VERSION}" "pytorch=$PYTORCH_VERSION" "pytorch-cuda=$(echo $CUDA_VERSION | cut -d'.' -f 1-2)"  ;; \
+    esac && \
+    /opt/conda/bin/conda clean -ya
 
 # CUDA kernels builder image
 FROM pytorch-install as kernel-builder
@@ -90,8 +89,8 @@ FROM pytorch-install as kernel-builder
 ARG MAX_JOBS=4
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  ninja-build cmake \
-  && rm -rf /var/lib/apt/lists/*
+        ninja-build cmake \
+        && rm -rf /var/lib/apt/lists/*
 
 # Build Flash Attention CUDA kernels
 FROM kernel-builder as flash-att-builder
@@ -172,21 +171,22 @@ FROM nvidia/cuda:12.1.0-base-ubuntu22.04 as base
 
 # Conda env
 ENV PATH=/opt/conda/bin:$PATH \
-  CONDA_PREFIX=/opt/conda
+    CONDA_PREFIX=/opt/conda
 
 # Text Generation Inference base env
-ENV HUGGINGFACE_HUB_CACHE=/data \
-  HF_HUB_ENABLE_HF_TRANSFER=1 \
-  PORT=80
+ENV HUGGINGFACE_HUB_CACHE=/tmp \
+    HF_HUB_ENABLE_HF_TRANSFER=1 \
+    PORT=8080
 
 WORKDIR /usr/src
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  libssl-dev \
-  ca-certificates \
-  make \
-  curl \
-  && rm -rf /var/lib/apt/lists/*
+        libssl-dev \
+        ca-certificates \
+        make \
+        curl \
+        git \
+        && rm -rf /var/lib/apt/lists/*
 
 # Copy conda with PyTorch installed
 COPY --from=pytorch-install /opt/conda /opt/conda
@@ -225,9 +225,9 @@ COPY --from=tgi /tgi/proto proto
 COPY --from=tgi /tgi/server server
 COPY --from=tgi /tgi/server/Makefile server/Makefile
 RUN cd server && \
-  make gen-server && \
-  pip install -r requirements_cuda.txt && \
-  pip install ".[bnb, accelerate, quantize, peft, outlines]" --no-cache-dir
+    make gen-server && \
+    pip install -r requirements_cuda.txt && \
+    pip install ".[bnb, accelerate, quantize, peft, outlines]" --no-cache-dir
 
 # Install benchmarker
 COPY --from=builder /usr/src/target/release/text-generation-benchmark /usr/local/bin/text-generation-benchmark
@@ -237,9 +237,9 @@ COPY --from=builder /usr/src/target/release/text-generation-router /usr/local/bi
 COPY --from=builder /usr/src/target/release/text-generation-launcher /usr/local/bin/text-generation-launcher
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  build-essential \
-  g++ \
-  && rm -rf /var/lib/apt/lists/*
+        build-essential \
+        g++ \
+        && rm -rf /var/lib/apt/lists/*
 
 # Final image
 FROM base
@@ -253,5 +253,5 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     apt-get install google-cloud-sdk -y
     
 # COPY custom entrypoint for Google
-COPY --chmod=775 containers/tgi/gpu/2.0.2/entrypoint.sh entrypoint.sh
+COPY --chmod=775 containers/tgi/gpu/2.0.3/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
