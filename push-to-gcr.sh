@@ -6,7 +6,7 @@
 REGION="us-central1"
 DOCKER_ARTIFACT_REPO="base-tgi-image"
 PROJECT_ID="gcp-partnership-412108"
-BASE_TGI_IMAGE="us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.0.0"
+BASE_TGI_IMAGE="us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.0.3"
 SERVING_CONTAINER_IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${DOCKER_ARTIFACT_REPO}/base-tgi-image:latest"
 
 # gcloud auth application-default login

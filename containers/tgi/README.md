@@ -9,7 +9,7 @@ Below are the instructions to build and test the Text-generation-Inference conta
 Build the container with the following command:
 
 ```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.0.2 -f containers/tgi/gpu/2.0.2/Dockerfile .
+docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.0.3 -f containers/tgi/gpu/2.0.3/Dockerfile .
 ```
 
 ### Mistral 7B test
