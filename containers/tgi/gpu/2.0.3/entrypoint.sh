@@ -25,6 +25,7 @@ if [[ $AIP_STORAGE_URI == gs://* ]]; then
     fi
 fi
 
-# launch TGI either from MODEL_ID (HF repo) or local directory
-text-generation-launcher --port 8080 --json-output
+ldconfig 2>/dev/null || echo 'unable to refresh ld cache, not a big deal in most cases'
+
+text-generation-launcher $@
 
