@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
+FROM nvidia/cuda:12.1.1-devel-ubuntu22.04
 
 LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -19,31 +19,36 @@ ARG SENTENCE_TRANSFORMERS='2.7.0'
 ARG DEEPSPEED='0.14.2'
 ARG MAX_JOBS=4
 
-RUN apt-get update \
-    && apt-get install -y \
-    bzip2 \
-    curl \
-    git \
-    git-lfs \
-    tar \
-    gcc \
-    g++ \
-    libaio-dev \
-    # audio
-    libsndfile1-dev \
-    ffmpeg \
-    apt-transport-https \
-    gnupg \
-    ca-certificates \
-    && apt-get clean autoremove --yes 
+RUN apt-get update && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get -y upgrade --only-upgrade systemd openssl cryptsetup && \
+    apt-get install -y \
+        build-essential \
+        bzip2 \
+        curl \
+        git \
+        git-lfs \
+        tar \
+        gcc \
+        g++ \
+        cmake \
+        libprotobuf-dev \
+        libaio-dev \
+        protobuf-compiler \
+        python3-dev \
+        python3-pip \
+        python3.11 \
+        libsndfile1-dev \
+        ffmpeg \
+    && apt-get clean autoremove --yes \
+    && rm -rf /var/lib/{apt,dpkg,cache,log}
 
 # Update pip
 RUN pip install --upgrade pip
 
-# remove old torch and 
 # Install latest release PyTorch (PyTorch must be installed before any DeepSpeed c++/cuda ops.)
-RUN python3 -m pip uninstall -y torch torchvision torchaudio torch-tensorrt transformer-engine \
- && python3 -m pip install --no-cache-dir -U torch==${PYTORCH} torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/${CUDA}
+RUN pip install --no-cache-dir -U torch==${PYTORCH} torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/${CUDA}
 
 # Upgrade FlashAttnV2
 RUN pip install --no-cache-dir \
@@ -63,7 +68,8 @@ RUN pip install --upgrade --no-cache-dir \
   sentence-transformers==${SENTENCE_TRANSFORMERS} \
   deepspeed==${DEEPSPEED} \
   bitsandbytes==${BITSANDBYTES} \
-  tensorboard 
+  tensorboard \
+  jupyter notebook
 
 # Install Google Cloud Dependencies
 RUN pip install --upgrade --no-cache-dir \
