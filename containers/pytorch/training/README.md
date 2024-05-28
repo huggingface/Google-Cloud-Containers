@@ -35,11 +35,18 @@ trl sft \
 --bf16 True  \
 --per_device_train_batch_size 4  \
 --use_peft True  \
---Falseload_in_4bit True  \
+--load_in_4bit True  \
 --output_dir /artifacts
 ```
 
-This will now fine-tune Gemma on the OpenAssistant dataset using the `text` column and default Parameters. Learn more about the [TRL CLI HERE](https://huggingface.co/docs/trl/clis)
+This will now fine-tune Gemma on the OpenAssistant dataset using the `text` column and provided CLI Parameters. Learn more about the [TRL CLI HERE](https://huggingface.co/docs/trl/clis). Alteratively we support yaml configuration files. See [gemma-2b-test.yaml](gemma-2b-test.yaml).
+
+```bash
+docker run --gpus all -ti -v $(pwd)/artifcats:/artifacts -v $(pwd)/containers/pytorch/training/gemma-2b-test.yaml:/config/gemma-2b-test.yaml -e HF_TOKEN=$(cat ~/.cache/huggingface/token) us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.41.1.py310 \
+trl sft --config /config/gemma-2b-test.yaml
+```
+
+_NOTE: This should make the integration into Vertex AI seamless._
 
 
 For a Vertex AI example checkout [Fine-Tune Gemma](TODO:) notebook.  
