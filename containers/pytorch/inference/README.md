@@ -32,7 +32,7 @@ curl --request POST \
 }'
 ```
 
-For a Vertex AI example checkout [Deploy Distilbert on Vertex AI](../../examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai.ipynb) notebook.  
+For a Vertex AI example checkout [Deploy Distilbert on Vertex AI](../../../examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai.ipynb) notebook.  
 
 ### CPU Image
 
