@@ -10,10 +10,12 @@ The [`examples`](./examples) directory contains examples for using the container
 
 * [Text Generation Inference](./containers/tgi/README.md)
 * [Text Embedding Inference](./containers/tei/README.md)
+* [Pytorch Infernece](./containers/pytorch/inference)
+* [Pytorch Training](./containers/pytorch/training)
 
 ## Configurations
 
-> Need to be implemented
+> TODO: Need to be implemented
 
 The [`container.yaml`](./containers/container.yaml) file contains the configuration for the latest version of the container. Google uses this file to determine which container to build as the latest version.
 
@@ -25,10 +27,13 @@ After the containers are built, you can run the tests in the `tests` directory t
 
 | Container Tag                                                                                                                    | Framework | Type      | Accelerator |
 | -------------------------------------------------------------------------------------------------------------------------------- | --------- | --------- | ----------- |
-| [pytorch-training-gpu.2.1.transformers.4.38.1.py310](./containers/pytorch/training/gpu/2.1/transformers/4.38.1/py310/Dockerfile) | Pytorch   | training  | GPU         |
+| [huggingface-pytorch-training-gpu.2.3.0.transformers.4.41.1.py310](containers/pytorch/training/gpu/2.3.0/transformers/4.41.1/py310/Dockerfile) | Pytorch   | training  | GPU         |
+| [huggingface-pytorch-inference-gpu.2.2.2.transformers.4.41.1.py311](containers/pytorch/inference/gpu/2.2.2/transformers/4.41.1/py311/Dockerfile) | Pytorch   | Inference  | GPU         |
+| [huggingface-pytorch-inference-cpu.2.2.2.transformers.4.41.1.py311](containers/pytorch/inference/cpu/2.2.2/transformers/4.41.1/py311/Dockerfile) | Pytorch   | Inference  | CPU         |
 | [text-generation-inference-gpu.2.0.3](./containers/tgi/gpu/2.0.3/Dockerfile)                                                     | -         | inference | GPU         |
 | [text-embedding-inference-cpu.1.2.1](./containers/tei/cpu/1.2.1/Dockerfile)                                                      | -         | inference | CPU         |
 | [text-embedding-inference-gpu.1.2.1](./containers/tei/gpu/1.2.1/Dockerfile)                                                      | -         | inference | GPU         |
+
 
 ## Directory Structure
 
