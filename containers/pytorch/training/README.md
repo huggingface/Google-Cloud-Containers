@@ -1,10 +1,10 @@
 # Hugging Face Pytorch Training Containers
 
-The Hugging Face Pytorch Training Containers are Docker containers for training Hugging Face models on Google Cloud AI Platform. There are 2 containers, one for GPU and one for TPU. The containers come with all the necessary dependencies to train Hugging Face models on Google Cloud AI Platform. 
+The Hugging Face Pytorch Training Containers are Docker containers for training Hugging Face models on Google Cloud AI Platform. There are 2 containers, one for GPU and one for TPU (coming soon). The containers come with all the necessary dependencies to train Hugging Face models on Google Cloud AI Platform. 
 
-## GPU
+## Getting Started
 
-### Build Image manually
+### Build GPU Image manually
 
 Start by cloning the repository:
 
@@ -19,7 +19,7 @@ Then, build the container with the following command:
 docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.41.1.py310 -f containers/pytorch/training/gpu/2.3.0/transformers/4.41.1/py310/Dockerfile .
 ```
 
-### Test & Fine-tune Gemma using TRL
+#### Test & Fine-tune Gemma using TRL
 
 The command below shows how to test and fine-tune Gemma using TRL. First we need to login into Hugging Face to access the gated model. 
 
@@ -60,6 +60,6 @@ _NOTE: This should make the integration into Vertex AI seamless._
 
 For a Vertex AI example checkout [Fine-Tune Gemma](TODO:) notebook.  
 
-## TPU
+### Build TPU Image manually
 
 > TODO
