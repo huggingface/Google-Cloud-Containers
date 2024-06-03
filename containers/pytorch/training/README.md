@@ -1,16 +1,25 @@
-# Hugging Face Pytorch Trainning Container
+# Hugging Face Pytorch Training Containers
 
-The Hugging Face Pytorch Trainning Container is a Docker container for training Hugging Face models on Google Cloud AI Platform. The container comes with all the necessary dependencies to train Hugging Face models on Google Cloud AI Platform.
+The Hugging Face Pytorch Training Containers are Docker containers for training Hugging Face models on Google Cloud AI Platform. There are 2 containers, one for GPU and one for TPU (coming soon). The containers come with all the necessary dependencies to train Hugging Face models on Google Cloud AI Platform. 
 
-## Build Image 
+## Getting Started
 
-Build the container with the following command:
+### Build GPU Image manually
+
+Start by cloning the repository:
+
+```bash
+git clone https://github.com/huggingface/Google-Cloud-Containers
+cd Google-Cloud-Containers
+```
+
+Then, build the container with the following command:
 
 ```bash
 docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.41.1.py310 -f containers/pytorch/training/gpu/2.3.0/transformers/4.41.1/py310/Dockerfile .
 ```
 
-## Test & Fine-tune Gemma using TRL
+#### Test & Fine-tune Gemma using TRL
 
 The command below shows how to test and fine-tune Gemma using TRL. First we need to login into Hugging Face to access the gated model. 
 
@@ -18,7 +27,7 @@ The command below shows how to test and fine-tune Gemma using TRL. First we need
 huggingface-cli login --token YOUR_TOKEN
 ``` 
 
-Then we can run the following command to test and fine-tune Gemma using TRL and Q-Lora on 100 steps with flash attention.
+Once connected to the instance of your choice to use the Hugging Face Pytorch Training Container for GPU, run the following command to test the container and fine-tune Gemma using TRL and Q-Lora on 100 steps with flash attention. This will now fine-tune Gemma on the OpenAssistant dataset using the `text` column and provided CLI Parameters. Learn more about the [TRL CLI HERE](https://huggingface.co/docs/trl/clis).
 
 _NOTE: Parameters are tuned for a GPU with 24GB._ 
 
@@ -39,7 +48,7 @@ trl sft \
 --output_dir /artifacts
 ```
 
-This will now fine-tune Gemma on the OpenAssistant dataset using the `text` column and provided CLI Parameters. Learn more about the [TRL CLI HERE](https://huggingface.co/docs/trl/clis). Alteratively we support yaml configuration files. See [gemma-2b-test.yaml](gemma-2b-test.yaml).
+Alteratively we support yaml configuration files. See [gemma-2b-test.yaml](gemma-2b-test.yaml).
 
 ```bash
 docker run --gpus all -ti -v $(pwd)/artifcats:/artifacts -v $(pwd)/containers/pytorch/training/gemma-2b-test.yaml:/config/gemma-2b-test.yaml -e HF_TOKEN=$(cat ~/.cache/huggingface/token) us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.41.1.py310 \
@@ -50,3 +59,7 @@ _NOTE: This should make the integration into Vertex AI seamless._
 
 
 For a Vertex AI example checkout [Fine-Tune Gemma](TODO:) notebook.  
+
+### Build TPU Image manually
+
+> TODO

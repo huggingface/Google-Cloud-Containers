@@ -2,24 +2,43 @@
 
 This repository contains container files for building Hugging Face specific Deep Learning Containers, examples and tests for Google Cloud.
 
+We plan to release containers for each of these combinations of framework, use case, and accelerator type:
+* Training 
+    * [Pytorch](./containers/pytorch/training/README.md)
+        * GPU
+        * TPU (soon)
+* Inference
+    * [Pytorch](./containers/pytorch/inference/README.md)
+        * CPU
+        * GPU
+        * TPU (soon)
+    * [Text Generation Inference](./containers/tgi/README.md)
+        * GPU
+        * TPU (soon)
+    * [Text Embeddings Inference](./containers/tei/README.md)
+        * CPU (soon)
+        * GPU (soon)
+
 ## Usage Examples
 
 The [`examples`](./examples) directory contains examples for using the containers.
 
 ## Building the Containers manually
 
+For documentation on how to create the containers manually, please navigate to these README in the `containers` directory.
+
 * [Text Generation Inference](./containers/tgi/README.md)
-* [Text Embedding Inference](./containers/tei/README.md)
-* [Pytorch Infernece](./containers/pytorch/inference)
+* [Text Embeddings Inference](./containers/tei/README.md)
+* [Pytorch Inference](./containers/pytorch/inference)
 * [Pytorch Training](./containers/pytorch/training)
 
 ## Configurations
 
-> TODO: Need to be implemented
-
 The [`container.yaml`](./containers/container.yaml) file contains the configuration for the latest version of the container. Google uses this file to determine which container to build as the latest version.
 
 ## Tests
+
+> TODO: Add documentation on how to run the tests for each container (if different).
 
 After the containers are built, you can run the tests in the `tests` directory to verify that they are working correctly.
 
@@ -37,7 +56,7 @@ After the containers are built, you can run the tests in the `tests` directory t
 
 ## Directory Structure
 
-The container files are organized in a nested folder structure based on the container tag. For example, the Dockerfile for the container with the tag `pytorch-training-gpu.2.1.transformers.4.38.1.py310` is located at `pytorch/training/gpu/2.1/transformers/4.38.1/py310/Dockerfile`.
+The container files are organized in a nested folder structure based on the container tag. For example, if you want to have a look at the  Dockerfile for the container with the tag `huggingface-pytorch-training-gpu.2.3.0.transformers.4.41.1.py310`,  navigate to [`/containers/pytorch/training/gpu/2.3.0/transformers/4.41.1/py310/Dockerfile`](./containers/pytorch/training/gpu/2.3.0/transformers/4.41.1/py310/Dockerfile).
 
 ## Updates
 
