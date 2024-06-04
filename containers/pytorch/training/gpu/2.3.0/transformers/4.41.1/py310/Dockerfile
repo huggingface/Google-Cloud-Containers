@@ -73,7 +73,7 @@ RUN pip install --upgrade --no-cache-dir \
 
 # Install Google Cloud Dependencies
 RUN pip install --upgrade --no-cache-dir \
-  google-cloud-storage \ 
+  google-cloud-storage \
   google-cloud-bigquery \
   google-cloud-aiplatform \
   google-cloud-pubsub \
