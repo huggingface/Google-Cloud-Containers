@@ -51,7 +51,7 @@ trl sft \
 Alteratively we support yaml configuration files. See [gemma-2b-test.yaml](gemma-2b-test.yaml).
 
 ```bash
-docker run --gpus all -ti -v $(pwd)/artifcats:/artifacts -v $(pwd)/containers/pytorch/training/gemma-2b-test.yaml:/config/gemma-2b-test.yaml -e HF_TOKEN=$(cat ~/.cache/huggingface/token) us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.41.1.py310 \
+docker run --gpus all -ti -v $(pwd)/artifacts:/artifacts -v $(pwd)/containers/pytorch/training/gemma-2b-test.yaml:/config/gemma-2b-test.yaml -e HF_TOKEN=$(cat ~/.cache/huggingface/token) us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.41.1.py310 \
 trl sft --config /config/gemma-2b-test.yaml
 ```
 
