@@ -6,7 +6,7 @@ We plan to release containers for each of these combinations of framework, use c
 * Training 
     * [Pytorch](./containers/pytorch/training/README.md)
         * GPU
-        * TPU (soon)
+        * TPU
 * Inference
     * [Pytorch](./containers/pytorch/inference/README.md)
         * CPU
