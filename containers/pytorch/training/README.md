@@ -77,7 +77,7 @@ docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingfa
 
 #### Test & Fine-tune Gemma Using Optimum TPU
 
-There is a [Jupyter notebook](https://github.com/huggingface/optimum-tpu/blob/v0.1.0a0/examples/language-modeling/gemma_tuning.ipynb) explaining how to fine-tune `gemma-2b` model that can be run on a `v5litepod-8` instance using `optimum-tpu`. For convenience, the 
+There is a [Jupyter notebook](https://github.com/huggingface/optimum-tpu/blob/v0.1.0a0/examples/language-modeling/gemma_tuning.ipynb) explaining how to fine-tune `gemma-2b` model that can be run on a `v5litepod-8` instance using `optimum-tpu`. For convenience, the example notebook file is included as part of the container image.
 After you created the TPU VM instance, you can use `ssh` or `gcloud` to log in and forward the port `8888`, e.g.:
 
 ```bash
