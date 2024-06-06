@@ -9,7 +9,7 @@ pytorch:
   - type: training
     accelerator: tpu
     framework: 1.9.0
-    transformers: 4.35.0
+    transformers: 4.41.1
     python: 3.10.0
   - type: inference
     accelerator: gpu
