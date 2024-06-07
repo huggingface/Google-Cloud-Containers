@@ -84,7 +84,7 @@ RUN chmod +x ~/mambaforge.sh && \
 # On arm64 we exit with an error code
 RUN case ${TARGETPLATFORM} in \
   "linux/arm64")  exit 1 ;; \
-  *)              /opt/conda/bin/conda update -y conda &&  \
+  *)             \
   /opt/conda/bin/conda install -c "${INSTALL_CHANNEL}" -c "${CUDA_CHANNEL}" -y "python=${PYTHON_VERSION}" "pytorch=$PYTORCH_VERSION" "pytorch-cuda=$(echo $CUDA_VERSION | cut -d'.' -f 1-2)"  ;; \
   esac && \
   /opt/conda/bin/conda clean -ya
