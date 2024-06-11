@@ -19,14 +19,8 @@ spec:
           image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-0.ubuntu2204:latest
           resources:
             requests:
-              # cpu: "2"
-              # memory: "7Gi"
-              # ephemeral-storage: "20Gi"
               nvidia.com/gpu: 1
             limits:
-              # cpu: "2"
-              # memory: "7Gi"
-              # ephemeral-storage: "20Gi"
               nvidia.com/gpu: 1
           env:
             - name: MODEL_ID
