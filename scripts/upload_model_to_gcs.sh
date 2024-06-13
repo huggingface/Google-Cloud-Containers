@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# This script downloads models from HuggingFace and uploads them to Google Cloud Storage.
-# ./upload_models_to_gcs.sh --model-id meta-llama/Meta-Llama-3-8B-Instruct --gcs gs://hf-models-gke-bucket/Meta-Llama-3-8B-Instruct --location us-central1
+# This script downloads a model from HuggingFace and uploads it to a bucket in Google Cloud Storage.
+# ./upload_model_to_gcs.sh --model-id meta-llama/Meta-Llama-3-8B-Instruct --gcs gs://hf-models-gke-bucket/Meta-Llama-3-8B-Instruct --location us-central1
 
 # Exit immediately if a command exits with a non-zero status
 set -e
