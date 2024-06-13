@@ -61,7 +61,7 @@ fi
 
 # Upload the downloaded models to Google Cloud Storage
 echo "Uploading model files to $GCS_BUCKET..."
-gsutil -o GSUtil:parallel_composite_upload_threshold=150M -m cp -e -r $LOCAL_DIR/*.json $GCS_BUCKET
+gsutil -o GSUtil:parallel_composite_upload_threshold=150M -m cp -e -r $LOCAL_DIR/* $GCS_BUCKET
 echo "Upload successfully completed!"
 
 # Remove all files and hidden files in the target directory
