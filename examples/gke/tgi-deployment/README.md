@@ -148,14 +148,21 @@ In order to run the inference over the deployed TGI service, we can either:
     kubectl get ingress tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
     ```
 
-Once we have either the service forwarded to the 8080 local port or the external IP of the ingress, we can run the inference using `cURL` or Python assuming that the variable `IP` contains either the `localhost:8080` or the IP of the ingress.
-
 ### Via cURL
 
 To send a POST request to the TGI service using `cURL`, we can run the following command:
 
 ```bash
-curl http://$IP/generate \
+curl http://localhost:8080/generate \
+    -X POST \
+    -d '{"inputs":"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nWhat is 2+2?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n","parameters":{"temperature":0.7, "top_p": 0.95, "max_new_tokens": 128}}' \
+    -H 'Content-Type: application/json'
+```
+
+Or to send the POST request to the ingress IP:
+
+```bash
+curl http://<ingress-ip>/generate \
     -X POST \
     -d '{"inputs":"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nWhat is 2+2?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n","parameters":{"temperature":0.7, "top_p": 0.95, "max_new_tokens": 128}}' \
     -H 'Content-Type: application/json'
@@ -175,7 +182,7 @@ Which produces the following output:
 > tokenizer.apply_chat_template(
 >     [
 >         {"role": "system", "content": "You are a helpful assistant."},
->         {"role": "user", "content": "What's 2+2?"},
+>         {"role": "user", "content": "What is 2+2?"},
 >     ],
 >     tokenize=False,
 >     add_generation_prompt=True,
@@ -190,13 +197,16 @@ To run the inference using Python, we can use the `openai` Python SDK (see the i
 import os
 from openai import OpenAI
 
-client = OpenAI(base_url=f"{os.getenv('IP')}/v1/")
+client = OpenAI(
+    base_url="http://localhost:8080/v1/",  # or http://<ingress-ip>/v1/
+    api_key=os.getenv("HF_TOKEN"),
+)
 
 chat_completion = client.chat.completions.create(
     model="tgi",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "What's 2+2?"},
+        {"role": "user", "content": "What is 2+2?"},
     ],
     max_tokens=128,
 )
