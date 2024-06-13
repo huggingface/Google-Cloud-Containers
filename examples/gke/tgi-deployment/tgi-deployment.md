@@ -114,7 +114,7 @@ Then we can already deploy the Hugging Face LLM DLC for TGI via `kubectl`, from 
 
 * `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face LLM DLC setting the `MODEL_ID` to `meta-llama/Meta-Llama-3-8B-Instruct`.
 * `service.yaml`: contains the service details of the pod, exposing the port 80 for the TGI service.
-* `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+* (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
 kubectl apply -f configs/
@@ -129,7 +129,7 @@ kubectl apply -f configs/
 > ```
 > Alternatively, we can just wait for the deployment to be ready with the following command:
 > ```bash
-> kubectl wait --for=condition=Available --timeout=700s deployment/tgi-server-deployment
+> kubectl wait --for=condition=Available --timeout=700s deployment/tgi-deployment
 > ```
 
 ## Inference with TGI
