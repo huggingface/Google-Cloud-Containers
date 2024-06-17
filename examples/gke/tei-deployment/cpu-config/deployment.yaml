@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tei-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tei-server
+  template:
+    metadata:
+      labels:
+        app: tei-server
+        hf.co/model: Snowflake--snowflake-arctic-embed-m
+        hf.co/task: text-embeddings
+    spec:
+      containers:
+        - name: tei-container
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-2:latest
+          resources:
+            requests:
+              cpu: "8"
+              memory: "32Gi"
+            limits:
+              cpu: "16"
+              memory: "64Gi"
+          env:
+            - name: MODEL_ID
+              value: Snowflake/snowflake-arctic-embed-m
+            - name: NUM_SHARD
+              value: "1"
+            - name: PORT
+              value: "8080"
+            - name: HF_API_TOKEN # Not used, but left as reference
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_token
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /data
+              name: data
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: data
+          emptyDir: {}
+      nodeSelector:
+         cloud.google.com/compute-class: "Performance"
+         cloud.google.com/machine-family: "c2"
