@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tei-ingress
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tei-service
+                port:
+                  number: 8080
