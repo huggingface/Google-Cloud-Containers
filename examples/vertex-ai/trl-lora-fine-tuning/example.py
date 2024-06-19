@@ -24,7 +24,6 @@ if __name__ == "__main__":
                     # the model as the default is fp32 and that won't fit in an L4 GPU with 24GiB
                     # see https://github.com/huggingface/trl/issues/1751
                     'pip install "trl @ git+https://github.com/alvarobartt/trl.git@main" --upgrade',
-                    "pip install flash-attn --no-build-isolation",
                     'exec trl sft "$@"',
                 )
             ),
