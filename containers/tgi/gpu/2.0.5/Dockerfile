@@ -9,12 +9,13 @@ RUN git clone -b temp_work https://github.com/huggingface/text-generation-infere
 
 # Build cargo components (adapted from TGI original Dockerfile)
 # Rust builder
-FROM lukemathwalker/cargo-chef:latest-rust-1.78 AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.79 AS chef
 WORKDIR /usr/src
 
 ARG CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 FROM chef as planner
+COPY --from=tgi /tgi/Cargo.lock Cargo.lock
 COPY --from=tgi /tgi/Cargo.toml Cargo.toml
 COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
 COPY --from=tgi /tgi/proto proto
@@ -32,7 +33,7 @@ RUN PROTOC_ZIP=protoc-21.12-linux-x86_64.zip && \
     rm -f $PROTOC_ZIP
 
 COPY --from=planner /usr/src/recipe.json recipe.json
-RUN cargo chef cook --release --recipe-path recipe.json
+RUN cargo chef cook --profile release-opt --recipe-path recipe.json
 
 COPY --from=tgi /tgi/Cargo.toml Cargo.toml
 COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
@@ -40,7 +41,7 @@ COPY --from=tgi /tgi/proto proto
 COPY --from=tgi /tgi/benchmark benchmark
 COPY --from=tgi /tgi/router router
 COPY --from=tgi /tgi/launcher launcher
-RUN cargo build --release --features google
+RUN cargo build --profile release-opt  --features google
 
 # Python builder
 # Adapted from: https://github.com/pytorch/pytorch/blob/master/Dockerfile
@@ -144,6 +145,20 @@ COPY --from=tgi /tgi/server/Makefile-eetq Makefile
 # Build specific version of transformers
 RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" make build-eetq
 
+# Build marlin kernels
+FROM kernel-builder as marlin-kernels-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/marlin/ .
+# Build specific version of transformers
+RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" python setup.py build
+
+# Build Lorax Punica kernels
+FROM kernel-builder as lorax-punica-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/Makefile-lorax-punica Makefile
+# Build specific version of transformers
+RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" make build-lorax-punica
+
 # Build Transformers CUDA kernels
 FROM kernel-builder as custom-kernels-builder
 WORKDIR /usr/src
@@ -200,7 +215,7 @@ COPY --from=flash-att-builder /usr/src/flash-attention/csrc/layer_norm/build/lib
 COPY --from=flash-att-builder /usr/src/flash-attention/csrc/rotary/build/lib.linux-x86_64-cpython-310 /opt/conda/lib/python3.10/site-packages
 
 # Copy build artifacts from flash attention v2 builder
-COPY --from=flash-att-v2-builder /usr/src/flash-attention-v2/build/lib.linux-x86_64-cpython-310 /opt/conda/lib/python3.10/site-packages
+COPY --from=flash-att-v2-builder /opt/conda/lib/python3.10/site-packages/flash_attn_2_cuda.cpython-310-x86_64-linux-gnu.so /opt/conda/lib/python3.10/site-packages
 
 # Copy build artifacts from custom kernels builder
 COPY --from=custom-kernels-builder /usr/src/build/lib.linux-x86_64-cpython-310 /opt/conda/lib/python3.10/site-packages
@@ -212,6 +227,9 @@ COPY --from=exllamav2-kernels-builder /usr/src/build/lib.linux-x86_64-cpython-31
 COPY --from=awq-kernels-builder /usr/src/llm-awq/awq/kernels/build/lib.linux-x86_64-cpython-310 /opt/conda/lib/python3.10/site-packages
 # Copy build artifacts from eetq kernels builder
 COPY --from=eetq-kernels-builder /usr/src/eetq/build/lib.linux-x86_64-cpython-310 /opt/conda/lib/python3.10/site-packages
+# Copy build artifacts from marlin kernels builder
+COPY --from=marlin-kernels-builder /usr/src/build/lib.linux-x86_64-cpython-310 /opt/conda/lib/python3.10/site-packages
+COPY --from=lorax-punica-builder /usr/src/lorax-punica/server/punica_kernels/build/lib.linux-x86_64-cpython-310 /opt/conda/lib/python3.10/site-packages
 
 # Copy builds artifacts from vllm builder
 COPY --from=vllm-builder /usr/src/vllm/build/lib.linux-x86_64-cpython-310 /opt/conda/lib/python3.10/site-packages
@@ -232,17 +250,20 @@ RUN cd server && \
     pip install -r requirements_cuda.txt && \
     pip install ".[bnb, accelerate, quantize, peft, outlines]" --no-cache-dir
 
-# Install benchmarker
-COPY --from=builder /usr/src/target/release/text-generation-benchmark /usr/local/bin/text-generation-benchmark
-# Install router
-COPY --from=builder /usr/src/target/release/text-generation-router /usr/local/bin/text-generation-router
-# Install launcher
-COPY --from=builder /usr/src/target/release/text-generation-launcher /usr/local/bin/text-generation-launcher
-
+# Deps before the binaries
+# The binaries change on every build given we burn the SHA into them
+# The deps change less often.
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         build-essential \
         g++ \
         && rm -rf /var/lib/apt/lists/*
+
+# Install benchmarker
+COPY --from=builder /usr/src/target/release-opt/text-generation-benchmark /usr/local/bin/text-generation-benchmark
+# Install router
+COPY --from=builder /usr/src/target/release-opt/text-generation-router /usr/local/bin/text-generation-router
+# Install launcher
+COPY --from=builder /usr/src/target/release-opt/text-generation-launcher /usr/local/bin/text-generation-launcher
 
 # Final image
 FROM base
@@ -256,5 +277,5 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     apt-get install google-cloud-sdk -y
     
 # COPY custom entrypoint for Google
-COPY --chmod=775 containers/tgi/gpu/2.0.3/entrypoint.sh entrypoint.sh
+COPY --chmod=775 containers/tgi/gpu/2.0.5/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
