@@ -9,7 +9,7 @@ Below are the instructions to build and test the Text-generation-Inference conta
 Build the container with the following command:
 
 ```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.0.5 -f containers/tgi/gpu/2.0.5/Dockerfile .
+docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.1.0 -f containers/tgi/gpu/2.1.0/Dockerfile .
 #docker build --progress=plain -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.4.2 -f containers/tgi/gpu/1.4.2/Dockerfile . > build.log 2>&1
 ```
 
@@ -18,7 +18,7 @@ docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingfa
 test the container on a GPU instance (g2) with
 
 ```bash
-model=gg-tt/gemma-2-9b-it
+model=google/gemma-2-9b-it
 num_shard=4
 max_input_length=1562
 max_total_tokens=2048
@@ -29,7 +29,7 @@ docker run --gpus all -ti --ipc=host -p 8080:8080 \
   -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
   -e MAX_INPUT_LENGTH=$max_input_length \
   -e MAX_TOTAL_TOKENS=$max_total_tokens \
-  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.0.5  
+  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.1.0  
 ```
 
 Send request:
