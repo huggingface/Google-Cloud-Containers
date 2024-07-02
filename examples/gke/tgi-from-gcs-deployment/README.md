@@ -1,6 +1,6 @@
 # Deploy Qwen2 7B Instruct with Text Generation Inference in GKE from a GCS bucket
 
-TL; DR TODO. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy an LLM from the Hugging Face Hub, as Llama3 8B Instruct, in a GKE Cluster running a purpose-built container to deploy LLMs in a secure and managed environment with the Hugging Face DLC for TGI.
+TL; DR TODO. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy an LLM from a Google Cloud Storage (GCS) Bucket in a GKE Cluster running a purpose-built container to deploy LLMs in a secure and managed environment with the Hugging Face DLC for TGI.
 
 ## Setup / Configuration
 
@@ -106,7 +106,7 @@ pip install crcmod
 Then, we can run the script to upload the model to the GCS bucket:
 
 > [!NOTE]
-> Make sure to set the proper permissions to run the script i.e. chmod +x ./scripts/upload_model_to_gcs.sh
+> Make sure to set the proper permissions to run the script i.e. `chmod +x ./scripts/upload_model_to_gcs.sh`.
 
 ```bash
 ./scripts/upload_model_to_gcs.sh --model-id Qwen/Qwen2-7B-Instruct --gcs gs://$BUCKET_NAME/Qwen2-7B-Instruct
