@@ -13,6 +13,8 @@ spec:
         app: tei-server
         hf.co/model: Snowflake--snowflake-arctic-embed-m
         hf.co/task: text-embeddings
+      annotations:
+        deployment.kubernetes.io/max-replicas: 1
     spec:
       containers:
         - name: tei-container
