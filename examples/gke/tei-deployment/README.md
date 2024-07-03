@@ -54,14 +54,14 @@ Once we've set everything up, we are ready to start with the creation of the GKE
 In order to deploy the GKE Cluster, we will use the "Autopilot" mode, which is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, one can also use the "Standard" mode.
 
 > [!NOTE]
-> Important to check before creating the GKE Autopilot Cluster https://cloud.google.com/kubernetes-engine/docs/how-to/performance-pods, since not all the versions support CPUs, and the CPUs vary depending on the workload.
+> Important to check before creating the GKE Autopilot Cluster https://cloud.google.com/kubernetes-engine/docs/how-to/performance-pods, since not all the versions support CPUs, and the CPUs vary depending on the workload. Same applies for the GPU support e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
 
 ```bash
 gcloud container clusters create-auto $CLUSTER_NAME \
     --project=$PROJECT_ID \
     --location=$LOCATION \
-    --release-channel=rapid \
-    --cluster-version=1.30
+    --release-channel=stable \
+    --cluster-version=1.28
 ```
 
 > [!NOTE]
@@ -69,7 +69,7 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 > ```bash
 > gcloud container get-server-config \
 >     --flatten="channels" \
->     --filter="channels.channel=RAPID" \
+>     --filter="channels.channel=STABLE" \
 >     --format="yaml(channels.channel,channels.defaultVersion)" \
 >     --location=$LOCATION
 > ```
