@@ -51,14 +51,14 @@ Once we've set everything up, we are ready to start with the creation of the GKE
 In order to deploy the GKE Cluster, we will use the "Autopilot" mode, which is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, one can also use the "Standard" mode.
 
 > [!NOTE]
-> Important to check before creating the GKE Autopilot Cluster https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-gpus#before_you_begin, since not all the versions support GPU accelerators.
+> Important to check before creating the GKE Autopilot Cluster https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-gpus#before_you_begin, since not all the versions support GPU accelerators e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
 
 ```bash
 gcloud container clusters create-auto $CLUSTER_NAME \
     --project=$PROJECT_ID \
     --location=$LOCATION \
-    --release-channel=rapid \
-    --cluster-version=1.30
+    --release-channel=stable \
+    --cluster-version=1.28
 ```
 
 > [!NOTE]
@@ -66,13 +66,11 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 > ```bash
 > gcloud container get-server-config \
 >     --flatten="channels" \
->     --filter="channels.channel=RAPID" \
+>     --filter="channels.channel=STABLE" \
 >     --format="yaml(channels.channel,channels.defaultVersion)" \
 >     --location=$LOCATION
 > ```
 > For more information please visit https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version.
-
-If you prefer to use GKE Clusters from the stable channel, note that you may not have all the accelerator offering to your disposal, as the `nvidia-l4` which is only available from 1.28.3 onwards, not available yet in the stable channel.
 
 As of the GKE documentation and service page in GCP, the creation of the GKE Cluster can take 5 minutes or more, depending on the configuration and the location of the cluster.
 
@@ -114,7 +112,7 @@ Then we can already deploy the Hugging Face LLM DLC for TGI via `kubectl`, from 
 
 * `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face LLM DLC setting the `MODEL_ID` to `meta-llama/Meta-Llama-3-8B-Instruct`.
 * `service.yaml`: contains the service details of the pod, exposing the port 80 for the TGI service.
-* `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+* (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
 kubectl apply -f configs/
@@ -129,7 +127,7 @@ kubectl apply -f configs/
 > ```
 > Alternatively, we can just wait for the deployment to be ready with the following command:
 > ```bash
-> kubectl wait --for=condition=Available --timeout=700s deployment/tgi-server-deployment
+> kubectl wait --for=condition=Available --timeout=700s deployment/tgi-deployment
 > ```
 
 ## Inference with TGI
@@ -148,14 +146,21 @@ In order to run the inference over the deployed TGI service, we can either:
     kubectl get ingress tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
     ```
 
-Once we have either the service forwarded to the 8080 local port or the external IP of the ingress, we can run the inference using `cURL` or Python assuming that the variable `IP` contains either the `localhost:8080` or the IP of the ingress.
-
 ### Via cURL
 
 To send a POST request to the TGI service using `cURL`, we can run the following command:
 
 ```bash
-curl http://$IP/generate \
+curl http://localhost:8080/generate \
+    -X POST \
+    -d '{"inputs":"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nWhat is 2+2?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n","parameters":{"temperature":0.7, "top_p": 0.95, "max_new_tokens": 128}}' \
+    -H 'Content-Type: application/json'
+```
+
+Or to send the POST request to the ingress IP:
+
+```bash
+curl http://<ingress-ip>/generate \
     -X POST \
     -d '{"inputs":"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nWhat is 2+2?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n","parameters":{"temperature":0.7, "top_p": 0.95, "max_new_tokens": 128}}' \
     -H 'Content-Type: application/json'
@@ -175,7 +180,7 @@ Which produces the following output:
 > tokenizer.apply_chat_template(
 >     [
 >         {"role": "system", "content": "You are a helpful assistant."},
->         {"role": "user", "content": "What's 2+2?"},
+>         {"role": "user", "content": "What is 2+2?"},
 >     ],
 >     tokenize=False,
 >     add_generation_prompt=True,
@@ -190,13 +195,16 @@ To run the inference using Python, we can use the `openai` Python SDK (see the i
 import os
 from openai import OpenAI
 
-client = OpenAI(base_url=f"{os.getenv('IP')}/v1/")
+client = OpenAI(
+    base_url="http://localhost:8080/v1/",  # or http://<ingress-ip>/v1/
+    api_key=os.getenv("HF_TOKEN"),
+)
 
 chat_completion = client.chat.completions.create(
     model="tgi",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "What's 2+2?"},
+        {"role": "user", "content": "What is 2+2?"},
     ],
     max_tokens=128,
 )

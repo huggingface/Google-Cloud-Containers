@@ -1,0 +1,84 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ssd
+  namespace: hf-gke-namespace
+provisioner: pd.csi.storage.gke.io
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+parameters:
+  type: pd-ssd
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tei-deployment
+  namespace: hf-gke-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tei-server
+  template:
+    metadata:
+      labels:
+        app: tei-server
+        hf.co/model: BAAI--bge-base-en-v1.5
+        hf.co/task: text-embeddings
+    spec:
+      serviceAccountName: hf-gke-service-account
+      initContainers:
+        - name: init
+          image: google/cloud-sdk:slim
+          command: ["sh", "-c"]
+          args:
+            - gcloud storage cp -r gs://$BUCKET_PATH /data
+          env:
+            - name: BUCKET_PATH
+              value: hf-models-gke-bucket/bge-base-en-v1.5
+          volumeMounts:
+            - name: gcs-mount
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 8.0
+      containers:
+        - name: tei-cpu-container
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-2:latest
+          resources:
+            requests:
+              cpu: "8"
+              memory: "32Gi"
+            limits:
+              cpu: "12"
+              memory: "64Gi"
+          env:
+            - name: MODEL_ID
+              value: /data/bge-base-en-v1.5
+            - name: NUM_SHARD
+              value: "1"
+            - name: PORT
+              value: "8080"
+            - name: HUGGINGFACE_OFFLINE
+              value: "1"
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /data
+              name: gcs-mount
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: gcs-mount
+          ephemeral:
+            volumeClaimTemplate:
+              spec:
+                accessModes: [ "ReadWriteOnce" ]
+                storageClassName: ssd
+                resources:
+                  requests:
+                    storage: 48Gi
+      nodeSelector:
+         cloud.google.com/compute-class: "Performance"
+         cloud.google.com/machine-family: "c2"

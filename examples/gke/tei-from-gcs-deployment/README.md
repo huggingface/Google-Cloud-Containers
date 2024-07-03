@@ -1,6 +1,6 @@
-# Deploy Snowflake's Artic Embed (M) with Text Embeddings Inference (TEI) in GKE
+# Deploy BGE Base v1.5 (English) with Text Embeddings Inference (TEI) in GKE from a GCS Bucket
 
-TL; DR Snowflake's Artic Embed is a suite of text embedding models that focuses on creating high-quality retrieval models optimized for performance, achieving state-of-the-art (SOTA) performance on the MTEB/BEIR leaderboard for each of their size variants. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy a text embedding model from the Hugging Face Hub in a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
+TL; DR BGE, standing for BAAI General Embedding, is a collection of embedding models released by BAAI, which is an English base model for general embedding tasks ranked in the MTEB Leaderboard. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy a text embedding model from a Google Cloud Storage (GCS) Bucket in a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
 
 ## Setup / Configuration
 
@@ -79,9 +79,39 @@ As of the GKE documentation and service page in GCP, the creation of the GKE Clu
 
 ![GKE Cluster in the GCP Console](./imgs/gke-cluster.png)
 
-## Optional: Set Secrets in GKE
+## Optional: Upload a model from the Hugging Face Hub to GCS
 
-Once the GKE Cluster is created then we can already proceed to the TEI deployment, but before that, we will create a Kubernetes secret for the GKE Cluster containing the Hugging Face Hub token, which may not be necessary in most of the cases, but it will be necessary for gated and private models, so we will showcase how to include it in case anyone wants to reproduce with a gated / private model.
+This is an optional step in the tutorial, since you may want to re-use an existing model on a GCS bucket, if that's the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
+
+Otherwise, to upload a model from the Hugging Face Hub to a GCS bucket, we can use the script [./scripts/upload_model_to_gcs.sh](./scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS bucket (and create the bucket if not created already).
+
+Since we will be referring to the GCS bucket name in the upcoming steps, we will set the environment variable `BUCKET_NAME` to the name of the bucket we want to use for the deployment of the model.
+
+```bash
+export BUCKET_NAME="hf-models-gke-bucket"
+```
+
+Also, as mentioned above, the `gsutil` component should be installed via `gcloud`, and the Python package `crcmod` should ideally be installed too in order to speed up the upload process via `gsutil cp`.
+
+```bash
+gcloud components install gsutil
+pip install crcmod
+```
+
+Then, we can run the script to upload the model to the GCS bucket:
+
+> [!NOTE]
+> Make sure to set the proper permissions to run the script i.e. `chmod +x ./scripts/upload_model_to_gcs.sh`.
+
+```bash
+./scripts/upload_model_to_gcs.sh --model-id BAAI/bge-base-en-v1.5 --gcs gs://$BUCKET_NAME/bge-base-en-v1.5
+```
+
+![GCS Bucket in the GCP Console](./imgs/gcs-bucket.png)
+
+## Configure IAM for GCS
+
+Before we proceed with the deployment of the Hugging Face LLM DLC for TEI in the GKE Cluster, we need to set the IAM permissions for the GCS bucket so that the pod in the GKE Cluster can access the bucket. To do so, we will create a namespace and a service account in the GKE Cluster, and then set the IAM permissions for the GCS bucket that contains the model, either as uploaded from the Hugging Face Hub or as already existing in the GCS bucket.
 
 In order to set the Kubernetes secret, we first need to get the credentials of the GKE Cluster so that we can access it via `kubectl`:
 
@@ -89,33 +119,39 @@ In order to set the Kubernetes secret, we first need to get the credentials of t
 gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
 ```
 
-Then we can already set the Kubernetes secret with the Hugging Face Hub token via `kubectl`. To generate a custom token for the Hugging Face Hub, you can follow the instructions at https://huggingface.co/docs/hub/en/security-tokens.
+> [!NOTE]
+> The `gcloud container clusters get-credentials` command will set the `kubectl` context to the GKE Cluster, so that we can interact with the cluster via `kubectl`, meaning it will be required for the rest of the tutorial, but only needs to be ran once, that's why in the following steps we will not include it in the commands as we're assuming it's already set.
+
+Since we will be referring to the namespace and the service account in the upcoming steps, we will set the environment variables `NAMESPACE` and `SERVICE_ACCOUNT` to the name of the namespace and the service account we want to use for the deployment of the model.
 
 ```bash
-kubectl create secret generic hf-secret \
-  --from-literal=hf_token=$HF_TOKEN \
-  --dry-run=client -o yaml | kubectl apply -f -
+export NAMESPACE="hf-gke-namespace"
+export SERVICE_ACCOUNT="hf-gke-service-account"
 ```
 
-![GKE Secret in the GCP Console](./imgs/gke-secrets.png)
+Then we can create the namespace and the service account in the GKE Cluster, so that we can then create the IAM permissions for the pods in that namespace to access the GCS bucket with the model when using that service account.
 
-More information on how to set Kubernetes secrets in a GKE Cluster at https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component.
+```bash
+kubectl create namespace $NAMESPACE
+kubectl create serviceaccount $SERVICE_ACCOUNT --namespace $NAMESPACE
+```
+
+Then we add the IAM policy binding to the bucket as follows:
+
+```bash
+gcloud storage buckets add-iam-policy-binding \
+    gs://$BUCKET_NAME \
+    --member "principal://iam.googleapis.com/projects/$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")/locations/global/workloadIdentityPools/$PROJECT_ID.svc.id.goog/subject/ns/$NAMESPACE/sa/$SERVICE_ACCOUNT" \
+    --role "roles/storage.objectUser"
+```
 
 ## Deploy TEI
 
-Once we are all set up, we can proceed to the Kubernetes deployment of the Hugging Face LLM DLC for TEI, serving the [`Snowflake/snowflake-arctic-embed-m`](https://huggingface.co/Snowflake/snowflake-arctic-embed-m) model from the Hugging Face Hub.
-
-Recently, the Hugging Face Hub team has included the `text-embeddings-inference` tag in the Hub, so feel free to explore all the embedding models in the Hub that can be served via TEI at https://huggingface.co/models?other=text-embeddings-inference.
-
-If not ran already within the previous step i.e. [Optional: Set Secrets in GKE](#optional-set-secrets-in-gke), we need to get the credentials of the GKE Cluster so that we can access it via `kubectl`:
-
-```bash
-gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
-```
+Once we are all set up, we can proceed to the Kubernetes deployment of the Hugging Face LLM DLC for TEI, serving the [`BAAI/bge-base-en-v1.5`](https://huggingface.co/BAAI/bge-base-en-v1.5) model from a volume mount under `/data` copied from the GCS bucket where the model is.
 
 Then we can already deploy the Hugging Face LLM DLC for TEI via `kubectl`, from the following configuration files in the `configs/` directory:
 
-* `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face LLM DLC setting the `MODEL_ID` to [`Snowflake/snowflake-arctic-embed-m`](https://huggingface.co/Snowflake/snowflake-arctic-embed-m).
+* `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face LLM DLC setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/bge-base-en-v1.5`.
 * `service.yaml`: contains the service details of the pod, exposing the port 80 for the TEI service.
 * (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
@@ -131,11 +167,11 @@ kubectl apply -f cpu-config/
 > [!NOTE]
 > The Kubernetes deployment may take a few minutes to be ready, so we can check the status of the deployment with the following command:
 > ```bash
-> kubectl get pods
+> kubectl get pods --namespace $NAMESPACE
 > ```
 > Alternatively, we can just wait for the deployment to be ready with the following command:
 > ```bash
-> kubectl wait --for=condition=Available --timeout=700s deployment/tei-deployment
+> kubectl wait --for=condition=Available --timeout=700s --namespace=$NAMESPACE deployment/tei-deployment
 > ```
 
 ## Inference with TEI
@@ -145,13 +181,13 @@ In order to run the inference over the deployed TEI service, we can either:
 * Port-forwarding the deployed TEI service to the port 8080, so as to access via `localhost` with the command:
 
     ```bash
-    kubectl port-forward service/tei-service 8080:8080
+    kubectl port-forward --namespace $NAMESPACE service/tei-service 8080:8080
     ```
 
 * Accessing the TEI service via the external IP of the ingress, which is the default scenario here since we have defined the ingress configuration in the `./configs/ingress.yaml` file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
 
     ```bash
-    kubectl get ingress tei-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+    kubectl get ingress --namespace $NAMESPACE tei-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
     ```
 
 > [!NOTE]
@@ -181,7 +217,7 @@ curl http://<ingress-ip>/embed \
     -H 'Content-Type: application/json'
 ```
 
-Which produces the following output (truncated for brevity, but original tensor length is 768, which is the embedding dimension of [`Snowflake/snowflake-arctic-embed-m`](https://huggingface.co/Snowflake/snowflake-arctic-embed-m) i.e. the model we're serving):
+Which produces the following output (truncated for brevity, but original tensor length is 768, which is the embedding dimension of [`BAAI/bge-base-en-v1.5`](https://huggingface.co/BAAI/bge-base-en-v1.5) i.e. the model we're serving):
 
 ```bash
 [[-0.01483098,0.010846359,-0.024679236,0.012507628,0.034231555,...]]⏎
