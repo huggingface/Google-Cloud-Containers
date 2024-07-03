@@ -1,8 +1,8 @@
-
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: ssd
+  namespace: hf-gke-namespace
 provisioner: pd.csi.storage.gke.io
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
@@ -23,7 +23,7 @@ spec:
     metadata:
       labels:
         app: tgi-server
-        hf.co/model: Qwen2-7B-Instruct
+        hf.co/model: Qwen--Qwen2-7B-Instruct
         hf.co/task: text-generation
       annotations:
         deployment.kubernetes.io/max-replicas: "1"
@@ -43,11 +43,10 @@ spec:
               mountPath: /data
           resources:
             requests:
-              cpu: "4"
+              cpu: 8.0
       containers:
         - name: tgi-container
-          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-0.ubuntu2204:latest
-          # image: ghcr.io/huggingface/text-generation-inference:2.0.3 <- Qwen2 Template Error is fixed in 2.0.1 onwards, see https://github.com/huggingface/text-generation-inference/issues/1743#issuecomment-2066818605
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-1.ubuntu2204:latest
           resources:
             requests:
               nvidia.com/gpu: 1
@@ -75,10 +74,10 @@ spec:
           ephemeral:
             volumeClaimTemplate:
               spec:
-                accessModes: [ "ReadWriteMany" ]
+                accessModes: [ "ReadWriteOnce" ]
                 storageClassName: ssd
                 resources:
                   requests:
-                    storage: 24Gi
+                    storage: 48Gi
       nodeSelector:
         cloud.google.com/gke-accelerator: nvidia-l4
