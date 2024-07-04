@@ -1,3 +1,11 @@
+# Fetch and extract the TGI sources
+FROM alpine AS tei
+
+RUN mkdir -p /tei
+ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.4.0.tar.gz /tei/sources.tar.gz
+RUN tar -C /tei -xf /tei/sources.tar.gz --strip-components=1
+
+# Build cargo components (adapted from TEI original Dockerfile)
 FROM lukemathwalker/cargo-chef:latest-rust-1.75-bookworm AS chef
 WORKDIR /usr/src
 
@@ -10,11 +18,11 @@ RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v$SCCACHE/sc
 
 FROM chef AS planner
 
-COPY backends backends
-COPY core core
-COPY router router
-COPY Cargo.toml ./
-COPY Cargo.lock ./
+COPY --from=tei /tei/backends backends
+COPY --from=tei /tei/core core
+COPY --from=tei /tei/router router
+COPY --from=tei /tei/Cargo.toml ./
+COPY --from=tei /tei/Cargo.lock ./
 
 RUN cargo chef prepare  --recipe-path recipe.json
 
@@ -45,15 +53,15 @@ COPY --from=planner /usr/src/recipe.json recipe.json
 
 RUN cargo chef cook --release --features candle --features mkl-dynamic --no-default-features --recipe-path recipe.json && sccache -s
 
-COPY backends backends
-COPY core core
-COPY router router
-COPY Cargo.toml ./
-COPY Cargo.lock ./
+COPY --from=tei /tei/backends backends
+COPY --from=tei /tei/core core
+COPY --from=tei /tei/router router
+COPY --from=tei /tei/Cargo.toml ./
+COPY --from=tei /tei/Cargo.lock ./
 
 FROM builder as http-builder
 
-RUN cargo build --release --bin text-embeddings-router -F candle -F mkl-dynamic -F http --no-default-features && sccache -s
+RUN cargo build --release --bin text-embeddings-router -F google -F candle -F mkl-dynamic -F http --no-default-features && sccache -s
 
 FROM builder as grpc-builder
 
@@ -63,9 +71,9 @@ RUN PROTOC_ZIP=protoc-21.12-linux-x86_64.zip && \
     unzip -o $PROTOC_ZIP -d /usr/local 'include/*' && \
     rm -f $PROTOC_ZIP
 
-COPY proto proto
+COPY --from=tei /tei/proto proto
 
-RUN cargo build --release --bin text-embeddings-router -F grpc -F candle -F mkl-dynamic --no-default-features && sccache -s
+RUN cargo build --release --bin text-embeddings-router -F google -F grpc -F candle -F mkl-dynamic --no-default-features && sccache -s
 
 FROM debian:bookworm-slim as base
 
@@ -105,15 +113,6 @@ CMD ["--json-output"]
 FROM base AS http
 
 COPY --from=http-builder /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router
-
-# Amazon SageMaker compatible image
-FROM http as sagemaker
-COPY --chmod=775 sagemaker-entrypoint.sh entrypoint.sh
-
-ENTRYPOINT ["./entrypoint.sh"]
-
-# Default image
-FROM http
 
 ENTRYPOINT ["text-embeddings-router"]
 CMD ["--json-output"]
