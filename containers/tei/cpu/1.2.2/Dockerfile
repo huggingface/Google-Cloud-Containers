@@ -13,7 +13,7 @@ ENV RUSTC_WRAPPER=/usr/local/bin/sccache
 
 # Donwload and configure sccache
 RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v$SCCACHE/sccache-v$SCCACHE-x86_64-unknown-linux-musl.tar.gz | tar -xzv --strip-components=1 -C /usr/local/bin sccache-v$SCCACHE-x86_64-unknown-linux-musl/sccache && \
-  chmod +x /usr/local/bin/sccache
+    chmod +x /usr/local/bin/sccache
 
 FROM chef AS planner
 
@@ -36,17 +36,17 @@ ARG ACTIONS_RUNTIME_TOKEN
 ARG SCCACHE_GHA_ENABLED
 
 RUN wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-  | gpg --dearmor | tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && \
-  echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | \
-  tee /etc/apt/sources.list.d/oneAPI.list
+    | gpg --dearmor | tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && \
+    echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | \
+    tee /etc/apt/sources.list.d/oneAPI.list
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  intel-oneapi-mkl-devel=2024.0.0-49656 \
-  build-essential \
-  && rm -rf /var/lib/apt/lists/*
+    intel-oneapi-mkl-devel=2024.0.0-49656 \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN echo "int mkl_serv_intel_cpu_true() {return 1;}" > fakeintel.c && \
-  gcc -shared -fPIC -o libfakeintel.so fakeintel.c
+    gcc -shared -fPIC -o libfakeintel.so fakeintel.c
 
 COPY --from=planner /usr/src/recipe.json recipe.json
 
@@ -65,10 +65,10 @@ RUN cargo build --release --bin text-embeddings-router -F google -F candle -F mk
 FROM builder as grpc-builder
 
 RUN PROTOC_ZIP=protoc-21.12-linux-x86_64.zip && \
-  curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v21.12/$PROTOC_ZIP && \
-  unzip -o $PROTOC_ZIP -d /usr/local bin/protoc && \
-  unzip -o $PROTOC_ZIP -d /usr/local 'include/*' && \
-  rm -f $PROTOC_ZIP
+    curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v21.12/$PROTOC_ZIP && \
+    unzip -o $PROTOC_ZIP -d /usr/local bin/protoc && \
+    unzip -o $PROTOC_ZIP -d /usr/local 'include/*' && \
+    rm -f $PROTOC_ZIP
 
 COPY --from=tei /tei/proto proto
 
@@ -76,19 +76,19 @@ RUN cargo build --release --bin text-embeddings-router -F google -F grpc -F cand
 
 FROM debian:bookworm-slim as base
 
-ENV HUGGINGFACE_HUB_CACHE=/data \
-  PORT=80 \
-  MKL_ENABLE_INSTRUCTIONS=AVX512_E4 \
-  RAYON_NUM_THREADS=8 \
-  LD_PRELOAD=/usr/local/libfakeintel.so \
-  LD_LIBRARY_PATH=/usr/local/lib
+ENV HUGGINGFACE_HUB_CACHE=/tmp \
+    PORT=8080 \
+    MKL_ENABLE_INSTRUCTIONS=AVX512_E4 \
+    RAYON_NUM_THREADS=8 \
+    LD_PRELOAD=/usr/local/libfakeintel.so \
+    LD_LIBRARY_PATH=/usr/local/lib
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  libomp-dev \
-  ca-certificates \
-  libssl-dev \
-  curl \
-  && rm -rf /var/lib/apt/lists/*
+    libomp-dev \
+    ca-certificates \
+    libssl-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy a lot of the Intel shared objects because of the mkl_serv_intel_cpu_true patch...
 COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/intel64/libmkl_intel_lp64.so.2 /usr/local/lib/libmkl_intel_lp64.so.2

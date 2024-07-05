@@ -98,8 +98,8 @@ FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04 as base
 
 ARG DEFAULT_USE_FLASH_ATTENTION=True
 
-ENV HUGGINGFACE_HUB_CACHE=/data \
-    PORT=80 \
+ENV HUGGINGFACE_HUB_CACHE=/tmp \
+    PORT=8080 \
     USE_FLASH_ATTENTION=$DEFAULT_USE_FLASH_ATTENTION
 
 COPY --from=builder-75 /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router-75

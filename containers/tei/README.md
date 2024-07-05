@@ -45,7 +45,7 @@ Simulate GKE environment with the following command:
 
 ```bash
 model=BAAI/bge-large-en-v1.5
-docker run -ti --gpus all -p 8080:80 -e MODEL_ID=$model us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embedding-inference-gpu.1.4.0
+docker run -ti --gpus all -p 8080:8080 -e MODEL_ID=$model us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embedding-inference-gpu.1.4.0
 ```
 
 Send request:

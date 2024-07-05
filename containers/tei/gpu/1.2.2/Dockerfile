@@ -12,14 +12,14 @@ ENV RUSTC_WRAPPER=/usr/local/bin/sccache
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  curl \
-  libssl-dev \
-  pkg-config \
-  && rm -rf /var/lib/apt/lists/*
+    curl \
+    libssl-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
 # Donwload and configure sccache
 RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v$SCCACHE/sccache-v$SCCACHE-x86_64-unknown-linux-musl.tar.gz | tar -xzv --strip-components=1 -C /usr/local/bin sccache-v$SCCACHE-x86_64-unknown-linux-musl/sccache && \
-  chmod +x /usr/local/bin/sccache
+    chmod +x /usr/local/bin/sccache
 
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 RUN cargo install cargo-chef --locked
@@ -92,9 +92,9 @@ FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04 as base
 
 ARG DEFAULT_USE_FLASH_ATTENTION=True
 
-ENV HUGGINGFACE_HUB_CACHE=/data \
-  PORT=80 \
-  USE_FLASH_ATTENTION=$DEFAULT_USE_FLASH_ATTENTION
+ENV HUGGINGFACE_HUB_CACHE=/tmp \
+    PORT=8080 \
+    USE_FLASH_ATTENTION=$DEFAULT_USE_FLASH_ATTENTION
 
 COPY --from=builder-75 /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router-75
 COPY --from=builder-80 /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router-80

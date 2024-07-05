@@ -77,8 +77,8 @@ RUN cargo build --release --bin text-embeddings-router -F google -F grpc -F cand
 
 FROM debian:bookworm-slim as base
 
-ENV HUGGINGFACE_HUB_CACHE=/data \
-    PORT=80 \
+ENV HUGGINGFACE_HUB_CACHE=/tmp \
+    PORT=8080 \
     MKL_ENABLE_INSTRUCTIONS=AVX512_E4 \
     RAYON_NUM_THREADS=8 \
     LD_PRELOAD=/usr/local/libfakeintel.so \
