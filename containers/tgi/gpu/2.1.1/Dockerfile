@@ -1,3 +1,10 @@
+# Fetch and extract the TGI sources
+FROM alpine AS tgi
+RUN mkdir -p /tgi
+ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v2.1.1.tar.gz /tgi/sources.tar.gz
+RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
+
+# Build cargo components (adapted from TGI original Dockerfile)
 # Rust builder
 FROM lukemathwalker/cargo-chef:latest-rust-1.79 AS chef
 WORKDIR /usr/src
@@ -5,13 +12,14 @@ WORKDIR /usr/src
 ARG CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 FROM chef AS planner
-COPY Cargo.lock Cargo.lock
-COPY Cargo.toml Cargo.toml
-COPY rust-toolchain.toml rust-toolchain.toml
-COPY proto proto
-COPY benchmark benchmark
-COPY router router
-COPY launcher launcher
+
+COPY --from=tgi /tgi/Cargo.lock Cargo.lock
+COPY --from=tgi /tgi/Cargo.toml Cargo.toml
+COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
+COPY --from=tgi /tgi/proto proto
+COPY --from=tgi /tgi/benchmark benchmark
+COPY --from=tgi /tgi/router router
+COPY --from=tgi /tgi/launcher launcher
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
@@ -25,16 +33,13 @@ RUN PROTOC_ZIP=protoc-21.12-linux-x86_64.zip && \
 COPY --from=planner /usr/src/recipe.json recipe.json
 RUN cargo chef cook --profile release-opt --recipe-path recipe.json
 
-ARG GIT_SHA
-ARG DOCKER_LABEL
-
-COPY Cargo.toml Cargo.toml
-COPY rust-toolchain.toml rust-toolchain.toml
-COPY proto proto
-COPY benchmark benchmark
-COPY router router
-COPY launcher launcher
-RUN cargo build --profile release-opt
+COPY --from=tgi /tgi/Cargo.toml Cargo.toml
+COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
+COPY --from=tgi /tgi/proto proto
+COPY --from=tgi /tgi/benchmark benchmark
+COPY --from=tgi /tgi/router router
+COPY --from=tgi /tgi/launcher launcher
+RUN cargo build --profile release-opt --features google
 
 # Python builder
 # Adapted from: https://github.com/pytorch/pytorch/blob/master/Dockerfile
@@ -83,7 +88,7 @@ RUN case ${TARGETPLATFORM} in \
 # CUDA kernels builder image
 FROM pytorch-install AS kernel-builder
 
-ARG MAX_JOBS=8
+ARG MAX_JOBS=4
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     ninja-build cmake \
@@ -94,7 +99,7 @@ FROM kernel-builder AS flash-att-builder
 
 WORKDIR /usr/src
 
-COPY server/Makefile-flash-att Makefile
+COPY --from=tgi /tgi/server/Makefile-flash-att Makefile
 
 # Build specific version of flash attention
 RUN make build-flash-attention
@@ -104,7 +109,7 @@ FROM kernel-builder AS flash-att-v2-builder
 
 WORKDIR /usr/src
 
-COPY server/Makefile-flash-att-v2 Makefile
+COPY --from=tgi /tgi/server/Makefile-flash-att-v2 Makefile
 
 # Build specific version of flash attention v2
 RUN make build-flash-attention-v2-cuda
@@ -112,14 +117,14 @@ RUN make build-flash-attention-v2-cuda
 # Build Transformers exllama kernels
 FROM kernel-builder AS exllama-kernels-builder
 WORKDIR /usr/src
-COPY server/exllama_kernels/ .
+COPY --from=tgi /tgi/server/exllama_kernels/ .
 
 RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" python setup.py build
 
 # Build Transformers exllama kernels
 FROM kernel-builder AS exllamav2-kernels-builder
 WORKDIR /usr/src
-COPY server/exllamav2_kernels/ .
+COPY --from=tgi /tgi/server/exllamav2_kernels/ .
 
 # Build specific version of transformers
 RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" python setup.py build
@@ -127,54 +132,50 @@ RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" python setup.py build
 # Build Transformers awq kernels
 FROM kernel-builder AS awq-kernels-builder
 WORKDIR /usr/src
-COPY server/Makefile-awq Makefile
+COPY --from=tgi /tgi/server/Makefile-awq Makefile
 # Build specific version of transformers
 RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" make build-awq
 
 # Build eetq kernels
 FROM kernel-builder AS eetq-kernels-builder
 WORKDIR /usr/src
-COPY server/Makefile-eetq Makefile
+COPY --from=tgi /tgi/server/Makefile-eetq Makefile
 # Build specific version of transformers
 RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" make build-eetq
 
 # Build marlin kernels
 FROM kernel-builder AS marlin-kernels-builder
 WORKDIR /usr/src
-COPY server/marlin/ .
+COPY --from=tgi /tgi/server/marlin/ .
 # Build specific version of transformers
 RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" python setup.py build
 
 # Build Lorax Punica kernels
 FROM kernel-builder AS lorax-punica-builder
 WORKDIR /usr/src
-COPY server/Makefile-lorax-punica Makefile
+COPY --from=tgi /tgi/server/Makefile-lorax-punica Makefile
 # Build specific version of transformers
 RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" make build-lorax-punica
 
 # Build Transformers CUDA kernels
 FROM kernel-builder AS custom-kernels-builder
 WORKDIR /usr/src
-COPY server/custom_kernels/ .
+COPY --from=tgi /tgi/server/custom_kernels/ .
 # Build specific version of transformers
 RUN python setup.py build
 
 # Build vllm CUDA kernels
 FROM kernel-builder AS vllm-builder
-
 WORKDIR /usr/src
-
 ENV TORCH_CUDA_ARCH_LIST="7.0 7.5 8.0 8.6 8.9 9.0+PTX"
-
-COPY server/Makefile-vllm Makefile
-
+COPY --from=tgi /tgi/server/Makefile-vllm Makefile
 # Build specific version of vllm
 RUN make build-vllm-cuda
 
 # Build mamba kernels
 FROM kernel-builder AS mamba-builder
 WORKDIR /usr/src
-COPY server/Makefile-selective-scan Makefile
+COPY --from=tgi /tgi/server/Makefile-selective-scan Makefile
 RUN make build-all
 
 # Text Generation Inference base image
@@ -185,9 +186,9 @@ ENV PATH=/opt/conda/bin:$PATH \
     CONDA_PREFIX=/opt/conda
 
 # Text Generation Inference base env
-ENV HUGGINGFACE_HUB_CACHE=/data \
+ENV HUGGINGFACE_HUB_CACHE=/tmp \
     HF_HUB_ENABLE_HF_TRANSFER=1 \
-    PORT=80
+    PORT=8080
 
 WORKDIR /usr/src
 
@@ -235,9 +236,9 @@ COPY --from=mamba-builder /usr/src/causal-conv1d/build/lib.linux-x86_64-cpython-
 RUN pip install einops --no-cache-dir
 
 # Install server
-COPY proto proto
-COPY server server
-COPY server/Makefile server/Makefile
+COPY --from=tgi /tgi/proto proto
+COPY --from=tgi /tgi/server server
+COPY --from=tgi /tgi/server/Makefile server/Makefile
 RUN cd server && \
     make gen-server && \
     pip install -r requirements_cuda.txt && \
@@ -258,20 +259,17 @@ COPY --from=builder /usr/src/target/release-opt/text-generation-router /usr/loca
 # Install launcher
 COPY --from=builder /usr/src/target/release-opt/text-generation-launcher /usr/local/bin/text-generation-launcher
 
-
-# AWS Sagemaker compatible image
-FROM base AS sagemaker
-
-COPY sagemaker-entrypoint.sh entrypoint.sh
-RUN chmod +x entrypoint.sh
-
-ENTRYPOINT ["./entrypoint.sh"]
-
 # Final image
 FROM base
 
-COPY ./tgi-entrypoint.sh /tgi-entrypoint.sh
-RUN chmod +x /tgi-entrypoint.sh
+# Install Google CLI single command
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+    | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+    | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
+    apt-get update -y && \
+    apt-get install google-cloud-sdk -y
 
-ENTRYPOINT ["/tgi-entrypoint.sh"]
-# CMD ["--json-output"]
+# COPY custom entrypoint for Google
+COPY --chmod=775 containers/tgi/gpu/2.1.1/entrypoint.sh entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
