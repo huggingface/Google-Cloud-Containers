@@ -3,21 +3,22 @@
 This repository contains container files for building Hugging Face specific Deep Learning Containers, examples and tests for Google Cloud.
 
 We plan to release containers for each of these combinations of framework, use case, and accelerator type:
-* Training 
-    * [Pytorch](./containers/pytorch/training/README.md)
-        * GPU
-        * TPU
+
+* Training
+  * [Pytorch](./containers/pytorch/training/README.md)
+    * GPU
+    * TPU
 * Inference
-    * [Pytorch](./containers/pytorch/inference/README.md)
-        * CPU
-        * GPU
-        * TPU (soon)
-    * [Text Generation Inference](./containers/tgi/README.md)
-        * GPU
-        * TPU (soon)
-    * [Text Embeddings Inference](./containers/tei/README.md)
-        * CPU (soon)
-        * GPU (soon)
+  * [Pytorch](./containers/pytorch/inference/README.md)
+    * CPU
+    * GPU
+    * TPU (soon)
+  * [Text Generation Inference](./containers/tgi/README.md)
+    * GPU
+    * TPU (soon)
+  * [Text Embeddings Inference](./containers/tei/README.md)
+    * CPU
+    * GPU
 
 ## Usage Examples
 
@@ -52,7 +53,6 @@ After the containers are built, you can run the tests in the `tests` directory t
 | [text-generation-inference-gpu.2.0.3](./containers/tgi/gpu/2.0.3/Dockerfile)                                                     | -         | inference | GPU         |
 | [text-embedding-inference-cpu.1.2.1](./containers/tei/cpu/1.2.1/Dockerfile)                                                      | -         | inference | CPU         |
 | [text-embedding-inference-gpu.1.2.1](./containers/tei/gpu/1.2.1/Dockerfile)                                                      | -         | inference | GPU         |
-
 
 ## Directory Structure
 
