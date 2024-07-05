@@ -102,9 +102,9 @@ ENV HUGGINGFACE_HUB_CACHE=/data \
     PORT=80 \
     USE_FLASH_ATTENTION=$DEFAULT_USE_FLASH_ATTENTION
 
-COPY --from=builder-75 /usr/src/target/release/text-embeddings-router-75 /usr/local/bin/text-embeddings-router-75
-COPY --from=builder-80 /usr/src/target/release/text-embeddings-router-80 /usr/local/bin/text-embeddings-router-80
-COPY --from=builder-90 /usr/src/target/release/text-embeddings-router-90 /usr/local/bin/text-embeddings-router-90
+COPY --from=builder-75 /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router-75
+COPY --from=builder-80 /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router-80
+COPY --from=builder-90 /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router-90
 
 COPY --from=tei --chmod=775 /tei/cuda-all-entrypoint.sh entrypoint.sh
 
