@@ -10,7 +10,7 @@ ARG FLASH_ATTN="2.5.8"
 ARG TRANSFORMERS="4.42.3"
 ARG DIFFUSERS="0.28.0"
 ARG PEFT="0.11.1"
-ARG TRL="0.9.4"
+# ARG TRL="0.9.4"
 ARG BITSANDBYTES="0.43.1"
 ARG DATASETS="2.19.1"
 ARG ACCELERATE="0.30.1"
@@ -62,12 +62,15 @@ RUN pip install --upgrade --no-cache-dir \
     accelerate==${ACCELERATE} \
     evaluate==${EVALUATE} \
     peft==${PEFT} \
-    trl==${TRL} \
+    # trl==${TRL} \
     sentence-transformers==${SENTENCE_TRANSFORMERS} \
     deepspeed==${DEEPSPEED} \
     bitsandbytes==${BITSANDBYTES} \
     tensorboard \
     jupyter notebook
+
+# TODO: remove this once the trl 0.9.5 version is released
+RUN pip install "trl @ git+https://github.com/huggingface/trl.git@main" --no-cache-dir
 
 # Install Google Cloud Dependencies
 RUN pip install --upgrade --no-cache-dir \
