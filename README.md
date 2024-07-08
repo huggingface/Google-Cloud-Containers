@@ -44,19 +44,12 @@ The [`container.yaml`](./containers/container.yaml) file contains the configurat
 After the containers are built, you can run the tests in the `tests` directory to verify that they are working correctly.
 
 ## Available Containers
+
 | Container Tag | Framework | Type | Accelerator |
 | --- | --- | --- | --- |
 | [text-generation-inference-gpu.2.1.1](./containers/tgi/gpu/2.1.1/Dockerfile) | TGI | Inference | GPU |
-| [text-generation-inference-gpu.2.1.0](./containers/tgi/gpu/2.1.0/Dockerfile) | TGI | Inference | GPU |
-| [text-generation-inference-gpu.2.0.3](./containers/tgi/gpu/2.0.3/Dockerfile) | TGI | Inference | GPU |
-| [text-generation-inference-gpu.2.0.1](./containers/tgi/gpu/2.0.1/Dockerfile) | TGI | Inference | GPU |
-| [text-generation-inference-gpu.2.0.0](./containers/tgi/gpu/2.0.0/Dockerfile) | TGI | Inference | GPU |
-| [text-generation-inference-gpu.1.4.4](./containers/tgi/gpu/1.4.4/Dockerfile) | TGI | Inference | GPU |
-| [text-generation-inference-gpu.1.4.2](./containers/tgi/gpu/1.4.2/Dockerfile) | TGI | Inference | GPU |
 | [text-embeddings-inference-gpu.1.4.0](./containers/tei/gpu/1.4.0/Dockerfile) | TEI | Inference | GPU |
-| [text-embeddings-inference-gpu.1.2.2](./containers/tei/gpu/1.2.2/Dockerfile) | TEI | Inference | GPU |
 | [text-embeddings-inference-cpu.1.4.0](./containers/tei/cpu/1.4.0/Dockerfile) | TEI | Inference | CPU |
-| [text-embeddings-inference-cpu.1.2.2](./containers/tei/cpu/1.2.2/Dockerfile) | TEI | Inference | CPU |
 | [huggingface-pytorch-training-tpu.2.4.0.transformers.4.41.1.py310](./containers/pytorch/training/tpu/2.4.0/transformers/4.41.1/py310/Dockerfile) | PyTorch | Training | TPU |
 | [huggingface-pytorch-training-gpu.2.3.0.transformers.4.41.1.py310](./containers/pytorch/training/gpu/2.3.0/transformers/4.41.1/py310/Dockerfile) | PyTorch | Training | GPU |
 | [huggingface-pytorch-inference-gpu.2.2.2.transformers.4.41.1.py311](./containers/pytorch/inference/gpu/2.2.2/transformers/4.41.1/py311/Dockerfile) | PyTorch | Inference | GPU |
