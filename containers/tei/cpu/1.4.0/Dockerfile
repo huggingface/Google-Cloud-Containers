@@ -103,16 +103,27 @@ COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/intel64/libmkl_avx2.so.2 /u
 COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/intel64/libmkl_avx512.so.2 /usr/local/lib/libmkl_avx512.so.2
 COPY --from=builder /usr/src/libfakeintel.so /usr/local/libfakeintel.so
 
+# Install Google CLI single command
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+    | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+    | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
+    apt-get update -y && \
+    apt-get install google-cloud-sdk -y
+
+# COPY custom entrypoint for Google
+COPY --chmod=775 containers/tei/cpu/1.4.0/entrypoint.sh entrypoint.sh
+
 FROM base as grpc
 
 COPY --from=grpc-builder /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router
 
-ENTRYPOINT ["text-embeddings-router"]
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["--json-output"]
 
 FROM base AS http
 
 COPY --from=http-builder /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router
 
-ENTRYPOINT ["text-embeddings-router"]
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["--json-output"]
