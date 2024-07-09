@@ -1,0 +1,90 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: trl-full-sft
+  namespace: hf-gke-namespace
+spec:
+  template:
+    metadata:
+      name: trl
+      labels:
+        app: trl
+        hf.co/model: google--gemma-2b
+        hf.co/dataset: timdettmers--openassistant-guanaco
+      annotations:
+        gke-gcsfuse/volumes: "true"
+        gke-gcsfuse/ephemeral-storage-request: 200Gi
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-tesla-a100
+        cloud.google.com/compute-class: Accelerator
+      containers:
+        - name: trl-container
+          image: us-central1-docker.pkg.dev/gcp-partnership-412108/deep-learning-images/huggingface-pytorch-training-gpu.2.3.transformers.4.42.3.py310:latest
+          command:
+            - "/bin/bash"
+            - "-c"
+            - |
+              mkdir -p $HF_HOME/accelerate
+              # `deepspeed.yaml` dumped as a string into `$HF_HOME/accelerate/default_config.yaml`
+              echo \"compute_environment: LOCAL_MACHINE\ndebug: false\ndeepspeed_config:\n  deepspeed_multinode_launcher: standard\n  offload_optimizer_device: none\n  offload_param_device: none\n  zero3_init_flag: true\n  zero3_save_16bit_model: true\n  zero_stage: 3\ndistributed_type: DEEPSPEED\ndowncast_bf16: 'no'\nmachine_rank: 0\nmain_training_function: main\nmixed_precision: bf16\nnum_machines: 1\nnum_processes: 4\nrdzv_backend: static\nsame_network: true\ntpu_env: []\ntpu_use_cluster: false\ntpu_use_sudo: false\nuse_cpu: false\" > $HF_HOME/accelerate/default_config.yaml
+              exec trl sft "$@"
+            - "--"
+          args:
+            # MODEL
+            - "--model_name_or_path=google/gemma-2b"
+            - "--torch_dtype=bfloat16"
+            - "--attn_implementation=flash_attention_2"
+            # DATASET
+            - "--dataset_name=timdettmers/openassistant-guanaco"
+            - "--dataset_text_field=text"
+            # TRAINER
+            - "--bf16"
+            - "--max_seq_length=1024"
+            - "--per_device_train_batch_size=2"
+            - "--gradient_accumulation_steps=4"
+            - "--gradient_checkpointing"
+            - "--learning_rate=0.0002"
+            - "--lr_scheduler_type=cosine"
+            - "--optim=adamw_bnb_8bit"
+            - "--num_train_epochs=3"
+            - "--logging_steps=10"
+            - "--do_eval"
+            - "--eval_steps=100"
+            - "--report_to=none"
+            - "--save_strategy=epoch"
+            - "--output_dir=/data/gemma-2b-SFT"
+            - "--overwrite_output_dir"
+            - "--seed=42"
+            - "--log_level=info"
+          env:
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_token
+            - name: ACCELERATE_LOG_LEVEL
+              value: "INFO"
+            - name: TRANSFORMERS_LOG_LEVEL
+              value: "INFO"
+            - name: TRL_USE_RICH
+              value: "0"
+            - name: TQDM_POSITION
+              value: "-1"
+          resources:
+            requests:
+              nvidia.com/gpu: 4
+          volumeMounts:
+            - name: gcs-fuse-csi-vol
+              mountPath: /data
+              readOnly: false
+      serviceAccountName: hf-gke-service-account
+      volumes:
+      - name: gcs-fuse-csi-vol
+        csi:
+          driver: gcsfuse.csi.storage.gke.io
+          readOnly: false
+          volumeAttributes:
+            bucketName: hf-train-gke-bucket
+            mountOptions: "implicit-dirs"
+      restartPolicy: "Never"
