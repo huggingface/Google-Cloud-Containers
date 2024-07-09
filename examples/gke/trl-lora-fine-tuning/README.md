@@ -1,6 +1,6 @@
 # Fine-tune Mistral 7B v0.3 with TRL in GKE
 
-TL; DR And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to ...
+TL; DR Mistral is a family of models with varying sizes, created by the Mistral AI team; the Mistral 7B v0.3 LLM is a Mistral 7B v0.2 with extended vocabulary. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to fine-tune Mistral 7B v0.3 with TRL via Supervised Fine-Tuning (SFT) and Low-Rank Adaptation (LoRA) in a single GPU.
 
 ## Setup / Configuration
 
@@ -119,11 +119,20 @@ gcloud storage buckets add-iam-policy-binding \
 
 ## Deploy fine-tuning job
 
-Once we are all set up, we can proceed to the Kubernetes deployment of the Hugging Face PyTorch DLC for training, which will run a batch job within the cluster running the Supervised Fine-Tuning SFT with LoRA on [`mistralai/Mistral-7B-v0.3`](https://huggingface.co/mistralai/Mistral-7B-v0.3) with LoRA in `bfloat16` using [`timdettmers/openassistant-guanaco`](https://huggingface.co/timdettmers/openassistant-guanaco), which is a subset from [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) with ~10k samples, with a single GPU, and will store the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
+Once we are all set up, we can proceed to the Kubernetes deployment of the Hugging Face PyTorch DLC for training, which will run a batch job within the cluster running the Supervised Fine-Tuning SFT with LoRA on [`mistralai/Mistral-7B-v0.3`](https://huggingface.co/mistralai/Mistral-7B-v0.3) in `bfloat16` using [`timdettmers/openassistant-guanaco`](https://huggingface.co/timdettmers/openassistant-guanaco), which is a subset from [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) with ~10k samples, with a single GPU, and will store the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
 
 Before proceeding, we need to first determine which GPU is suitable and capable of fine-tuning a 7B LLM on a single GPU, for that, we can either do a rough calculation of needing ~4 times the model size in GPU memory (read more about it in [Eleuther AI - Transformer Math 101](https://blog.eleuther.ai/transformer-math/)), or, if your model is uploaded to the Hugging Face Hub, just check the numbers in [Vokturz/can-it-run-llm](https://huggingface.co/spaces/Vokturz/can-it-run-llm).
 
 ![`Vokturz/can-it-run-llm` for `mistralai/Mistral-7B-v0.3`](./imgs/can-it-run-llm.png)
+
+And, since we will be fine-tuning a gated model, we need to set a Kubernetes secret in the GKE Cluster with the Hugging Face Hub token via `kubectl`. To generate a custom token for the Hugging Face Hub, you can follow the instructions at <https://huggingface.co/docs/hub/en/security-tokens>. More information on how to set Kubernetes secrets in a GKE Cluster at <https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component>.
+
+```bash
+kubectl create secret generic hf-secret \
+  --from-literal=hf_token=$HF_TOKEN \
+  --dry-run=client -o yaml \
+  --namespace $NAMESPACE | kubectl apply -f -
+```
 
 Then we can already trigger the Hugging Face PyTorch DLC for training via `kubectl` from the `job.yaml` configuration file that contains the job specification  running the command `trl sft` provided by the TRL CLI with the settings mentioned above.
 
@@ -137,6 +146,12 @@ kubectl apply -f job.yaml
 
 > [!NOTE]
 > In this case, since we're running a batch job, it will only use one node as specified within the `job.yaml` file, since we don't need anything else than that. So on, the job will deploy one pod running the `trl sft` command on top of the Hugging Face PyTorch DLC container for training, and also the GCS FUSE container that is mounting the GCS Bucket into the `/data` path so as to store the generated artifacts in GCS. So on, in this case, we don't care about scaling, we just need to trigger the job and wait until it's done; which once done, it will automatically scale back to 0, meaning that it won't consume resources.
+
+Additionally, we can use `kubectl` to stream the logs of the job as it follows:
+
+```bash
+kubectl logs -f job/trl-lora-sft --container trl-container --namespace $NAMESPACE
+```
 
 Finally, once the job is completed, the pods will scale to 0 and the artifacts will be visible in the GCS Bucket mounted within the job.
 
