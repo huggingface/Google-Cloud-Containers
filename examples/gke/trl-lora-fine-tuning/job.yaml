@@ -13,11 +13,11 @@ spec:
         hf.co/dataset: timdettmers--openassistant-guanaco
       annotations:
         gke-gcsfuse/volumes: "true"
+        gke-gcsfuse/ephemeral-storage-request: 200Gi
     spec:
       nodeSelector:
         cloud.google.com/gke-accelerator: nvidia-l4
         cloud.google.com/compute-class: Accelerator
-        cloud.google.com/gke-ephemeral-storage-local-ssd: "true"
       containers:
         - name: trl-container
           image: us-central1-docker.pkg.dev/gcp-partnership-412108/deep-learning-images/huggingface-pytorch-training-gpu.2.3.transformers.4.42.3.py310:latest
@@ -76,7 +76,6 @@ spec:
           resources:
             requests:
               nvidia.com/gpu: 1
-              ephemeral-storage: 250Gi
               memory: 48Gi
             limits:
               nvidia.com/gpu: 1
