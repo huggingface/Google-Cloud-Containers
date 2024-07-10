@@ -75,7 +75,7 @@ COPY --from=tei /tei/proto proto
 
 RUN cargo build --release --bin text-embeddings-router -F google -F grpc -F candle -F mkl-dynamic --no-default-features && sccache -s
 
-FROM debian:bookworm-slim as base
+FROM debian:bookworm-slim AS base
 
 ENV HUGGINGFACE_HUB_CACHE=/tmp \
     PORT=8080 \
