@@ -17,8 +17,8 @@ We plan to release containers for each of these combinations of framework, use c
     * GPU
     * TPU (soon)
   * [Text Embeddings Inference](./containers/tei/README.md)
-    * CPU (soon)
-    * GPU (soon)
+    * CPU
+    * GPU
 
 ## Usage Examples
 
