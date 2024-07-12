@@ -18,13 +18,6 @@ Alternatively, feel free to use the following command to dump the build logs int
 docker build --progress=plain -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.1.1 -f containers/tgi/gpu/2.1.1/Dockerfile . > build.log 2>&1
 ```
 
-To build a Text Generation Inference container for TPU, you can do it with this command:
-
-```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.1.3 -f containers/tgi/tpu/0.1.3/Dockerfile .
-
-```
-
 ### Gemma 2 9b test
 
 Test the container on a GPU instance (g2) as follows:
