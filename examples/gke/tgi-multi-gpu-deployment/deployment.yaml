@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tgi-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tgi-server
+  template:
+    metadata:
+      labels:
+        app: tgi-server
+        hf.co/model: Meta-Llama-3-8B-Instruct
+        hf.co/task: text-generation
+      annotations:
+        deployment.kubernetes.io/max-replicas: "1"
+    spec:
+      containers:
+        - name: tgi-container
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-0.ubuntu2204:latest
+          resources:
+            requests:
+              nvidia.com/gpu: 4
+          env:
+            - name: MODEL_ID
+              value: google/gemma-7b-it
+            - name: REVISION
+              value: "8adab6a35fdbcdae0ae41ab1f711b1bc8d05727e"
+            - name: NUM_SHARD
+              value: "4"
+            - name: MAX_BATCH_PREFILL_TOKENS
+              value: "4096"
+            - name: MAX_INPUT_TOKENS
+              value: "4000"
+            - name: MAX_TOTAL_TOKENS
+              value: "4096"
+            - name: PORT
+              value: "8080"
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_token
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tgi-service
+spec:
+  selector:
+    app: tgi-server
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+
