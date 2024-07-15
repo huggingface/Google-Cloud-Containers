@@ -11,7 +11,7 @@ spec:
     metadata:
       labels:
         app: tgi-server
-        hf.co/model: Meta-Llama-3-8B-Instruct
+        hf.co/model: google--gemma-7b-it
         hf.co/task: text-generation
       annotations:
         deployment.kubernetes.io/max-replicas: "1"
@@ -22,6 +22,7 @@ spec:
           resources:
             requests:
               nvidia.com/gpu: 4
+              ephemeral-storage: "24Gi"
           env:
             - name: MODEL_ID
               value: google/gemma-7b-it
