@@ -14,6 +14,8 @@ gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platfo
 
 Below you will find the instructions on how to build, run and test the TGI containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
 
+Additionally, if we're willing to build and run the Docker container in GPUs we need to ensure that your hardware is supported (NVIDIA drivers on your device need to be compatible with CUDA version 12.2 or higher) and also install the NVIDIA Container Toolkit.
+
 ### Build
 
 In order to build TGI's Docker container, we will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TGI needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~30 minutes to complete, depending on the instance's specifications.
@@ -60,12 +62,12 @@ Then we are ready to run the container as follows:
 
 ```bash
 docker run --gpus all -ti -p 8080:8080 \
-  -e MODEL_ID=google/gemma-7b-it \
-  -e NUM_SHARD=4 \
-  -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
-  -e MAX_INPUT_LENGTH=4000 \
-  -e MAX_TOTAL_TOKENS=4096 \
-  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.1.1
+    -e MODEL_ID=google/gemma-7b-it \
+    -e NUM_SHARD=4 \
+    -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
+    -e MAX_INPUT_LENGTH=4000 \
+    -e MAX_TOTAL_TOKENS=4096 \
+    us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.1.1
 ```
 
 ### Test
