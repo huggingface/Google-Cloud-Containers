@@ -7,7 +7,7 @@ This repository contains container files for building Hugging Face specific Deep
     * GPU
     * TPU
 * Inference
-  * [Pytorch](./containers/pytorch/inference/README.md)
+  * [PyTorch](./containers/pytorch/inference/README.md)
     * CPU
     * GPU
     * TPU (soon)
