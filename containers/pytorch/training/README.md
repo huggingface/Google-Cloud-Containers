@@ -2,102 +2,82 @@
 
 The Hugging Face PyTorch Training Containers are Docker containers for training Hugging Face models on Google Cloud AI Platform. There are two containers depending on which accelerator is used, that is GPU and TPU at the moment. The containers come with all the necessary dependencies to train Hugging Face models on Google Cloud AI Platform.
 
+> [!NOTE]
+> These containers are named PyTorch containers since PyTorch is the backend framework used for training the models; but it comes with all the required Hugging Face libraries installed.
+
+## Published Containers
+
+In order to check which of the available containers are published in Google Cloud's Artifact Registry publicly, you can run the following `gcloud` command to list the available containers with the tag containing `huggingface-pytorch-training` as follows:
+
+```bash
+gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-pytorch-training"
+```
+
 ## Getting Started
 
-### Build GPU Image Manually
+Below you will find the instructions on how to build and run the PyTorch Training containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
 
-Start by cloning the repository:
+Additionally, if we're willing to build and run the Docker container in GPUs you will need to install the NVIDIA Container Toolkit.
 
-```bash
-git clone https://github.com/huggingface/Google-Cloud-Containers
-cd Google-Cloud-Containers/
-```
+### Build
 
-Then, build the container with the following command:
+The PyTorch Training containers come with two different containers depending on the accelerator used for training, being either GPU or TPU, those have different constraints when building the Docker image as described below:
 
-```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.42.3.py310 -f containers/pytorch/training/gpu/2.3.0/transformers/4.42.3/py310/Dockerfile .
-```
+* **GPU**: To build the PyTorch Training container for GPU, we will need an instance with at least one NVIDIA GPU available as it's required to install `flash-attn` used to speed up the attention layers during training and inference.
 
-#### Test & Fine-tune Gemma Using TRL
+    ```bash
+    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.42.3.py310 -f containers/pytorch/training/gpu/2.3.0/transformers/4.42.3/py310/Dockerfile .
+    ```
 
-First we need to login into Hugging Face to access the gated model.
+* **TPU**: To build the PyTorch Training container for Google Cloud TPUs, we will need an instance with at least one TPU available, required to install `optimum-tpu` which is a Python library with Google TPU optimizations for `transformers` models, making its integration seamless.
 
-```bash
-huggingface-cli login --token YOUR_TOKEN
-```
+    ```bash
+    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-tpu.2.4.0.transformers.4.41.1.py310 -f containers/pytorch/training/tpu/2.4.0/transformers/4.41.1/py310/Dockerfile .
+    ```
 
-Once connected to the instance of your choice to use the Hugging Face PyTorch Training Container for GPU, run the following command to test the container and fine-tune Gemma using TRL and Q-Lora on 100 steps with Flash Attention 2. This will now fine-tune Gemma on the OpenAssistant dataset using the `text` column and provided CLI Parameters. Learn more about the [TRL CLI](https://huggingface.co/docs/trl/clis).
+Alternatively, you can skip the build process and use the pre-built containers available in Google Cloud's Artifact Registry.
 
-_NOTE: Parameters are tuned for a GPU with 24GB._
+### Run
 
-The command below shows how to test and fine-tune Gemma using TRL's CLI:
+Once the Docker container is built, we can proceed to run it.
 
-```bash
-docker run --gpus all -ti -v $(pwd)/artifacts:/artifacts -e HF_TOKEN=$(cat ~/.cache/huggingface/token) us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.42.3.py310 \
-trl sft \
---model_name_or_path google/gemma-2b \
---attn_implementation "flash_attention_2" \
---torch_dtype "bfloat16" \
---dataset_name OpenAssistant/oasst_top1_2023-08-25 \
---dataset_text_field "text" \
---max_steps 100 \
---logging_steps 10 \
---bf16 True \
---per_device_train_batch_size 4 \
---use_peft True \
---load_in_4bit True \
---output_dir /artifacts
-```
+* **GPU**: As an example, we will showcase how to fine-tune an LLM via [`trl`](https://github.com/huggingface/trl) on a GPU instance using the PyTorch Training container, as it comes with `trl` installed.
 
-Alteratively, TRL's CLI also supports configuration provided via a YAML file instead of arguments. See [gemma-2b-test.yaml](gemma-2b-test.yaml).
+    ```bash
+    docker run --gpus all -ti \
+        -v $(pwd)/artifact:/artifact \
+        -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
+        us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.42.3.py310 \
+        trl sft \
+        --model_name_or_path google/gemma-2b \
+        --attn_implementation "flash_attention_2" \
+        --torch_dtype "bfloat16" \
+        --dataset_name OpenAssistant/oasst_top1_2023-08-25 \
+        --dataset_text_field "text" \
+        --max_steps 100 \
+        --logging_steps 10 \
+        --bf16 True \
+        --per_device_train_batch_size 4 \
+        --use_peft True \
+        --load_in_4bit True \
+        --output_dir /artifacts
+    ```
 
-```bash
-docker run --gpus all -ti -v $(pwd)/artifacts:/artifacts -v $(pwd)/containers/pytorch/training/gemma-2b-test.yaml:/config/gemma-2b-test.yaml -e HF_TOKEN=$(cat ~/.cache/huggingface/token) us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.42.3.py310 \
-trl sft --config /config/gemma-2b-test.yaml
-```
+    > [!NOTE]
+    > For a more detailed explanation and a diverse set of examples, please check the [./examples](../../examples) directory that contains examples on both Google Kubernetes Engine (GKE) and Google Vertex AI.
 
-_NOTE: This should make the integration into Vertex AI seamless._
+* **TPU**: As an example, we will showcase how to deploy a Jupyter Notebook Server from a TPU instance (such as `v5litepod-8`) using the PyTorch Training container, as it comes with `optimum-tpu` installed; so that then we can import a Jupyter Notebook from the ones defined within the `opitimum-tpu` repository or just reuse the Jupyter Notebook that comes within the PyTorch Training container i.e. [`gemma-tuning.ipynb`](https://github.com/huggingface/optimum-tpu/blob/main/examples/language-modeling/gemma_tuning.ipynb); and then just run it.
 
-For a Vertex AI example checkout [Fine-Tune Gemma](TODO:) notebook.
+    ```bash
+    docker run --rm --net host --privileged \
+        -v$(pwd)/artifact:/notebooks/output \
+        us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-tpu.2.4.0.transformers.4.41.1.py310 \
+        jupyter notebook \
+        --port 8888 \
+        --allow-root \
+        --no-browser \
+        notebooks
+    ```
 
-### Build TPU Image Manually
-
-Start by cloning the repository:
-
-```bash
-git clone https://github.com/huggingface/Google-Cloud-Containers
-cd Google-Cloud-Containers
-```
-
-Then, build the container with the following command:
-
-```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-tpu.2.4.0.transformers.4.41.1.py310 -f containers/pytorch/training/tpu/2.4.0/transformers/4.41.1/py310/Dockerfile .
-```
-
-#### Test & Fine-tune Gemma Using Optimum TPU
-
-There is a [Jupyter Notebook](https://github.com/huggingface/optimum-tpu/blob/main/examples/language-modeling/gemma_tuning.ipynb) explaining how to fine-tune `gemma-2b` model that can be run on a `v5litepod-8` instance using `optimum-tpu`. For convenience, the example notebook file is included as part of the container image.
-
-After you created the TPU VM instance, you can use `ssh` or `gcloud` to log in and forward the port `8888`, as follows:
-
-```bash
-gcloud compute tpus tpu-vm ssh $TPU_NAME \
-    --zone=$ZONE \
-    -- -L 8888:localhost:8888
-```
-
-Once you have access to the TPU VM, launch the container on a Optimum TPU instance:
-
-```bash
-docker run --rm --net host --privileged -v$(pwd)/artifacts:/notebooks/output us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-tpu.2.4.0.transformers.4.41.1.py310 jupyter notebook --port 8888 --allow-root --no-browser notebooks
-```
-
-The Jupyter output will show you an address accessible from your browser, similar to this one:
-
-```
-http://localhost:8888/tree?token=3cccbfa5a066217bbb38dc088ca06219e8f2330741b4135c
-```
-
-You can then click on the `gemma_tuning.ipynb` and walk through the steps to train `gemma`. To terminate the execution, you can just type `ctrl+c` on the terminal.
+    > [!NOTE]
+    > Find more detailed examples on TPU fine-tuning in the [`optimum-tpu`](https://github.com/huggingface/optimum-tpu/tree/main/examples) repository.
