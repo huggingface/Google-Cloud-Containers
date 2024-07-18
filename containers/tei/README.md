@@ -22,13 +22,13 @@ To find the supported models and hardware before building and running the TEI im
 
 Since TEI comes with two different containers depending on the accelerator used for the inference, being either CPU or GPU, those have different constraints when building the Docker image as described below:
 
-* CPU: To build TEI for CPU, we will need an instance with enough CPU RAM, but most instances should be able to successfully build the CPU image since it's not too memory-intensive.
+* **CPU**: To build TEI for CPU, we will need an instance with enough CPU RAM, but most instances should be able to successfully build the CPU image since it's not too memory-intensive.
 
     ```bash
     docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1.4.0 -f containers/tei/cpu/1.4.0/Dockerfile .
     ```
 
-* GPU: To build TEI for GPU, we will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TEI, similarly to TGI, needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~15 minutes to complete, depending on the instance's specifications.
+* **GPU**: To build TEI for GPU, we will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TEI, similarly to TGI, needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~15 minutes to complete, depending on the instance's specifications.
 
     ```bash
     docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-gpu.1.4.0 -f containers/tei/gpu/1.4.0/Dockerfile .
@@ -44,15 +44,15 @@ Besides that, we also need to define the model that we want to deploy, so we can
 
 Besides selecting which model we want to deploy, we need to take into consideration that TEI supports the following models:
 
-* Text Embeddings: these are models are pre-trained models that convert text into numerical vectors, which can be used for a variety of downstream tasks.
+* **Text Embeddings**: these are models are pre-trained models that convert text into numerical vectors, which can be used for a variety of downstream tasks.
 
-* Re-Rankers: these models are sequence classification cross-encoders models with a single class that scores the similarity between a query and a text.
+* **Re-Rankers**: these models are sequence classification cross-encoders models with a single class that scores the similarity between a query and a text.
 
-* Sequence Classification: these models are classic sequence classification models as e.g. BERT, RoBERTa, etc.
+* **Sequence Classification**: these models are classic sequence classification models as e.g. BERT, RoBERTa, etc.
 
 Then we are ready to run the container depending on the accelerator to use as follows:
 
-* CPU: We just run the image normally, providing the `MODEL_ID` environment variable and exposing the port 8080.
+* **CPU**: We just run the image normally, providing the `MODEL_ID` environment variable and exposing the port 8080.
 
     ```bash
     docker run -ti -p 8080:8080 \
@@ -60,7 +60,7 @@ Then we are ready to run the container depending on the accelerator to use as fo
         us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1.4.0
     ```
 
-* GPU: To run the image on a GPU instance, we need to also add `--gpus all` so that the container can access the GPUs, and then provide the `MODEL_ID` environment variable and expose the port 8080.
+* **GPU**: To run the image on a GPU instance, we need to also add `--gpus all` so that the container can access the GPUs, and then provide the `MODEL_ID` environment variable and expose the port 8080.
 
     ```bash
     docker run -ti --gpus all -p 8080:8080 \
