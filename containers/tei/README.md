@@ -1,4 +1,4 @@
-# Text Embeddings Inference (TEI)
+# Text Embeddings Inference (TEI) Containers
 
 [Text Embeddings Inference](https://github.com/huggingface/text-embeddings-inference) is a toolkit for deploying and serving open source text embeddings and sequence classification models developed by Hugging Face. TEI is a blazing fast inference solution that enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.
 
@@ -38,9 +38,7 @@ Alternatively, you can skip the build process and use the pre-built container av
 
 ### Run
 
-Once the Docker container is built, we can proceed to run it. In this case it's important to have GPUs available within the instance that we want to run TEI, since the GPU accelerators are recommended to enable the best performance due to the optimized inference CUDA kernels.
-
-Besides that, we also need to define the model that we want to deploy, so we can pick any model from the Hugging Face Hub that contains the tag `text-embeddings-inference` which means that it's supported by TEI; to explore all the available models within the Hub, please check [here](https://huggingface.co/models?other=text-embeddings-inference&sort=trending).
+Once the Docker container is built, we can proceed to run it, and for that, we need to define the model that we want to deploy, so we can pick any model from the Hugging Face Hub that contains the tag `text-embeddings-inference` which means that it's supported by TEI; to explore all the available models within the Hub, please check [here](https://huggingface.co/models?other=text-embeddings-inference&sort=trending).
 
 Besides selecting which model we want to deploy, we need to take into consideration that TEI supports the following models:
 

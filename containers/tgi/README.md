@@ -1,4 +1,4 @@
-# Text Generation Inference (TGI)
+# Text Generation Inference (TGI) Containers
 
 [Text Generation Inference](https://github.com/huggingface/text-generation-inference) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation, that comes with a Rust, Python and gRPC server for text generation inference, used in production at Hugging Face to power Hugging Chat, the Inference API and Inference Endpoints.
 
