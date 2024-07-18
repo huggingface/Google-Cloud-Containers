@@ -16,6 +16,8 @@ Below you will find the instructions on how to build, run and test the TGI conta
 
 Additionally, if we're willing to build and run the Docker container in GPUs we need to ensure that your hardware is supported (NVIDIA drivers on your device need to be compatible with CUDA version 12.2 or higher) and also install the NVIDIA Container Toolkit.
 
+To find the supported models and hardware before building and running the TGI image, feel free to check [TGI's documentation](https://huggingface.co/docs/text-generation-inference/supported_models).
+
 ### Build
 
 In order to build TGI's Docker container, we will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TGI needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~30 minutes to complete, depending on the instance's specifications.
