@@ -1,8 +1,7 @@
-# Fetch and extract the TGI sources (TGI_VERSION is mandatory)
+# Fetch and extract the TGI sources
 FROM alpine AS tgi
-ARG TGI_VERSION='v2.0.3'
 RUN mkdir -p /tgi
-ADD https://github.com/huggingface/text-generation-inference/archive/${TGI_VERSION}.tar.gz /tgi/sources.tar.gz
+ADD https://github.com/huggingface/text-generation-inference/archive/v2.0.3.tar.gz /tgi/sources.tar.gz
 RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
 
 # Build cargo components (adapted from TGI original Dockerfile)
@@ -84,8 +83,6 @@ RUN VERBOSE=1 BUILDDIR=/pyserver/build PROTODIR=/pyserver/proto VERSION=${VERSIO
 # TPU base image (used for deployment)
 FROM base AS tpu_base
 
-ARG VERSION=${VERSION}
-
 # Install system prerequisites
 RUN apt-get update -y \
  && apt-get install -y --no-install-recommends \
@@ -106,10 +103,9 @@ ARG ACCELERATE_VERSION='0.27.2'
 ARG SAFETENSORS_VERSION='0.4.2'
 
 # TGI base env
-ENV HUGGINGFACE_HUB_CACHE=/data \
+ENV HUGGINGFACE_HUB_CACHE=/tmp \
     HF_HUB_ENABLE_HF_TRANSFER=1 \
-    PORT=80 \
-    VERSION=${VERSION}
+    PORT=8080
 
 # Install requirements for optimum-tpu, then for TGI then optimum-tpu
 RUN python3 -m pip install hf_transfer safetensors==${SAFETENSORS_VERSION} && \
