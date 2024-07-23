@@ -47,7 +47,7 @@ After the containers are built, you can run the tests in the `tests` directory t
 
 | Container Tag | Framework | Type | Accelerator |
 | --- | --- | --- | --- |
-| [text-generation-inference-gpu.2.1.1](./containers/tgi/gpu/2.1.1/Dockerfile) | TGI | Inference | GPU |
+| [text-generation-inference-gpu.2.2.0](./containers/tgi/gpu/2.2.0/Dockerfile) | TGI | Inference | GPU |
 | [text-embeddings-inference-gpu.1.4.0](./containers/tei/gpu/1.4.0/Dockerfile) | TEI | Inference | GPU |
 | [text-embeddings-inference-cpu.1.4.0](./containers/tei/cpu/1.4.0/Dockerfile) | TEI | Inference | CPU |
 | [huggingface-pytorch-training-tpu.2.4.0.transformers.4.41.1.py310](./containers/pytorch/training/tpu/2.4.0/transformers/4.41.1/py310/Dockerfile) | PyTorch | Training | TPU |
