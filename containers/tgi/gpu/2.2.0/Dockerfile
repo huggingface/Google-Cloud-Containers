@@ -282,5 +282,5 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     apt-get install google-cloud-sdk -y
 
 # COPY custom entrypoint for Google
-COPY --chmod=775 containers/tgi/gpu/2.1.1/entrypoint.sh entrypoint.sh
+COPY --chmod=775 containers/tgi/gpu/2.2.0/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
