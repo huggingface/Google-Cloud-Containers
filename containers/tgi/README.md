@@ -23,7 +23,7 @@ To find the supported models and hardware before building and running the TGI im
 In order to build TGI's Docker container, we will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TGI needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~30 minutes to complete, depending on the instance's specifications.
 
 ```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.1.1 -f containers/tgi/gpu/2.1.1/Dockerfile .
+docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.2.0 -f containers/tgi/gpu/2.2.0/Dockerfile .
 ```
 
 Alternatively, you can skip the build process and use the pre-built container available in Google Cloud's Artifact Registry.
