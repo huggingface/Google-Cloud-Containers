@@ -4,7 +4,7 @@
 
 ## Published Containers
 
-In order to check which of the available containers are published in Google Cloud's Artifact Registry publicly, you can run the following `gcloud` command to list the available containers with the tag containing `huggingface-text-generation-inference` as follows:
+In order to check which of the available Hugging Face DLCs are published, one can either check [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or use the `gcloud` command to list the available containers with the tag containing `huggingface-text-generation-inference` as follows:
 
 ```bash
 gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-text-generation-inference"
@@ -12,21 +12,11 @@ gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platfo
 
 ## Getting Started
 
-Below you will find the instructions on how to build, run and test the TGI containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
+Below you will find the instructions on how to run and test the TGI containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
 
-Additionally, if we're willing to build and run the Docker container in GPUs we need to ensure that your hardware is supported (NVIDIA drivers on your device need to be compatible with CUDA version 12.2 or higher) and also install the NVIDIA Container Toolkit.
+To run the Docker container in GPUs we need to ensure that your hardware is supported (NVIDIA drivers on your device need to be compatible with CUDA version 12.2 or higher) and also install the NVIDIA Container Toolkit.
 
-To find the supported models and hardware before building and running the TGI image, feel free to check [TGI's documentation](https://huggingface.co/docs/text-generation-inference/supported_models).
-
-### Build
-
-In order to build TGI's Docker container, we will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TGI needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~30 minutes to complete, depending on the instance's specifications.
-
-```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.2.0 -f containers/tgi/gpu/2.2.0/Dockerfile .
-```
-
-Alternatively, you can skip the build process and use the pre-built container available in Google Cloud's Artifact Registry.
+To find the supported models and hardware before running the TGI DLC, feel free to check [TGI's documentation](https://huggingface.co/docs/text-generation-inference/supported_models).
 
 ### Run
 
@@ -111,4 +101,17 @@ curl 0.0.0.0:8080/generate \
             "max_new_tokens": 256
         }
     }'
+```
+
+## Advanced
+
+### Build
+
+> [!WARNING]
+> Building the containers is not recommended since those are already built by Hugging Face and Google Cloud teams and provided openly, so the recommended approach is to use the pre-built containers available in [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) instead.
+
+In order to build TGI's Docker container, we will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TGI needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~30 minutes to complete, depending on the instance's specifications.
+
+```bash
+docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.2.0 -f containers/tgi/gpu/2.2.0/Dockerfile .
 ```
