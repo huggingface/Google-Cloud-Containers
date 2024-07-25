@@ -10,17 +10,17 @@ For Google Vertex AI, we differentiate between the executable Jupyter Notebook e
 
 | Example | Description
 |---------|-------------
-| [trl-full-sft-fine-tuning-on-vertex-ai.ipynb](./notebooks/trl-full-sft-fine-tuning-on-vertex-ai.ipynb) | Full SFT fine-tuning of Mistral 7B v0.3 in a multi-GPU instance with TRL on Vertex AI.
-| [trl-lora-sft-fine-tuning-on-vertex-ai.ipynb](./notebooks/trl-lora-sft-fine-tuning-on-vertex-ai.ipynb) | LoRA SFT fine-tuning of Mistral 7B v0.3 in a single GPU instance with TRL on Vertex AI.
+| [trl-full-sft-fine-tuning-on-vertex-ai](./notebooks/trl-full-sft-fine-tuning-on-vertex-ai) | Full SFT fine-tuning of Mistral 7B v0.3 in a multi-GPU instance with TRL on Vertex AI.
+| [trl-lora-sft-fine-tuning-on-vertex-ai](./notebooks/trl-lora-sft-fine-tuning-on-vertex-ai) | LoRA SFT fine-tuning of Mistral 7B v0.3 in a single GPU instance with TRL on Vertex AI.
 
 ### Inference Examples
 
 | Example | Description
 |---------|-------------
-| [deploy-bert-on-vertex-ai.ipynb](./notebooks/deploy-bert-on-vertex-ai.ipynb) | Deploying a BERT model for a text classification task using `huggingface-inference-toolkit` for a Custom Prediction Routine (CPR) on Vertex AI.
-| [deploy-embedding-on-vertex-ai.ipynb](./notebooks/deploy-embedding-on-vertex-ai.ipynb) | Deploying an embedding model with Text Embeddings Inference (TEI) on Vertex AI.
-| [deploy-gemma-on-vertex-ai.ipynb](./notebooks/deploy-gemma-on-vertex-ai.ipynb) | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) on Vertex AI.
-| [deploy-gemma-from-gcs-on-vertex-ai.ipynb](./notebooks/deploy-gemma-from-gcs-on-vertex-ai.ipynb) | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI.
+| [deploy-bert-on-vertex-ai](./notebooks/deploy-bert-on-vertex-ai) | Deploying a BERT model for a text classification task using `huggingface-inference-toolkit` for a Custom Prediction Routine (CPR) on Vertex AI.
+| [deploy-embedding-on-vertex-ai](./notebooks/deploy-embedding-on-vertex-ai) | Deploying an embedding model with Text Embeddings Inference (TEI) on Vertex AI.
+| [deploy-gemma-on-vertex-ai](./notebooks/deploy-gemma-on-vertex-ai) | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) on Vertex AI.
+| [deploy-gemma-from-gcs-on-vertex-ai](./notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI.
 
 ## Pipelines
 
