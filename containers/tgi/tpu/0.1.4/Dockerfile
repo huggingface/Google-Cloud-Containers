@@ -56,11 +56,10 @@ RUN pip3 --no-cache-dir install --upgrade pip
 
 
 # Install Optimum TPU
-ARG OPTIMUM_TPU_VERSION='v0.1.3'
-ARG VERSION=${OPTIMUM_TPU_VERSION}
+ARG OPTIMUM_TPU_VERSION='0.1.4'
 
 RUN git clone https://github.com/huggingface/optimum-tpu.git /opt/optimum-tpu
-RUN cd /opt/optimum-tpu && git checkout ${OPTIMUM_TPU_VERSION}
+RUN cd /opt/optimum-tpu && git checkout v${OPTIMUM_TPU_VERSION}
 
 # Python server build image
 FROM base AS pyserver
@@ -78,7 +77,7 @@ WORKDIR /pyserver
 RUN cp -a /opt/optimum-tpu/text-generation-inference/server server
 COPY --from=tgi /tgi/proto proto
 RUN pip3 install -r server/build-requirements.txt
-RUN VERBOSE=1 BUILDDIR=/pyserver/build PROTODIR=/pyserver/proto VERSION=${VERSION} make -C server gen-server
+RUN VERBOSE=1 BUILDDIR=/pyserver/build PROTODIR=/pyserver/proto VERSION=v${OPTIMUM_TPU_VERSION} make -C server gen-server
 
 # TPU base image (used for deployment)
 FROM base AS tpu_base
@@ -134,5 +133,5 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     apt-get install google-cloud-sdk -y
 
 # COPY custom entrypoint for Google
-COPY --chmod=775 containers/tgi/tpu/0.1.3/entrypoint.sh entrypoint.sh
+COPY --chmod=775 containers/tgi/tpu/${OPTIMUM_TPU_VERSION}/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
