@@ -6,8 +6,8 @@ TL; DR Qwen2 is the new series of Qwen Large Language Models (LLMs) built by Ali
 
 First, we need to install both `gcloud` and `kubectl` in our local machine, which are the command-line tools for Google Cloud and Kubernetes, respectively, to interact with the GCP and the GKE Cluster.
 
-* To install `gcloud`, follow the instructions at https://cloud.google.com/sdk/docs/install.
-* To install `kubectl`, follow the instructions at https://kubernetes.io/docs/tasks/tools/#kubectl.
+* To install `gcloud`, follow the instructions at <https://cloud.google.com/sdk/docs/install>.
+* To install `kubectl`, follow the instructions at <https://kubernetes.io/docs/tasks/tools/#kubectl>.
 
 Optionally, to ease the usage of the commands within this tutorial, we'll set the following environment variables for GCP:
 
@@ -42,7 +42,7 @@ gcloud components install gke-gcloud-auth-plugin
 ```
 
 > [!NOTE]
-> Installing the `gke-gcloud-auth-plugin` does not need to be installed via `gcloud` specifically, to read more about the alternative installation methods, please visit https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin.
+> Installing the `gke-gcloud-auth-plugin` does not need to be installed via `gcloud` specifically, to read more about the alternative installation methods, please visit <https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin>.
 
 And, if we're willing to upload a model from the Hugging Face Hub to a bucket in GCS, as in this example, then we will need to also install the `gsutil` tool, which is the command-line tool for Google Cloud Storage, to interact with the GCS.
 
@@ -57,7 +57,7 @@ Once we've set everything up, we are ready to start with the creation of the GKE
 In order to deploy the GKE Cluster, we will use the "Autopilot" mode, which is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, one can also use the "Standard" mode.
 
 > [!NOTE]
-> Important to check before creating the GKE Autopilot Cluster https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-gpus#before_you_begin, since not all the versions support GPU accelerators e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
+> Important to check before creating the GKE Autopilot Cluster <https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-gpus#before_you_begin>, since not all the versions support GPU accelerators e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
 
 ```bash
 gcloud container clusters create-auto $CLUSTER_NAME \
@@ -69,6 +69,7 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 
 > [!NOTE]
 > To select the specific version in our location of the GKE Cluster, we can run the following command:
+>
 > ```bash
 > gcloud container get-server-config \
 >     --flatten="channels" \
@@ -76,7 +77,8 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 >     --format="yaml(channels.channel,channels.defaultVersion)" \
 >     --location=$LOCATION
 > ```
-> For more information please visit https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version.
+>
+> For more information please visit <https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version>.
 
 As of the GKE documentation and service page in GCP, the creation of the GKE Cluster can take 5 minutes or more, depending on the configuration and the location of the cluster.
 
@@ -84,7 +86,7 @@ As of the GKE documentation and service page in GCP, the creation of the GKE Clu
 
 ## Optional: Upload a model from the Hugging Face Hub to GCS
 
-This is an optional step in the tutorial, since you may want to re-use an existing model on a GCS bucket, if that's the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
+This is an optional step in the tutorial, since you may want to reuse an existing model on a GCS bucket, if that's the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
 
 Otherwise, to upload a model from the Hugging Face Hub to a GCS bucket, we can use the script [./scripts/upload_model_to_gcs.sh](./scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS bucket (and create the bucket if not created already).
 
@@ -166,10 +168,13 @@ kubectl apply -f configs/
 
 > [!NOTE]
 > The Kubernetes deployment may take a few minutes to be ready, so we can check the status of the deployment with the following command:
+>
 > ```bash
 > kubectl get pods --namespace $NAMESPACE
 > ```
+>
 > Alternatively, we can just wait for the deployment to be ready with the following command:
+>
 > ```bash
 > kubectl wait --for=condition=Available --timeout=700s --namespace $NAMESPACE deployment/tgi-deployment
 > ```
@@ -218,6 +223,7 @@ Which produces the following output:
 
 > [!NOTE]
 > To generate the `inputs` with the expected chat template formatting, one could use the following snippet:
+>
 > ```python
 > from transformers import AutoTokenizer
 > tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-7B-Instruct")
@@ -233,7 +239,7 @@ Which produces the following output:
 
 ### Via Python
 
-To run the inference using Python, we can use the `openai` Python SDK (see the installation notes at https://platform.openai.com/docs/quickstart), setting the ingress IP as the `base_url` for the client, and then running the following code:
+To run the inference using Python, we can use the `openai` Python SDK (see the installation notes at <https://platform.openai.com/docs/quickstart>), setting the ingress IP as the `base_url` for the client, and then running the following code:
 
 ```python
 import os

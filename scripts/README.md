@@ -1,6 +1,6 @@
 # Scripts
 
-This directory contains some useful scripts when working with Hugging Face in Google Cloud Platform (GCP), and some are used within some of the examples in order to provide the community with a simpler way to interact with Hugging Face via GCP and the other way aroudn.
+This directory contains some useful scripts when working with Hugging Face in Google Cloud Platform (GCP), and some are used within some of the examples in order to provide the community with a simpler way to interact with Hugging Face via GCP and the other way around.
 
 Note that before running any script, you will need to set the proper permissions to execute those, you could use the following command:
 

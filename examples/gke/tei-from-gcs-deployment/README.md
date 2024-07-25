@@ -81,7 +81,7 @@ As of the GKE documentation and service page in GCP, the creation of the GKE Clu
 
 ## Optional: Upload a model from the Hugging Face Hub to GCS
 
-This is an optional step in the tutorial, since you may want to re-use an existing model on a GCS bucket, if that's the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
+This is an optional step in the tutorial, since you may want to reuse an existing model on a GCS bucket, if that's the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
 
 Otherwise, to upload a model from the Hugging Face Hub to a GCS bucket, we can use the script [./scripts/upload_model_to_gcs.sh](./scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS bucket (and create the bucket if not created already).
 
