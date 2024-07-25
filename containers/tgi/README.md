@@ -14,15 +14,15 @@ gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platfo
 
 Below you will find the instructions on how to run and test the TGI containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
 
-To run the Docker container in GPUs we need to ensure that your hardware is supported (NVIDIA drivers on your device need to be compatible with CUDA version 12.2 or higher) and also install the NVIDIA Container Toolkit.
+To run the Docker container in GPUs you need to ensure that your hardware is supported (NVIDIA drivers on your device need to be compatible with CUDA version 12.2 or higher) and also install the NVIDIA Container Toolkit.
 
 To find the supported models and hardware before running the TGI DLC, feel free to check [TGI's documentation](https://huggingface.co/docs/text-generation-inference/supported_models).
 
 ### Run
 
-To run this DLC, it's important to have GPUs available within the instance that we want to run TGI, since the GPU accelerators are recommended to enable the best performance due to the optimized inference CUDA kernels.
+To run this DLC, it's important to have GPUs available within the instance that you want to run TGI, since the GPU accelerators are recommended to enable the best performance due to the optimized inference CUDA kernels.
 
-Besides that, we also need to define the model that we want to deploy, as well as the configuration that we want that model to use. For the model selection, we can pick any model from the Hugging Face Hub that contains the tag `text-generation-inference` which means that it's supported by TGI; to explore all the available models within the Hub, please check [here](https://huggingface.co/models?other=text-generation-inference&sort=trending). Then, to select the best configuration for that model we can either keep the default values defined within TGI, or just select the recommended ones based on our instance specification, and for that we will be using the Hugging Face Recommender API for TGI as follows:
+Besides that, you also need to define the model to deploy, as well as the generation configuration. For the model selection, you can pick any model from the Hugging Face Hub that contains the tag `text-generation-inference` which means that it's supported by TGI; to explore all the available models within the Hub, please check [here](https://huggingface.co/models?other=text-generation-inference&sort=trending). Then, to select the best configuration for that model you can either keep the default values defined within TGI, or just select the recommended ones based on our instance specification via the Hugging Face Recommender API for TGI as follows:
 
 ```bash
 curl https://huggingface.co/api/integrations/tgi/v1/provider/hf/recommend
@@ -50,7 +50,7 @@ Which returns the following output containing the optimal configuration for depl
 }
 ```
 
-Then we are ready to run the container as follows:
+The you are ready to run the container as follows:
 
 ```bash
 docker run --gpus all -ti -p 8080:8080 \
@@ -87,7 +87,7 @@ curl 0.0.0.0:8080/v1/chat/completions \
 
 Which will start streaming the completion tokens for the given messages until the stop sequences are generated.
 
-Alternatively, we can also use the `/generate` endpoint instead, which already expects the inputs to be formatted according to the tokenizer's requirements, which is more convenient when working with base models without a pre-defined chat template or whenever we want to use a custom chat template instead, and can be used as follows:
+Alternatively, you can also use the `/generate` endpoint instead, which already expects the inputs to be formatted according to the tokenizer's requirements, which is more convenient when working with base models without a pre-defined chat template or whenever you want to use a custom chat template instead, and can be used as follows:
 
 ```bash
 curl 0.0.0.0:8080/generate \
@@ -110,7 +110,7 @@ curl 0.0.0.0:8080/generate \
 > [!WARNING]
 > Building the containers is not recommended since those are already built by Hugging Face and Google Cloud teams and provided openly, so the recommended approach is to use the pre-built containers available in [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) instead.
 
-In order to build TGI's Docker container, we will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TGI needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~30 minutes to complete, depending on the instance's specifications.
+In order to build TGI's Docker container, you will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TGI needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~30 minutes to complete, depending on the instance's specifications.
 
 ```bash
 docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.2.0 -f containers/tgi/gpu/2.2.0/Dockerfile .

@@ -7,7 +7,7 @@ The Hugging Face PyTorch Training Containers are Docker containers for training 
 
 ## Published Containers
 
-In order to check which of the available Hugging Face DLCs are published, one can either check [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or use the `gcloud` command to list the available containers with the tag containing `huggingface-pytorch-training` as follows:
+In order to check which of the available Hugging Face DLCs are published, you can either check [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or use the `gcloud` command to list the available containers with the tag containing `huggingface-pytorch-training` as follows:
 
 ```bash
 gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-pytorch-training"
@@ -17,13 +17,13 @@ gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platfo
 
 Below you will find the instructions on how to run the PyTorch Training containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
 
-Additionally, if we're willing to run the Docker container in GPUs you will need to install the NVIDIA Container Toolkit.
+Additionally, if you're willing to run the Docker container in GPUs you will need to install the NVIDIA Container Toolkit.
 
 ### Run
 
 The PyTorch Training containers will start a training job that will start on `docker run` and will be closed whenever the training job finishes. As the container is offered for both accelerators GPU and TPU, the examples below are provided.
 
-* **GPU**: As an example, we will showcase how to fine-tune an LLM via [`trl`](https://github.com/huggingface/trl) on a GPU instance using the PyTorch Training container, as it comes with `trl` installed.
+* **GPU**: This example showcases how to fine-tune an LLM via [`trl`](https://github.com/huggingface/trl) on a GPU instance using the PyTorch Training container, as it comes with `trl` installed.
 
     ```bash
     docker run --gpus all -ti \
@@ -48,7 +48,7 @@ The PyTorch Training containers will start a training job that will start on `do
     > [!NOTE]
     > For a more detailed explanation and a diverse set of examples, please check the [./examples](../../examples) directory that contains examples on both Google Kubernetes Engine (GKE) and Google Vertex AI.
 
-* **TPU**: As an example, we will showcase how to deploy a Jupyter Notebook Server from a TPU instance (such as `v5litepod-8`) using the PyTorch Training container, as it comes with `optimum-tpu` installed; so that then we can import a Jupyter Notebook from the ones defined within the `opitimum-tpu` repository or just reuse the Jupyter Notebook that comes within the PyTorch Training container i.e. [`gemma-tuning.ipynb`](https://github.com/huggingface/optimum-tpu/blob/main/examples/language-modeling/gemma_tuning.ipynb); and then just run it.
+* **TPU**: This example showcases how to deploy a Jupyter Notebook Server from a TPU instance (such as `v5litepod-8`) using the PyTorch Training container, as it comes with `optimum-tpu` installed; so that then you can import a Jupyter Notebook from the ones defined within the `opitimum-tpu` repository or just reuse the Jupyter Notebook that comes within the PyTorch Training container i.e. [`gemma-tuning.ipynb`](https://github.com/huggingface/optimum-tpu/blob/main/examples/language-modeling/gemma_tuning.ipynb); and then just run it.
 
     ```bash
     docker run --rm --net host --privileged \
@@ -73,13 +73,13 @@ The PyTorch Training containers will start a training job that will start on `do
 
 The PyTorch Training containers come with two different containers depending on the accelerator used for training, being either GPU or TPU, those have different constraints when building the Docker image as described below:
 
-* **GPU**: To build the PyTorch Training container for GPU, we will need an instance with at least one NVIDIA GPU available as it's required to install `flash-attn` used to speed up the attention layers during training and inference.
+* **GPU**: To build the PyTorch Training container for GPU, an instance with at least one NVIDIA GPU available is required to install `flash-attn` (used to speed up the attention layers during training and inference).
 
     ```bash
     docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-gpu.2.3.0.transformers.4.42.3.py310 -f containers/pytorch/training/gpu/2.3.0/transformers/4.42.3/py310/Dockerfile .
     ```
 
-* **TPU**: To build the PyTorch Training container for Google Cloud TPUs, we will need an instance with at least one TPU available, required to install `optimum-tpu` which is a Python library with Google TPU optimizations for `transformers` models, making its integration seamless.
+* **TPU**: To build the PyTorch Training container for Google Cloud TPUs, an instance with at least one TPU available is required to install `optimum-tpu` which is a Python library with Google TPU optimizations for `transformers` models, making its integration seamless.
 
     ```bash
     docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-tpu.2.4.0.transformers.4.41.1.py310 -f containers/pytorch/training/tpu/2.4.0/transformers/4.41.1/py310/Dockerfile .

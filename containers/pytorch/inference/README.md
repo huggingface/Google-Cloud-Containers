@@ -21,11 +21,11 @@ gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platfo
 
 Below you will find the instructions on how to run and test the PyTorch Inference containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
 
-Additionally, if we're willing to run the Docker container in GPUs you will need to install the NVIDIA Container Toolkit.
+Additionally, if you're willing to run the Docker container in GPUs you will need to install the NVIDIA Container Toolkit.
 
 ## Run
 
-Before running this container, we will need to select any supported model from the [Hugging Face Hub offering for `transformers`](https://huggingface.co/models?library=transformers&sort=trending), as well as the task that the model runs as e.g. text-classification.
+Before running this container, you will need to select any supported model from the [Hugging Face Hub offering for `transformers`](https://huggingface.co/models?library=transformers&sort=trending), as well as the task that the model runs as e.g. text-classification.
 
 * **CPU**
 
@@ -36,7 +36,7 @@ Before running this container, we will need to select any supported model from t
         us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2.2.2.transformers.4.41.1.py311
     ```
 
-* **GPU**: Note that here we need to have an instance with at least one NVIDIA GPU and to set the `--gpus all` flag within the `docker run` command, as well as using the GPU-compatible container.
+* **GPU**: Note that here you need to have an instance with at least one NVIDIA GPU and to set the `--gpus all` flag within the `docker run` command, as well as using the GPU-compatible container.
 
     ```bash
     docker run -ti --gpus all -p 8080:8080 \
@@ -46,11 +46,11 @@ Before running this container, we will need to select any supported model from t
     ```
 
 > [!NOTE]
-> As `huggingface-inference-toolkit` is built to be fully compatible with Google Vertex AI, then we can also set the environment variables defined by Vertex AI such as `AIP_MODE=PREDICTION`, `AIP_HTTP_PORT`, `AIP_PREDICT_ROUTE`, `AIP_HEALTH_ROUTE`, and some more. To read about all the exposed environment variables in Vertex AI please check [Vertex AI Documentation - Custom container requirements for prediction](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).
+> As `huggingface-inference-toolkit` is built to be fully compatible with Google Vertex AI, then you can also set the environment variables defined by Vertex AI such as `AIP_MODE=PREDICTION`, `AIP_HTTP_PORT`, `AIP_PREDICT_ROUTE`, `AIP_HEALTH_ROUTE`, and some more. To read about all the exposed environment variables in Vertex AI please check [Vertex AI Documentation - Custom container requirements for prediction](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).
 
 ## Test
 
-Once the Docker container is running, we can start sending requests to the `/predict` endpoint which is the default endpoint exposed by the PyTorch Inference containers (unless overridden with `AIP_PREDICT_ROUTE` on build time).
+Once the Docker container is running, you can start sending requests to the `/predict` endpoint which is the default endpoint exposed by the PyTorch Inference containers (unless overridden with `AIP_PREDICT_ROUTE` on build time).
 
 ```bash
 curl 0.0.0.0:8080/predict \
@@ -63,7 +63,7 @@ curl 0.0.0.0:8080/predict \
 ```
 
 > [!NOTE]
-> Since `huggingface-inference-toolkit` is powered by the `pipeline` method within `transformers`, that means that the payload will be different based on the model that we're deploying. So on, before sending requests to the deployed model, we will need to first check which is the task that the `pipeline` method and the model support and are running. To read more about the `pipeline` and the supported tasks please check [Transformers Documentation - Pipelines](https://huggingface.co/docs/transformers/en/main_classes/pipelines).
+> Since `huggingface-inference-toolkit` is powered by the `pipeline` method within `transformers`, that means that the payload will be different based on the model that you're deploying. So on, before sending requests to the deployed model, you will need to first check which is the task that the `pipeline` method and the model support and are running. To read more about the `pipeline` and the supported tasks please check [Transformers Documentation - Pipelines](https://huggingface.co/docs/transformers/en/main_classes/pipelines).
 
 ## Optional
 
