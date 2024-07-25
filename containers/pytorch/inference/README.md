@@ -11,7 +11,7 @@ The `huggingface-inference-toolkit` provides default pre-processing, predict and
 
 ## Published Containers
 
-In order to check which of the available containers are published in Google Cloud's Artifact Registry publicly, you can run the following `gcloud` command to list the available containers with the tag containing `huggingface-pytorch-inference` as follows:
+In order to check which of the available Hugging Face DLCs are published, one can either check [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or use the `gcloud` command to list the available containers with the tag containing `huggingface-pytorch-inference` as follows:
 
 ```bash
 gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-pytorch-inference"
@@ -19,31 +19,13 @@ gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platfo
 
 ## Getting Started
 
-Below you will find the instructions on how to build, run, and test the PyTorch Inference containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
+Below you will find the instructions on how to run and test the PyTorch Inference containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
 
-Additionally, if we're willing to build and run the Docker container in GPUs you will need to install the NVIDIA Container Toolkit.
-
-### Build
-
-The PyTorch Training containers come with two different containers depending on the accelerator used for training, being either CPU or GPU, but those can be built within the same instance, that does not need to have a GPU available.
-
-* **CPU**
-
-    ```bash
-    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2.2.2.transformers.4.41.1.py311 -f containers/pytorch/inference/cpu/2.2.2/transformers/4.41.1/py311/Dockerfile .
-    ```
-
-* **GPU**
-
-    ```bash
-    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-gpu.2.2.2.transformers.4.41.1.py311 -f containers/pytorch/inference/gpu/2.2.2/transformers/4.41.1/py311/Dockerfile .
-    ```
-
-Alternatively, you can skip the build process and use the pre-built containers available in Google Cloud's Artifact Registry.
+Additionally, if we're willing to run the Docker container in GPUs you will need to install the NVIDIA Container Toolkit.
 
 ## Run
 
-Once the Docker container is built, we can proceed to run it. But before running it, we will need to select any supported model from the [Hugging Face Hub offering for `transformers`](https://huggingface.co/models?library=transformers&sort=trending), as well as the task that the model runs as e.g. text-classification.
+Before running this container, we will need to select any supported model from the [Hugging Face Hub offering for `transformers`](https://huggingface.co/models?library=transformers&sort=trending), as well as the task that the model runs as e.g. text-classification.
 
 * **CPU**
 
@@ -82,3 +64,24 @@ curl 0.0.0.0:8080/predict \
 
 > [!NOTE]
 > Since `huggingface-inference-toolkit` is powered by the `pipeline` method within `transformers`, that means that the payload will be different based on the model that we're deploying. So on, before sending requests to the deployed model, we will need to first check which is the task that the `pipeline` method and the model support and are running. To read more about the `pipeline` and the supported tasks please check [Transformers Documentation - Pipelines](https://huggingface.co/docs/transformers/en/main_classes/pipelines).
+
+## Optional
+
+### Build
+
+> [!WARNING]
+> Building the containers is not recommended since those are already built by Hugging Face and Google Cloud teams and provided openly, so the recommended approach is to use the pre-built containers available in [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) instead.
+
+The PyTorch Training containers come with two different containers depending on the accelerator used for training, being either CPU or GPU, but those can be built within the same instance, that does not need to have a GPU available.
+
+* **CPU**
+
+    ```bash
+    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2.2.2.transformers.4.41.1.py311 -f containers/pytorch/inference/cpu/2.2.2/transformers/4.41.1/py311/Dockerfile .
+    ```
+
+* **GPU**
+
+    ```bash
+    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-gpu.2.2.2.transformers.4.41.1.py311 -f containers/pytorch/inference/gpu/2.2.2/transformers/4.41.1/py311/Dockerfile .
+    ```

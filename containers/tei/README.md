@@ -4,7 +4,7 @@
 
 ## Published Containers
 
-In order to check which of the available containers are published in Google Cloud's Artifact Registry publicly, you can run the following `gcloud` command to list the available containers with the tag containing `huggingface-text-embeddings-inference` as follows:
+In order to check which of the available Hugging Face DLCs are published, one can either check [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or use the `gcloud` command to list the available containers with the tag containing `huggingface-text-embeddings-inference` as follows:
 
 ```bash
 gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-text-embeddings-inference"
@@ -12,33 +12,15 @@ gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platfo
 
 ## Getting Started
 
-Below you will find the instructions on how to build, run and test the TEI containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
+Below you will find the instructions on how to run and test the TEI containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
 
-Additionally, if we're willing to build and run the Docker container in GPUs we need to ensure that your hardware is supported (NVIDIA drivers on your device need to be compatible with CUDA version 12.2 or higher) and also install the NVIDIA Container Toolkit.
+Additionally, if we're willing to run the Docker container in GPUs we need to ensure that your hardware is supported (NVIDIA drivers on your device need to be compatible with CUDA version 12.2 or higher) and also install the NVIDIA Container Toolkit.
 
-To find the supported models and hardware before building and running the TEI images, feel free to check [TEI's documentation](https://huggingface.co/docs/text-embeddings-inference/supported_models).
-
-### Build
-
-Since TEI comes with two different containers depending on the accelerator used for the inference, being either CPU or GPU, those have different constraints when building the Docker image as described below:
-
-* **CPU**: To build TEI for CPU, we will need an instance with enough CPU RAM, but most instances should be able to successfully build the CPU image since it's not too memory-intensive.
-
-    ```bash
-    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1.4.0 -f containers/tei/cpu/1.4.0/Dockerfile .
-    ```
-
-* **GPU**: To build TEI for GPU, we will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TEI, similarly to TGI, needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~15 minutes to complete, depending on the instance's specifications.
-
-    ```bash
-    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-gpu.1.4.0 -f containers/tei/gpu/1.4.0/Dockerfile .
-    ```
-
-Alternatively, you can skip the build process and use the pre-built container available in Google Cloud's Artifact Registry.
+To find the supported models and hardware before running the TEI images, feel free to check [TEI's documentation](https://huggingface.co/docs/text-embeddings-inference/supported_models).
 
 ### Run
 
-Once the Docker container is built, we can proceed to run it, and for that, we need to define the model that we want to deploy, so we can pick any model from the Hugging Face Hub that contains the tag `text-embeddings-inference` which means that it's supported by TEI; to explore all the available models within the Hub, please check [here](https://huggingface.co/models?other=text-embeddings-inference&sort=trending).
+To run this DLC, we need to first define the model that we want to deploy, so we can pick any model from the Hugging Face Hub that contains the tag `text-embeddings-inference` which means that it's supported by TEI; to explore all the available models within the Hub, please check [here](https://huggingface.co/models?other=text-embeddings-inference&sort=trending).
 
 Besides selecting which model we want to deploy, we need to take into consideration that TEI supports the following models:
 
@@ -104,3 +86,24 @@ Depending on the model that has been deployed the inference endpoints will be:
 
 > [!NOTE]
 > Additionally, note that both `/embed` for text embeddings models and `/predict` for sequence classification models support batching so that instead of a single instance with `inputs` being a string, a `List[str]` can be provided instead.
+
+## Advanced
+
+### Build
+
+> [!WARNING]
+> Building the containers is not recommended since those are already built by Hugging Face and Google Cloud teams and provided openly, so the recommended approach is to use the pre-built containers available in [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) instead.
+
+Since TEI comes with two different containers depending on the accelerator used for the inference, being either CPU or GPU, those have different constraints when building the Docker image as described below:
+
+* **CPU**: To build TEI for CPU, we will need an instance with enough CPU RAM, but most instances should be able to successfully build the CPU image since it's not too memory-intensive.
+
+    ```bash
+    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1.4.0 -f containers/tei/cpu/1.4.0/Dockerfile .
+    ```
+
+* **GPU**: To build TEI for GPU, we will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TEI, similarly to TGI, needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~15 minutes to complete, depending on the instance's specifications.
+
+    ```bash
+    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-gpu.1.4.0 -f containers/tei/gpu/1.4.0/Dockerfile .
+    ```

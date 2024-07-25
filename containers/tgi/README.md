@@ -20,7 +20,7 @@ To find the supported models and hardware before running the TGI DLC, feel free 
 
 ### Run
 
-Once the Docker container is built, we can proceed to run it. In this case it's important to have GPUs available within the instance that we want to run TGI, since the GPU accelerators are recommended to enable the best performance due to the optimized inference CUDA kernels.
+To run this DLC, it's important to have GPUs available within the instance that we want to run TGI, since the GPU accelerators are recommended to enable the best performance due to the optimized inference CUDA kernels.
 
 Besides that, we also need to define the model that we want to deploy, as well as the configuration that we want that model to use. For the model selection, we can pick any model from the Hugging Face Hub that contains the tag `text-generation-inference` which means that it's supported by TGI; to explore all the available models within the Hub, please check [here](https://huggingface.co/models?other=text-generation-inference&sort=trending). Then, to select the best configuration for that model we can either keep the default values defined within TGI, or just select the recommended ones based on our instance specification, and for that we will be using the Hugging Face Recommender API for TGI as follows:
 
@@ -103,7 +103,7 @@ curl 0.0.0.0:8080/generate \
     }'
 ```
 
-## Advanced
+## Optional
 
 ### Build
 
