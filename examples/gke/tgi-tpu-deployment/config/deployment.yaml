@@ -31,10 +31,8 @@ spec:
               value: "1000"
             - name: MAX_TOTAL_TOKENS
               value: "1024"
-            # Reference: https://github.com/huggingface/optimum-tpu/blob/6eb9146974dd1fc20db30c36c93a9be77ef36655/text-generation-inference/server/text_generation_server/generator.py#L394-L397
-            # ValueError: Inconsistent server configuration: please make sure max-prefill-tokens does not exceed 1 x max-input-length.
-            - name: MAX_BATCH_PREFILL_TOKENS
-              value: "1000"
+            - name: BATCH_SIZE
+              value: "2"
             - name: HUGGING_FACE_HUB_TOKEN
               valueFrom:
                 secretKeyRef:
