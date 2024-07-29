@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tgi-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tgi-server
+  template:
+    metadata:
+      labels:
+        app: tgi-server
+        hf.co/model: google--gemma-7b-it
+        hf.co/task: text-generation
+    spec:
+      containers:
+        - name: tgi-container
+          image: us-central1-docker.pkg.dev/gcp-partnership-412108/deep-learning-images/huggingface-text-generation-inference-tpu.0.1.4:latest
+          resources:
+            requests:
+              google.com/tpu: 4
+            limits:
+              google.com/tpu: 4
+          env:
+            - name: MODEL_ID
+              value: google/gemma-7b-it
+            - name: PORT
+              value: "8080"
+            - name: MAX_INPUT_TOKENS
+              value: "1000"
+            - name: MAX_TOTAL_TOKENS
+              value: "1024"
+            # Reference: https://github.com/huggingface/optimum-tpu/blob/6eb9146974dd1fc20db30c36c93a9be77ef36655/text-generation-inference/server/text_generation_server/generator.py#L394-L397
+            # ValueError: Inconsistent server configuration: please make sure max-prefill-tokens does not exceed 1 x max-input-length.
+            - name: MAX_BATCH_PREFILL_TOKENS
+              value: "1000"
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_token
+          volumeMounts:
+            - mountPath: /data
+              name: data
+      volumes:
+        - name: data
+          emptyDir: {}
+      nodeSelector:
+        cloud.google.com/gke-tpu-accelerator: tpu-v5-lite-podslice
+        cloud.google.com/gke-tpu-topology: 2x2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tgi-service
+spec:
+  selector:
+    app: tgi-server
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
