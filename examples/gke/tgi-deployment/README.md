@@ -6,8 +6,8 @@ TL; DR Llama 3 is the latest LLM from the Llama family, released by Meta; coming
 
 First, we need to install both `gcloud` and `kubectl` in our local machine, which are the command-line tools for Google Cloud and Kubernetes, respectively, to interact with the GCP and the GKE Cluster.
 
-* To install `gcloud`, follow the instructions at https://cloud.google.com/sdk/docs/install.
-* To install `kubectl`, follow the instructions at https://kubernetes.io/docs/tasks/tools/#kubectl.
+* To install `gcloud`, follow the instructions at <https://cloud.google.com/sdk/docs/install>.
+* To install `kubectl`, follow the instructions at <https://kubernetes.io/docs/tasks/tools/#kubectl>.
 
 Optionally, to ease the usage of the commands within this tutorial, we'll set the following environment variables for GCP:
 
@@ -42,7 +42,7 @@ gcloud components install gke-gcloud-auth-plugin
 ```
 
 > [!NOTE]
-> Installing the `gke-gcloud-auth-plugin` does not need to be installed via `gcloud` specifically, to read more about the alternative installation methods, please visit https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin.
+> Installing the `gke-gcloud-auth-plugin` does not need to be installed via `gcloud` specifically, to read more about the alternative installation methods, please visit <https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin>.
 
 ## Create GKE Cluster
 
@@ -51,7 +51,7 @@ Once we've set everything up, we are ready to start with the creation of the GKE
 In order to deploy the GKE Cluster, we will use the "Autopilot" mode, which is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, one can also use the "Standard" mode.
 
 > [!NOTE]
-> Important to check before creating the GKE Autopilot Cluster https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-gpus#before_you_begin, since not all the versions support GPU accelerators e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
+> Important to check before creating the GKE Autopilot Cluster <https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-gpus#before_you_begin>, since not all the versions support GPU accelerators e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
 
 ```bash
 gcloud container clusters create-auto $CLUSTER_NAME \
@@ -63,6 +63,7 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 
 > [!NOTE]
 > To select the specific version in our location of the GKE Cluster, we can run the following command:
+>
 > ```bash
 > gcloud container get-server-config \
 >     --flatten="channels" \
@@ -70,7 +71,8 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 >     --format="yaml(channels.channel,channels.defaultVersion)" \
 >     --location=$LOCATION
 > ```
-> For more information please visit https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version.
+>
+> For more information please visit <https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version>.
 
 As of the GKE documentation and service page in GCP, the creation of the GKE Cluster can take 5 minutes or more, depending on the configuration and the location of the cluster.
 
@@ -86,7 +88,7 @@ In order to set the Kubernetes secret, we first need to get the credentials of t
 gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
 ```
 
-Then we can already set the Kubernetes secret with the Hugging Face Hub token via `kubectl`. To generate a custom token for the Hugging Face Hub, you can follow the instructions at https://huggingface.co/docs/hub/en/security-tokens.
+Then we can already set the Kubernetes secret with the Hugging Face Hub token via `kubectl`. To generate a custom token for the Hugging Face Hub, you can follow the instructions at <https://huggingface.co/docs/hub/en/security-tokens>.
 
 ```bash
 kubectl create secret generic hf-secret \
@@ -96,7 +98,7 @@ kubectl create secret generic hf-secret \
 
 ![GKE Secret in the GCP Console](./imgs/gke-secrets.png)
 
-More information on how to set Kubernetes secrets in a GKE Cluster at https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component.
+More information on how to set Kubernetes secrets in a GKE Cluster at <https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component>.
 
 ## Deploy TGI
 
@@ -108,24 +110,27 @@ If not ran already within the previous step i.e. [Optional: Set Secrets in GKE](
 gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
 ```
 
-Then we can already deploy the Hugging Face LLM DLC for TGI via `kubectl`, from the following configuration files in the `configs/` directory:
+Then we can already deploy the Hugging Face LLM DLC for TGI via `kubectl`, from the following configuration files in the `config/` directory:
 
 * `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face LLM DLC setting the `MODEL_ID` to `meta-llama/Meta-Llama-3-8B-Instruct`.
 * `service.yaml`: contains the service details of the pod, exposing the port 80 for the TGI service.
 * (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
-kubectl apply -f configs/
+kubectl apply -f config/
 ```
 
 ![GKE Deployment in the GCP Console](./imgs/gke-deployment.png)
 
 > [!NOTE]
 > The Kubernetes deployment may take a few minutes to be ready, so we can check the status of the deployment with the following command:
+>
 > ```bash
 > kubectl get pods
 > ```
+>
 > Alternatively, we can just wait for the deployment to be ready with the following command:
+>
 > ```bash
 > kubectl wait --for=condition=Available --timeout=700s deployment/tgi-deployment
 > ```
@@ -140,7 +145,7 @@ In order to run the inference over the deployed TGI service, we can either:
     kubectl port-forward service/tgi-service 8080:8080
     ```
 
-* Accessing the TGI service via the external IP of the ingress, which is the default scenario here since we have defined the ingress configuration in the `./configs/ingress.yaml` file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
+* Accessing the TGI service via the external IP of the ingress, which is the default scenario here since we have defined the ingress configuration in the `config/ingress.yaml` file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
 
     ```bash
     kubectl get ingress tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
@@ -174,6 +179,7 @@ Which produces the following output:
 
 > [!NOTE]
 > To generate the `inputs` with the expected chat template formatting, one could use the following snippet:
+>
 > ```python
 > from transformers import AutoTokenizer
 > tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B-Instruct")
@@ -189,7 +195,7 @@ Which produces the following output:
 
 ### Via Python
 
-To run the inference using Python, we can use the `openai` Python SDK (see the installation notes at https://platform.openai.com/docs/quickstart), setting the ingress IP as the `base_url` for the client, and then running the following code:
+To run the inference using Python, we can use the `openai` Python SDK (see the installation notes at <https://platform.openai.com/docs/quickstart>), setting the ingress IP as the `base_url` for the client, and then running the following code:
 
 ```python
 import os
