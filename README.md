@@ -36,7 +36,7 @@ The [`examples`](./examples) directory contains examples for using the container
 
 The [`container.yaml`](./containers/container.yaml) file contains the configuration for the latest version of each container. Google uses this file to determine which container to build as of the latest version, but can also be used as a reference on the latest available containers.
 
-Alternatively, the available i.e. published, Hugging Face DLCs within Google Cloud can be found via `gcloud` as follows:
+Alternatively, you can also list the publicly available Hugging Face DLCs in Google Cloud at the [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or via `gcloud` as follows:
 
 ```bash
 gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface"
@@ -44,7 +44,7 @@ gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platfo
 
 ## Local development
 
-For documentation on how to create, build and run the containers manually, please navigate to each specific container type directory within this repository:
+For documentation on how to build, run, and test the containers manually, please navigate to each specific container type directory within this repository:
 
 * [Text Generation Inference](./containers/tgi/README.md)
 * [Text Embeddings Inference](./containers/tei/README.md)
