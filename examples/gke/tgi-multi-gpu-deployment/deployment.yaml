@@ -11,23 +11,21 @@ spec:
     metadata:
       labels:
         app: tgi-server
-        hf.co/model: google--gemma-7b-it
+        hf.co/model: google--gemma-2-27b-it
         hf.co/task: text-generation
-      annotations:
-        deployment.kubernetes.io/max-replicas: "1"
     spec:
       containers:
         - name: tgi-container
-          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-0.ubuntu2204:latest
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204:latest
           resources:
             requests:
               nvidia.com/gpu: 4
-              ephemeral-storage: "24Gi"
+              ephemeral-storage: "64Gi"
           env:
             - name: MODEL_ID
-              value: google/gemma-7b-it
+              value: google/gemma-2-27b-it
             - name: REVISION
-              value: "8adab6a35fdbcdae0ae41ab1f711b1bc8d05727e"
+              value: "2d74922e8a2961565b71fd5373081e9ecbf99c08"
             - name: NUM_SHARD
               value: "4"
             - name: MAX_BATCH_PREFILL_TOKENS
@@ -66,4 +64,3 @@ spec:
   - protocol: TCP
     port: 8080
     targetPort: 8080
-
