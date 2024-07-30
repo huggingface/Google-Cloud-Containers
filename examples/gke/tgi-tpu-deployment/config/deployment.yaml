@@ -31,7 +31,7 @@ spec:
               value: "1000"
             - name: MAX_TOTAL_TOKENS
               value: "1024"
-            - name: BATCH_SIZE
+            - name: MAX_BATCH_SIZE
               value: "2"
             - name: HUGGING_FACE_HUB_TOKEN
               valueFrom:
