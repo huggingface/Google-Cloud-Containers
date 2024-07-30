@@ -54,7 +54,6 @@ RUN apt-get update -y \
     && apt-get clean
 RUN pip3 --no-cache-dir install --upgrade pip
 
-
 # Install Optimum TPU
 ARG OPTIMUM_TPU_VERSION='0.1.4'
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Check if MODEL_ID starts with "gcs://"
+# Check if MODEL_ID starts with "gs://"
 if [[ $AIP_STORAGE_URI == gs://* ]]; then
     echo "AIP_STORAGE_URI set and starts with 'gs://', proceeding to download from GCS."
     echo "AIP_STORAGE_URI: $AIP_STORAGE_URI"
@@ -23,6 +23,10 @@ if [[ $AIP_STORAGE_URI == gs://* ]]; then
         echo "Failed to download model from GCS."
         exit 1
     fi
+fi
+
+if [[ -z "${MAX_BATCH_SIZE}" ]]; then
+  export MAX_BATCH_SIZE="2"
 fi
 
 ldconfig 2>/dev/null || echo 'unable to refresh ld cache, not a big deal in most cases'
