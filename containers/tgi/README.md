@@ -4,7 +4,7 @@
 
 ## Getting Started
 
-Below are the instructions to build and test the Text-generation-Inference container.
+Below are the instructions to build and test the Text Generation Inference container.
 
 Build the container with the following command:
 

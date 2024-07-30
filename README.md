@@ -15,7 +15,7 @@ We plan to release containers for each of these combinations of framework, use c
     * TPU (soon)
   * [Text Generation Inference](./containers/tgi/README.md)
     * GPU
-    * TPU (soon)
+    * TPU
   * [Text Embeddings Inference](./containers/tei/README.md)
     * CPU
     * GPU
