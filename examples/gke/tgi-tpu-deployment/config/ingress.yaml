@@ -2,7 +2,6 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: tgi-ingress
-  namespace: hf-gke-namespace
   annotations:
     kubernetes.io/ingress.class: "gce"
 spec:
