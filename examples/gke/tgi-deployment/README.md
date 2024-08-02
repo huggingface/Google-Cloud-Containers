@@ -17,9 +17,6 @@ export LOCATION="your-location"
 export CLUSTER_NAME="your-cluster-name"
 ```
 
-> [!NOTE]
-> You may be used to using `REGION` and `ZONE` in GCP, but in this case we will use `LOCATION` instead, which is essentially the same, but it's now the recommended way to refer to the location of the resources in GKE.
-
 Then we need to login into our GCP account and set the project ID to the one we want to use for the deployment of the GKE Cluster.
 
 ```bash
