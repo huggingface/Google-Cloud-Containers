@@ -33,11 +33,11 @@ RUN apt-get update && \
 
 # Hugging Face Inference Toolkit
 ARG HF_INFERENCE_TOOLKIT_WHL="huggingface_inference_toolkit-0.4.1.dev0-py3-none-any.whl"
-COPY containers/pytorch/inference/gpu/2.2.2/transformers/4.41.1/py311/${HF_INFERENCE_TOOLKIT_WHL} /app/${HF_INFERENCE_TOOLKIT_WHL}
+COPY containers/pytorch/inference/cpu/2.2.2/transformers/4.41.1/py311/${HF_INFERENCE_TOOLKIT_WHL} /app/${HF_INFERENCE_TOOLKIT_WHL}
 
 RUN pip install "${HF_INFERENCE_TOOLKIT_WHL}[torch,diffusers,st,google]" && \
     rm /app/${HF_INFERENCE_TOOLKIT_WHL}
 
 # copy entrypoint and change permissions
-COPY --chmod=0755 containers/pytorch/inference/gpu/2.2.2/transformers/4.41.1/py311/entrypoint.sh entrypoint.sh
+COPY --chmod=0755 containers/pytorch/inference/cpu/2.2.2/transformers/4.41.1/py311/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["bash", "-c", "./entrypoint.sh"]
