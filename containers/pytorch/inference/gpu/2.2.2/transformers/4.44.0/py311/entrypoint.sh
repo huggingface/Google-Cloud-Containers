@@ -19,7 +19,7 @@ if [[ $AIP_STORAGE_URI == gs://* ]]; then
 
     # Use gsutil to copy the content from GCS to the target directory
     echo "Running: gsutil -o GSUtil:parallel_composite_upload_threshold=150M -m cp -e -r "$AIP_STORAGE_URI/*" "$TARGET_DIR""
-    gsutil -o GSUtil:parallel_composite_upload_threshold=150M -m cp -e -r "$AIP_STORAGE_URI/*" "$TARGET_DIR"
+    gsutil -m cp -e -r "$AIP_STORAGE_URI/*" "$TARGET_DIR"
 
     # Check if gsutil command was successful
     if [ $? -eq 0 ]; then
