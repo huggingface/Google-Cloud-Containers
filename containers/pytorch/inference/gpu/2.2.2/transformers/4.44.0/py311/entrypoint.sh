@@ -27,6 +27,7 @@ if [[ $AIP_STORAGE_URI == gs://* ]]; then
         # Update MODEL_ID to point to the local directory
         echo "Updating MODEL_ID to point to the local directory."
         export HF_MODEL_DIR="$TARGET_DIR"
+        export AIP_STORAGE_URI=""
     else
         echo "Failed to download model from GCS."
         exit 1
