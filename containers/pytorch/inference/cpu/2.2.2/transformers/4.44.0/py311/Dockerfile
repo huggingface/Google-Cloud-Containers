@@ -43,4 +43,3 @@ ENV HF_HUB_ENABLE_HF_TRANSFER="1"
 # copy entrypoint and change permissions
 COPY --chmod=0755 containers/pytorch/inference/cpu/2.2.2/transformers/4.44.0/py311/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["bash", "-c", "./entrypoint.sh"]
-
