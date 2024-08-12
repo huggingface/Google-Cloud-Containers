@@ -18,8 +18,8 @@ if [[ $AIP_STORAGE_URI == gs://* ]]; then
     mkdir -p "$TARGET_DIR"
 
     # Use gsutil to copy the content from GCS to the target directory
-    echo "Running: gsutil -o GSUtil:parallel_composite_upload_threshold=150M -m cp -e -r "$AIP_STORAGE_URI/*" "$TARGET_DIR""
-    gsutil -o GSUtil:parallel_composite_upload_threshold=150M -m cp -e -r "$AIP_STORAGE_URI/*" "$TARGET_DIR"
+    echo "Running: gsutil -m cp -e -r "$AIP_STORAGE_URI/*" "$TARGET_DIR""
+    gsutil -m cp -e -r "$AIP_STORAGE_URI/*" "$TARGET_DIR"
 
     # Check if gsutil command was successful
     if [ $? -eq 0 ]; then
@@ -33,8 +33,6 @@ if [[ $AIP_STORAGE_URI == gs://* ]]; then
         exit 1
     fi
 fi
-
-ldconfig 2>/dev/null || echo 'unable to refresh ld cache, not a big deal in most cases'
 
 # Start the server
 uvicorn huggingface_inference_toolkit.webservice_starlette:app --host 0.0.0.0 --port ${PORT}
