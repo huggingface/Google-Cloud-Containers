@@ -31,7 +31,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Hugging Face Inference Toolkit
-ARG HF_INFERENCE_TOOLKIT_WHL="huggingface_inference_toolkit-0.4.2-py3-none-any.whl"
+ARG HF_INFERENCE_TOOLKIT_WHL="huggingface_inference_toolkit-0.4.3-py3-none-any.whl"
 COPY containers/pytorch/inference/cpu/2.2.2/transformers/4.44.0/py311/${HF_INFERENCE_TOOLKIT_WHL} /app/${HF_INFERENCE_TOOLKIT_WHL}
 
 RUN pip install "${HF_INFERENCE_TOOLKIT_WHL}[torch,diffusers,st,google]" --extra-index-url https://download.pytorch.org/whl/cpu --upgrade && \
