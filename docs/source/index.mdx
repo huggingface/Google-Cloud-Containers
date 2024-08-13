@@ -1,3 +1,68 @@
-# 🤗 DLCs for Google Cloud
+# 🤗 Hugging Face on Google Cloud
 
-Hello world!
+![Hugging Face x Google Cloud](https://raw.githubusercontent.com/huggingface/blog/main/assets/173_gcp-partnership/thumbnail.jpg)
+
+## Deep Learning Containers
+
+Deep Learning Containers (DLCs) are Docker images pre-installed with deep learning frameworks and libraries such as 🤗 Transformers, 🤗 Datasets, and 🤗 Tokenizers. The DLCs allow you both to serve pre-trained or fine-tuned models or to train those instead, skipping the complicated process of building and optimizing your serving and training environments from scratch. Our DLCs are thoroughly tested and optimized for deep learning environments, requiring no configuration or maintenance on your part.
+
+Our DLCs are available in [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) and can be used from any Google Cloud service such as Google Kubernetes Engine (GKE), Vertex AI, or Google Compute Engine.
+
+Our DLCs for training are available for PyTorch via 🤗 Transformers including support for training on both GPUs and TPUs with libraries such as 🤗 TRL, Sentence Transformers, or 🧨 Diffusers. Additionally, PyTorch inference is also provided for serving models trained with any of those frameworks mentioned before on both CPU and GPU. Last but not least, our DLCs include Text Generation Inference (TGI) for high-performance text generation of LLMs on both GPU and TPU, and Text Embeddings Inference (TEI) for high-performance serving of embedding models on both CPU and GPU.
+
+Hugging Face DLCs are open source and licensed under Apache 2.0 within the [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers) repository. For premium support, our [Expert Acceleration Program](https://huggingface.co/support) gives you direct dedicated support from our team.
+
+## Features & benefits 🔥
+
+The Hugging Face DLCs combined with Google Cloud offering for Google Kubernetes Engine (GKE) which is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using Google Cloud's infrastructure; as well as combined with Vertex AI which is a Machine Learning (ML) platform that lets you train and deploy ML models and AI applications, and customize large language models (LLMs) for use in your AI-powered applications; offer the following advantages:
+
+- **Integrated Deployment and Management**: Vertex AI and GKE provide a seamless integration for deploying and managing machine learning models. This allows users to deploy models from Vertex AI onto GKE, leveraging Kubernetes' orchestration capabilities while benefiting from Vertex AI's model management features. This integration simplifies the deployment process, enabling a unified approach to managing AI workloads on Google Cloud, whilst both training and inference can also happen within Vertex AI or GKE separately, as both support model training either natively or via a Kubernetes job, respectively; as well as running an endpoint serving a model from a container.
+
+- **Security and Compliance**: Both Vertex AI and GKE are part of Google Cloud's robust infrastructure, which offers comprehensive security features such as data encryption, identity management, and compliance with industry standards. This ensures that AI models and containerized applications are secure and meet regulatory requirements.
+
+- **Scalability and Flexibility**: The combination of Vertex AI and GKE allows for efficient scaling of AI models. GKE provides the infrastructure to handle large-scale deployments, while Vertex AI simplifies the scaling of machine learning workflows, offering flexible resource allocation and management. This is particularly useful for handling demanding training and inference scenarios.
+
+- **Ease of Use and Automation**: Using Vertex AI with GKE enables automated deployments and management of AI models, reducing the need for manual infrastructure management. This integration allows for quick deployment of models at scale, simplifying the process and reducing operational overhead.
+
+- **Optimized Performance**: Both platforms are optimized for performance, with GKE offering efficient resource management and Vertex AI providing tools for model tuning and monitoring. This ensures that AI applications run smoothly and efficiently, leveraging Google Cloud's infrastructure capabilities.
+
+For more detailed information, you can refer to the official Google Cloud documentation on Vertex AI and Google Kubernetes Engine.
+
+---
+
+## Resources, Documentation & Examples 📄
+
+Take a look at our published blog posts, documentation, and examples for additional help and more context about Hugging Face DLCs on Google Cloud.
+
+### Blog posts
+
+- [Hugging Face and Google partner for open AI collaboration](https://huggingface.co/blog/gcp-partnership)
+- [Google Cloud TPUs made available to Hugging Face users](https://huggingface.co/blog/tpu-inference-endpoints-spaces)
+- [Making thousands of open LLMs bloom in the Vertex AI Model Garden](https://huggingface.co/blog/google-cloud-model-garden)
+
+### Documentation
+
+- [Serve Gemma open models using GPUs on GKE with Hugging Face TGI](https://cloud.google.com/kubernetes-engine/docs/tutorials/serve-gemma-gpu-tgi)
+- [Generative AI on Vertex - Use Hugging Face text generation models](https://cloud.google.com/vertex-ai/generative-ai/docs/open-models/use-hugging-face-models)
+
+### Examples
+
+- [All examples](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples)
+
+#### GKE
+
+- [Full SFT fine-tuning of Gemma 2B in a multi-GPU instance with TRL in GKE](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/gke/trl-full-fine-tuning)
+- [LoRA SFT fine-tuning of Mistral 7B v0.3 in a single GPU instance with TRL in GKE](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/gke/trl-lora-fine-tuning)
+- [Deploying Llama3 8B with Text Generation Inference (TGI) in GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tgi-deployment)
+- [Deploying Qwen2 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket in GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tgi-from-gcs-deployment)
+- [Deploying Snowflake's Arctic Embed (M) with Text Embeddings Inference (TEI) in GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tei-deployment)
+- [Deploying BGE Base v1.5 (English) with Text Embeddings Inference (TEI) from a GCS Bucket in GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tei-from-gcs-deployment)
+
+#### Vertex AI
+
+- [Full SFT fine-tuning of Mistral 7B v0.3 in a multi-GPU instance with TRL on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai)
+- [LoRA SFT fine-tuning of Mistral 7B v0.3 in a single GPU instance with TRL on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/vertex-ai/notebooks/trl-lora-sft-fine-tuning-on-vertex-ai)
+- [Deploying a BERT model for a text classification task using huggingface-inference-toolkit for a Custom Prediction Routine (CPR) on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai)
+- [Deploying an embedding model with Text Embeddings Inference (TEI) on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai)
+- [Deploying Gemma 7B Instruct with Text Generation Inference (TGI) on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai)
+- [Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai)

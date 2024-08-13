@@ -2,15 +2,3 @@
   - local: index
     title: 🤗 DLCs for Google Cloud
   title: Getting Started
-- sections:
-  - local: serving/gke/tgi
-    title: Serve LLMs with TGI on GKE
-  - local: serving/vertex/tgi
-    title: Serve LLMs with TGI on Vertex AI
-  title: Serving
-- sections:
-  - local: training/gke/trl
-    title: Train LLMs with TRL on GKE
-  - local: training/vertex/trl
-    title: Train LLMs with TRL on Vertex AI
-  title: Training
