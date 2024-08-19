@@ -6,8 +6,8 @@ TL; DR Qwen2 is the new series of Qwen Large Language Models (LLMs) built by Ali
 
 First, we need to install both `gcloud` and `kubectl` in our local machine, which are the command-line tools for Google Cloud and Kubernetes, respectively, to interact with the GCP and the GKE Cluster.
 
-* To install `gcloud`, follow the instructions at https://cloud.google.com/sdk/docs/install.
-* To install `kubectl`, follow the instructions at https://kubernetes.io/docs/tasks/tools/#kubectl.
+* To install `gcloud`, follow the instructions at <https://cloud.google.com/sdk/docs/install>.
+* To install `kubectl`, follow the instructions at <https://kubernetes.io/docs/tasks/tools/#kubectl>.
 
 Optionally, to ease the usage of the commands within this tutorial, we'll set the following environment variables for GCP:
 
@@ -16,9 +16,6 @@ export PROJECT_ID="your-project-id"
 export LOCATION="your-location"
 export CLUSTER_NAME="your-cluster-name"
 ```
-
-> [!NOTE]
-> You may be used to using `REGION` and `ZONE` in GCP, but in this case we will use `LOCATION` instead, which is essentially the same, but it's now the recommended way to refer to the location of the resources in GKE.
 
 Then we need to login into our GCP account and set the project ID to the one we want to use for the deployment of the GKE Cluster.
 
@@ -42,7 +39,7 @@ gcloud components install gke-gcloud-auth-plugin
 ```
 
 > [!NOTE]
-> Installing the `gke-gcloud-auth-plugin` does not need to be installed via `gcloud` specifically, to read more about the alternative installation methods, please visit https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin.
+> Installing the `gke-gcloud-auth-plugin` does not need to be installed via `gcloud` specifically, to read more about the alternative installation methods, please visit <https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin>.
 
 And, if we're willing to upload a model from the Hugging Face Hub to a bucket in GCS, as in this example, then we will need to also install the `gsutil` tool, which is the command-line tool for Google Cloud Storage, to interact with the GCS.
 
@@ -57,7 +54,7 @@ Once we've set everything up, we are ready to start with the creation of the GKE
 In order to deploy the GKE Cluster, we will use the "Autopilot" mode, which is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, one can also use the "Standard" mode.
 
 > [!NOTE]
-> Important to check before creating the GKE Autopilot Cluster https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-gpus#before_you_begin, since not all the versions support GPU accelerators e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
+> Important to check before creating the GKE Autopilot Cluster <https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-gpus#before_you_begin>, since not all the versions support GPU accelerators e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
 
 ```bash
 gcloud container clusters create-auto $CLUSTER_NAME \
@@ -69,6 +66,7 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 
 > [!NOTE]
 > To select the specific version in our location of the GKE Cluster, we can run the following command:
+>
 > ```bash
 > gcloud container get-server-config \
 >     --flatten="channels" \
@@ -76,7 +74,8 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 >     --format="yaml(channels.channel,channels.defaultVersion)" \
 >     --location=$LOCATION
 > ```
-> For more information please visit https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version.
+>
+> For more information please visit <https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version>.
 
 As of the GKE documentation and service page in GCP, the creation of the GKE Cluster can take 5 minutes or more, depending on the configuration and the location of the cluster.
 
@@ -84,7 +83,7 @@ As of the GKE documentation and service page in GCP, the creation of the GKE Clu
 
 ## Optional: Upload a model from the Hugging Face Hub to GCS
 
-This is an optional step in the tutorial, since you may want to re-use an existing model on a GCS bucket, if that's the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
+This is an optional step in the tutorial, since you may want to reuse an existing model on a GCS bucket, if that's the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
 
 Otherwise, to upload a model from the Hugging Face Hub to a GCS bucket, we can use the script [./scripts/upload_model_to_gcs.sh](./scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS bucket (and create the bucket if not created already).
 
@@ -152,24 +151,27 @@ gcloud storage buckets add-iam-policy-binding \
 
 Once we are all set up, we can proceed to the Kubernetes deployment of the Hugging Face LLM DLC for TGI, serving the Qwen2 7B Instruct model from a volume mount under `/data` copied from the GCS bucket where the model is.
 
-Then we can already deploy the Hugging Face LLM DLC for TGI via `kubectl`, from the following configuration files in the `configs/` directory:
+Then we can already deploy the Hugging Face LLM DLC for TGI via `kubectl`, from the following configuration files in the `config/` directory:
 
 * `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face LLM DLC setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/Qwen2-7B-Instruct`.
 * `service.yaml`: contains the service details of the pod, exposing the port 80 for the TGI service.
 * (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
-kubectl apply -f configs/
+kubectl apply -f config/
 ```
 
 ![GKE Deployment in the GCP Console](./imgs/gke-deployment.png)
 
 > [!NOTE]
 > The Kubernetes deployment may take a few minutes to be ready, so we can check the status of the deployment with the following command:
+>
 > ```bash
 > kubectl get pods --namespace $NAMESPACE
 > ```
+>
 > Alternatively, we can just wait for the deployment to be ready with the following command:
+>
 > ```bash
 > kubectl wait --for=condition=Available --timeout=700s --namespace $NAMESPACE deployment/tgi-deployment
 > ```
@@ -184,7 +186,7 @@ In order to run the inference over the deployed TGI service, we can either:
     kubectl port-forward --namespace $NAMESPACE service/tgi-service 8080:8080
     ```
 
-* Accessing the TGI service via the external IP of the ingress, which is the default scenario here since we have defined the ingress configuration in the `./configs/ingress.yaml` file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
+* Accessing the TGI service via the external IP of the ingress, which is the default scenario here since we have defined the ingress configuration in the `config/ingress.yaml` file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
 
     ```bash
     kubectl get ingress --namespace $NAMESPACE tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
@@ -218,6 +220,7 @@ Which produces the following output:
 
 > [!NOTE]
 > To generate the `inputs` with the expected chat template formatting, one could use the following snippet:
+>
 > ```python
 > from transformers import AutoTokenizer
 > tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-7B-Instruct")
@@ -233,7 +236,7 @@ Which produces the following output:
 
 ### Via Python
 
-To run the inference using Python, we can use the `openai` Python SDK (see the installation notes at https://platform.openai.com/docs/quickstart), setting the ingress IP as the `base_url` for the client, and then running the following code:
+To run the inference using Python, we can use the `openai` Python SDK (see the installation notes at <https://platform.openai.com/docs/quickstart>), setting the ingress IP as the `base_url` for the client, and then running the following code:
 
 ```python
 import os
