@@ -1,20 +1,31 @@
-# 🤗 Hugging Face on Google Cloud
+# Hugging Face on Google Cloud
 
 ![Hugging Face x Google Cloud](https://raw.githubusercontent.com/huggingface/blog/main/assets/173_gcp-partnership/thumbnail.jpg)
+Hugging Face collaborates with Google across open science, open source, cloud, and hardware to enable companies to build their own AI with the latest open models from Hugging Face and the latest cloud and hardware features from Google Cloud.
 
-## Deep Learning Containers
+Hugging Face enables new experiences for Google Cloud customers. They can easily train and deploy Hugging Face models within Google Kubernetes Engine (GKE) and Vertex AI, on any hardware available in Google Cloud using Hugging Face Deep Learning Containers.
 
-Deep Learning Containers (DLCs) are Docker images pre-installed with deep learning frameworks and libraries such as 🤗 Transformers, 🤗 Datasets, and 🤗 Tokenizers. The DLCs allow you both to serve pre-trained or fine-tuned models or to train those instead, skipping the complicated process of building and optimizing your serving and training environments from scratch. Our DLCs are thoroughly tested and optimized for deep learning environments, requiring no configuration or maintenance on your part.
+## Train and Deploy Models on Google Cloud with Hugging Face Deep Learning Containers
 
-Our DLCs are available in [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) and can be used from any Google Cloud service such as Google Kubernetes Engine (GKE), Vertex AI, or Google Compute Engine.
+Hugging Face built Deep Learning Containers (DLCs) for Google Cloud customers to run any of their machine learning workload in an optimized environment, with no configuration or maintenance on their part. These are Docker images pre-installed with deep learning frameworks and libraries such as 🤗 Transformers, 🤗 Datasets, and 🤗 Tokenizers. The DLCs allow you to directly serve and train any models, skipping the complicated process of building and optimizing your serving and training environments from scratch. 
 
-Our DLCs for training are available for PyTorch via 🤗 Transformers including support for training on both GPUs and TPUs with libraries such as 🤗 TRL, Sentence Transformers, or 🧨 Diffusers. Additionally, PyTorch inference is also provided for serving models trained with any of those frameworks mentioned before on both CPU and GPU. Last but not least, our DLCs include Text Generation Inference (TGI) for high-performance text generation of LLMs on both GPU and TPU, and Text Embeddings Inference (TEI) for high-performance serving of embedding models on both CPU and GPU.
+For training, our DLCs are available for PyTorch via 🤗 Transformers. They include support for training on both GPUs and TPUs with libraries such as 🤗 TRL, Sentence Transformers, or 🧨 Diffusers. 
 
-Hugging Face DLCs are open source and licensed under Apache 2.0 within the [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers) repository. For premium support, our [Expert Acceleration Program](https://huggingface.co/support) gives you direct dedicated support from our team.
+For inference, we have a general-purpose PyTorch inference DLC, for serving models trained with any of those frameworks mentioned before on both CPU and GPU. There is also the Text Generation Inference (TGI) DLC for high-performance text generation of LLMs on both GPU and TPU. Finally, there is a Text Embeddings Inference (TEI) DLC for high-performance serving of embedding models on both CPU and GPU. 
+
+The DLCs are hosted in [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) and can be used from any Google Cloud service such as Google Kubernetes Engine (GKE), Vertex AI, or Google Compute Engine.
+
+Hugging Face DLCs are open source and licensed under Apache 2.0 within the [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers) repository. For premium support, our [Expert Support Program](https://huggingface.co/support) gives you direct dedicated support from our team.
+You have two options to take advantage of these DLCs as a Google Cloud customer: 
+
+1. To [get started](https://huggingface.co/blog/google-cloud-model-garden), you can use our no-code integrations within Vertex AI or GKE. 
+2. For more advanced scenarios, you can pull the containers from the Google Cloud Artifact Registry directly in your environment. [Here](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples) is a list of notebooks examples.
 
 ## Features & benefits 🔥
 
-The Hugging Face DLCs combined with Google Cloud offering for Google Kubernetes Engine (GKE) which is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using Google Cloud's infrastructure; as well as combined with Vertex AI which is a Machine Learning (ML) platform that lets you train and deploy ML models and AI applications, and customize large language models (LLMs) for use in your AI-powered applications; offer the following advantages:
+The Hugging Face DLCs provide ready-to-use, tested environments to train and deploy Hugging Face models. They can be used in combination with Google Cloud offerings including Google Kubernetes Engine (GKE) and Vertex AI. GKE is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using Google Cloud's infrastructure. Vertex AI is a Machine Learning (ML) platform that lets you train and deploy ML models and AI applications, and customize Large Language Models (LLMs). 
+
+Using Hugging Face DLCs in GKE and Vertex AI offer the following advantages:
 
 - **Integrated Deployment and Management**: Vertex AI and GKE provide a seamless integration for deploying and managing machine learning models. This allows users to deploy models from Vertex AI onto GKE, leveraging Kubernetes' orchestration capabilities while benefiting from Vertex AI's model management features. This integration simplifies the deployment process, enabling a unified approach to managing AI workloads on Google Cloud, whilst both training and inference can also happen within Vertex AI or GKE separately, as both support model training either natively or via a Kubernetes job, respectively; as well as running an endpoint serving a model from a container.
 
@@ -24,7 +35,7 @@ The Hugging Face DLCs combined with Google Cloud offering for Google Kubernetes 
 
 - **Ease of Use and Automation**: Using Vertex AI with GKE enables automated deployments and management of AI models, reducing the need for manual infrastructure management. This integration allows for quick deployment of models at scale, simplifying the process and reducing operational overhead.
 
-- **Optimized Performance**: Both platforms are optimized for performance, with GKE offering efficient resource management and Vertex AI providing tools for model tuning and monitoring. This ensures that AI applications run smoothly and efficiently, leveraging Google Cloud's infrastructure capabilities.
+- **Optimized Performance**: Both platforms are optimized for performance, with GKE offering efficient resource management and Vertex AI providing tools for model tuning and monitoring. This ensures that AI applications run smoothly and efficiently, leveraging Google Cloud's infrastructure capabilities. Hugging Face offers Deep Learning Containers optimized for Cloud TPU for optimized cost performance.
 
 For more detailed information, you can refer to the official Google Cloud documentation on Vertex AI and Google Kubernetes Engine.
 
@@ -32,7 +43,7 @@ For more detailed information, you can refer to the official Google Cloud docume
 
 ## Resources, Documentation & Examples 📄
 
-Take a look at our published blog posts, documentation, and examples for additional help and more context about Hugging Face DLCs on Google Cloud.
+Learn how to use Hugging Face in Google Cloud by reading our blog posts, documentation and examples below.
 
 ### Blog posts
 
