@@ -152,7 +152,7 @@ curl http://localhost:8080/embed \
     -H 'Content-Type: application/json'
 ```
 
-Or to send the POST request to the ingress IP:
+Or send a POST request to the ingress IP instead:
 
 ```bash
 curl http://$(kubectl get ingress tei-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/embed \
@@ -163,13 +163,13 @@ curl http://$(kubectl get ingress tei-ingress -o jsonpath='{.status.loadBalancer
 
 Which produces the following output (truncated for brevity, but original tensor length is 768, which is the embedding dimension of [`Snowflake/snowflake-arctic-embed-m`](https://huggingface.co/Snowflake/snowflake-arctic-embed-m) i.e. the model you are serving):
 
-```bash
+```
 [[-0.01483098,0.010846359,-0.024679236,0.012507628,0.034231555,...]]
 ```
 
 ## Delete GKE Cluster
 
-Finally, once you are done using TEI in the GKE Cluster, you can safely delete the GKE Cluster to avoid incurring in unnecessary costs.
+Finally, once you are done using TEI on the GKE Cluster, you can safely delete the GKE Cluster to avoid incurring in unnecessary costs.
 
 ```bash
 gcloud container clusters delete $CLUSTER_NAME --location=$LOCATION
