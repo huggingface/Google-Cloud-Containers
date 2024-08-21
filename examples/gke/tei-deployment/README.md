@@ -32,7 +32,7 @@ gcloud services enable containerregistry.googleapis.com
 gcloud services enable containerfilesystem.googleapis.com
 ```
 
-Additionally, in order to use `kubectl` with the GKE Cluster credentials, you also need to install the `gke-gcloud-auth-plugin`, that can be installed with `gcloud` as follows:
+Additionally, to use `kubectl` with the GKE Cluster credentials, you also need to install the `gke-gcloud-auth-plugin`, that can be installed with `gcloud` as follows:
 
 ```bash
 gcloud components install gke-gcloud-auth-plugin
@@ -48,7 +48,7 @@ Once you have set everything up, you are ready to start with the creation of the
 > [!NOTE]
 > CPU is being used to run the inference on top of the text embeddings models to showcase the current capabilities of TEI, but switching to GPU is as easy as replacing `spec.containers[0].image` with `us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-2.ubuntu2204`, and then updating the requested resources, as well as the `nodeSelector` requirements in the `deployment.yaml` file. For more information, please refer to the [`gpu-config`](./gpu-config/) directory that contains a pre-defined configuration for GPU serving in TEI with an NVIDIA Tesla T4 GPU (with a compute capability of 7.5 i.e. natively supported in TEI).
 
-In order to deploy the GKE Cluster,the "Autopilot" mode will be used as it is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, you can also use the "Standard" mode.
+To deploy the GKE Cluster, the "Autopilot" mode will be used as it is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, you can also use the "Standard" mode.
 
 > [!NOTE]
 > Important to check before creating the GKE Autopilot Cluster the [GKE Documentation - Optimize Autopilot Pod performance by choosing a machine series](https://cloud.google.com/kubernetes-engine/docs/how-to/performance-pods), since not all the cluster versions support every CPU. Same applies for the GPU support e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
@@ -119,7 +119,7 @@ kubectl apply -f cpu-config/
 
 ## Inference with TEI
 
-In order to run the inference over the deployed TEI service, you can either:
+To run the inference over the deployed TEI service, you can either:
 
 * Port-forwarding the deployed TEI service to the port 8080, so as to access via `localhost` with the command:
 
