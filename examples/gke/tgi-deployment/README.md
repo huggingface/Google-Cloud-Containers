@@ -175,7 +175,7 @@ curl http://localhost:8080/generate \
     -H 'Content-Type: application/json'
 ```
 
-Or send the POST request to the ingress IP instead:
+Or send a POST request to the ingress IP instead:
 
 ```bash
 curl http://$(kubectl get ingress tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/generate \
@@ -237,7 +237,7 @@ ChatCompletion(id='', choices=[Choice(finish_reason='eos_token', index=0, logpro
 
 ## Delete GKE Cluster
 
-Finally, once you are done using TGI in the GKE Cluster, you can safely delete the GKE Cluster to avoid incurring in unnecessary costs.
+Finally, once you are done using TGI on the GKE Cluster, you can safely delete the GKE Cluster to avoid incurring in unnecessary costs.
 
 ```bash
 gcloud container clusters delete $CLUSTER_NAME --location=$LOCATION
