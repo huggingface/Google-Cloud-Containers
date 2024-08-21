@@ -20,7 +20,7 @@ spec:
         cloud.google.com/compute-class: Accelerator
       containers:
         - name: trl-container
-          image: us-central1-docker.pkg.dev/gcp-partnership-412108/deep-learning-images/huggingface-pytorch-training-gpu.2.3.transformers.4.42.3.py310:latest
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310:latest
           command:
             - "/bin/bash"
             - "-c"
