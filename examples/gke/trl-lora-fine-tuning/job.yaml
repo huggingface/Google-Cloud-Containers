@@ -1,0 +1,95 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: trl-lora-sft
+  namespace: hf-gke-namespace
+spec:
+  template:
+    metadata:
+      name: trl
+      labels:
+        app: trl
+        hf.co/model: mistralai--Mistral-7B-v0.3
+        hf.co/dataset: timdettmers--openassistant-guanaco
+      annotations:
+        gke-gcsfuse/volumes: "true"
+        gke-gcsfuse/ephemeral-storage-request: 200Gi
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+        cloud.google.com/compute-class: Accelerator
+      containers:
+        - name: trl-container
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310:latest
+          command:
+            - "/bin/bash"
+            - "-c"
+            - 'exec trl sft "$@"'
+            - "--"
+          args:
+            # MODEL
+            - "--model_name_or_path=mistralai/Mistral-7B-v0.3"
+            - "--torch_dtype=bfloat16"
+            - "--attn_implementation=flash_attention_2"
+            # DATASET
+            - "--dataset_name=timdettmers/openassistant-guanaco"
+            - "--dataset_text_field=text"
+            # PEFT
+            - "--use_peft"
+            - "--lora_r=16"
+            - "--lora_alpha=32"
+            - "--lora_dropout=0.1"
+            - "--lora_target_modules=all-linear"
+            # TRAINER
+            - "--bf16"
+            - "--max_seq_length=1024"
+            - "--per_device_train_batch_size=2"
+            - "--gradient_accumulation_steps=8"
+            - "--gradient_checkpointing"
+            - "--learning_rate=0.0002"
+            - "--lr_scheduler_type=cosine"
+            - "--optim=adamw_bnb_8bit"
+            - "--num_train_epochs=3"
+            - "--logging_steps=10"
+            - "--do_eval"
+            - "--eval_steps=100"
+            - "--report_to=none"
+            - "--save_strategy=epoch"
+            - "--output_dir=/data/Mistral-7B-v0.3-SFT-LoRA"
+            - "--overwrite_output_dir"
+            - "--seed=42"
+            - "--log_level=info"
+          env:
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_token
+            - name: ACCELERATE_LOG_LEVEL
+              value: "INFO"
+            - name: TRANSFORMERS_LOG_LEVEL
+              value: "INFO"
+            - name: TRL_USE_RICH
+              value: "0"
+            - name: TQDM_POSITION
+              value: "-1"
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+              memory: 48Gi
+            limits:
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - name: gcs-fuse-csi-vol
+              mountPath: /data
+              readOnly: false
+      serviceAccountName: hf-gke-service-account
+      volumes:
+      - name: gcs-fuse-csi-vol
+        csi:
+          driver: gcsfuse.csi.storage.gke.io
+          readOnly: false
+          volumeAttributes:
+            bucketName: hf-train-gke-bucket
+            mountOptions: "implicit-dirs"
+      restartPolicy: "Never"
