@@ -109,7 +109,7 @@ Then, you can run the script to download the model from the Hugging Face Hub and
 
 ## Configure IAM for GCS
 
-Before you proceed with the deployment of the Hugging Face DLC for TEI in the GKE Cluster, you need to set the IAM permissions for the GCS Bucket so that the pod in the GKE Cluster can access the bucket. To do so, you need to create a namespace and a service account in the GKE Cluster, and then set the IAM permissions for the GCS Bucket that contains the model, either as uploaded from the Hugging Face Hub or as already existing in the GCS Bucket.
+Before you proceed with the deployment of the Hugging Face DLC for TEI on the GKE Cluster, you need to set the IAM permissions for the GCS Bucket so that the pod in the GKE Cluster can access the bucket. To do so, you need to create a namespace and a service account in the GKE Cluster, and then set the IAM permissions for the GCS Bucket that contains the model, either as uploaded from the Hugging Face Hub or as already existing in the GCS Bucket.
 
 For convenience, as the reference to both the namespace and the service account will be used within the following steps, the environment variables `NAMESPACE` and `SERVICE_ACCOUNT` will be set.
 
