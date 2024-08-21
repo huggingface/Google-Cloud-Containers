@@ -5,7 +5,7 @@ This repository contains container files for building Hugging Face specific Deep
 * Training
   * [PyTorch](./containers/pytorch/training/README.md)
     * GPU
-    * TPU
+    * TPU (soon)
 * Inference
   * [PyTorch](./containers/pytorch/inference/README.md)
     * CPU
@@ -13,10 +13,24 @@ This repository contains container files for building Hugging Face specific Deep
     * TPU (soon)
   * [Text Generation Inference](./containers/tgi/README.md)
     * GPU
-    * TPU
+    * TPU (soon)
   * [Text Embeddings Inference](./containers/tei/README.md)
     * CPU
     * GPU
+
+## Published Containers
+
+| Container URI | Path | Framework | Type | Accelerator |
+| --- | --- | --- | --- | --- |
+| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310 | [text-generation-inference-gpu.2.2.0](./containers/tgi/gpu/2.2.0/Dockerfile) | TGI | Inference | GPU |
+| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-2.ubuntu2204 | [text-embeddings-inference-gpu.1.2.0](./containers/tei/gpu/1.2.0/Dockerfile) | TEI | Inference | GPU |
+| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-2 | [text-embeddings-inference-cpu.1.2.0](./containers/tei/cpu/1.2.0/Dockerfile) | TEI | Inference | CPU |
+| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310 | [huggingface-pytorch-training-gpu.2.3.0.transformers.4.42.3.py310](./containers/pytorch/training/gpu/2.3.0/transformers/4.42.3/py310/Dockerfile) | PyTorch | Training | GPU |
+| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-41.ubuntu2204.py311 | [huggingface-pytorch-inference-gpu.2.2.2.transformers.4.41.1.py311](./containers/pytorch/inference/gpu/2.2.2/transformers/4.41.1/py311/Dockerfile) | PyTorch | Inference | GPU |
+| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-41.ubuntu2204.py311 | [huggingface-pytorch-inference-cpu.2.2.2.transformers.4.41.1.py311](./containers/pytorch/inference/cpu/2.2.2/transformers/4.41.1/py311/Dockerfile) | PyTorch | Inference | CPU |
+
+> [!NOTE]
+> The listing above only contains the latest version of each of the Hugging Face DLCs, the full listing of the available published containers in Google Cloud can be found either in the [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or via the `gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-"` command.
 
 ## Examples
 
@@ -43,15 +57,3 @@ The [`examples`](./examples) directory contains examples for using the container
 | Vertex AI | [deploy-embedding-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai) | Deploying an embedding model with Text Embeddings Inference (TEI) on Vertex AI.
 | Vertex AI | [deploy-gemma-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai) | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) on Vertex AI.
 | Vertex AI | [deploy-gemma-from-gcs-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI.
-
-## Available Containers
-
-| Container Tag | Framework | Type | Accelerator |
-| --- | --- | --- | --- |
-| [text-generation-inference-gpu.2.2.0](./containers/tgi/gpu/2.2.0/Dockerfile) | TGI | Inference | GPU |
-| [text-embeddings-inference-gpu.1.4.0](./containers/tei/gpu/1.4.0/Dockerfile) | TEI | Inference | GPU |
-| [text-embeddings-inference-cpu.1.4.0](./containers/tei/cpu/1.4.0/Dockerfile) | TEI | Inference | CPU |
-| [huggingface-pytorch-training-tpu.2.4.0.transformers.4.41.1.py310](./containers/pytorch/training/tpu/2.4.0/transformers/4.41.1/py310/Dockerfile) | PyTorch | Training | TPU |
-| [huggingface-pytorch-training-gpu.2.3.0.transformers.4.41.1.py310](./containers/pytorch/training/gpu/2.3.0/transformers/4.41.1/py310/Dockerfile) | PyTorch | Training | GPU |
-| [huggingface-pytorch-inference-gpu.2.2.2.transformers.4.41.1.py311](./containers/pytorch/inference/gpu/2.2.2/transformers/4.41.1/py311/Dockerfile) | PyTorch | Inference | GPU |
-| [huggingface-pytorch-inference-cpu.2.2.2.transformers.4.41.1.py311](./containers/pytorch/inference/cpu/2.2.2/transformers/4.41.1/py311/Dockerfile) | PyTorch | Inference | CPU |
