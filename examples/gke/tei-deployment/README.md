@@ -1,6 +1,6 @@
 # Deploy Snowflake's Arctic Embed (M) with Text Embeddings Inference (TEI) on GKE
 
-Snowflake's Arctic Embed is a suite of text embedding models that focuses on creating high-quality retrieval models optimized for performance, achieving state-of-the-art (SOTA) performance on the MTEB/BEIR leaderboard for each of their size variants. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy a text embedding model from the Hugging Face Hub in a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
+Snowflake's Arctic Embed is a suite of text embedding models that focuses on creating high-quality retrieval models optimized for performance, achieving state-of-the-art (SOTA) performance on the MTEB/BEIR leaderboard for each of their size variants. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy a text embedding model from the Hugging Face Hub on a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
 
 ## Setup / Configuration
 
@@ -12,9 +12,9 @@ First, you need to install both `gcloud` and `kubectl` in your local machine, wh
 Optionally, to ease the usage of the commands within this tutorial, you need to set the following environment variables for GCP:
 
 ```bash
-export PROJECT_ID="your-project-id"
-export LOCATION="your-location"
-export CLUSTER_NAME="your-cluster-name"
+export PROJECT_ID=your-project-id
+export LOCATION=your-location
+export CLUSTER_NAME=your-cluster-name
 ```
 
 Then you need to login into your GCP account and set the project ID to the one you want to use for the deployment of the GKE Cluster.
