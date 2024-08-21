@@ -114,8 +114,8 @@ Before you proceed with the deployment of the Hugging Face DLC for TEI in the GK
 For convenience, as the reference to both the namespace and the service account will be used within the following steps, the environment variables `NAMESPACE` and `SERVICE_ACCOUNT` will be set.
 
 ```bash
-export NAMESPACE="hf-gke-namespace"
-export SERVICE_ACCOUNT="hf-gke-service-account"
+export NAMESPACE=hf-gke-namespace
+export SERVICE_ACCOUNT=hf-gke-service-account
 ```
 
 Then you can create the namespace and the service account in the GKE Cluster, enabling the creation of the IAM permissions for the pods in that namespace to access the GCS Bucket when using that service account.
@@ -205,7 +205,7 @@ curl http://localhost:8080/embed \
     -H 'Content-Type: application/json'
 ```
 
-Or to send the POST request to the ingress IP:
+Or send a POST request to the ingress IP instead:
 
 ```bash
 curl http://$(kubectl get ingress --namespace=$NAMESPACE tei-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/embed \
@@ -216,13 +216,13 @@ curl http://$(kubectl get ingress --namespace=$NAMESPACE tei-ingress -o jsonpath
 
 Which produces the following output (truncated for brevity, but original tensor length is 768, which is the embedding dimension of [`BAAI/bge-base-en-v1.5`](https://huggingface.co/BAAI/bge-base-en-v1.5) i.e. the model you are serving):
 
-```bash
+```
 [[-0.01483098,0.010846359,-0.024679236,0.012507628,0.034231555,...]]
 ```
 
 ## Delete GKE Cluster
 
-Finally, once you are done using TEI in the GKE Cluster, you can safely delete the GKE Cluster to avoid incurring in unnecessary costs.
+Finally, once you are done using TEI on the GKE Cluster, you can safely delete the GKE Cluster to avoid incurring in unnecessary costs.
 
 ```bash
 gcloud container clusters delete $CLUSTER_NAME --location=$LOCATION
