@@ -1,4 +1,4 @@
-# Usage examples
+# Examples
 
 This directory contains some usage examples for the Hugging Face Deep Learning Containers (DLCs) available in Google Cloud, as published from the [containers](../containers) directory.
 
