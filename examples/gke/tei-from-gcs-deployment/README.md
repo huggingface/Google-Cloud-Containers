@@ -44,7 +44,7 @@ gcloud components install gke-gcloud-auth-plugin
 >
 ## Create GKE Cluster
 
-Once everything's set up, you can proceed with the creation of the GKE Cluster and the node pool, which in this case will be a single CPU node as for most of the workloads CPU inference is enough to serve most of the text embeddings models, while it could benefit a lot from GPU serving.
+Once everything is set up, you can proceed with the creation of the GKE Cluster and the node pool, which in this case will be a single CPU node as for most of the workloads CPU inference is enough to serve most of the text embeddings models, while it could benefit a lot from GPU serving.
 
 > [!NOTE]
 > CPU is being used to run the inference on top of the text embeddings models to showcase the current capabilities of TEI, but switching to GPU is as easy as replacing `spec.containers[0].image` with `us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-2.ubuntu2204`, and then updating the requested resources, as well as the `nodeSelector` requirements in the `deployment.yaml` file. For more information, please refer to the [`gpu-config`](./gpu-config/) directory that contains a pre-defined configuration for GPU serving in TEI with an NVIDIA Tesla T4 GPU (with a compute capability of 7.5 i.e. natively supported in TEI).
@@ -85,15 +85,15 @@ gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
 
 ## Optional: Upload a model from the Hugging Face Hub to GCS
 
-This is an optional step in the tutorial, since you may want to reuse an existing model on a GCS Bucket, if that's the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
+This is an optional step in the tutorial, since you may want to reuse an existing model on a GCS Bucket, if that is the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
 
 Otherwise, to upload a model from the Hugging Face Hub to a GCS Bucket, you can use the script [./scripts/upload_model_to_gcs.sh](./scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS Bucket (and create the bucket if not created already).
 
-Also, as mentioned above, the `gsutil` component should be installed via `gcloud`, and the Python package `crcmod` should ideally be installed too in order to speed up the upload process via `gsutil cp`.
+The `gsutil` component should be installed via `gcloud`, and the Python packages `huggingface_hub` with the extra `hf_transfer`, and the package `crcmod` should also be installed.
 
 ```bash
 gcloud components install gsutil
-pip install crcmod
+pip install --upgrade --quiet "huggingface_hub[hf_transfer]" crcmod
 ```
 
 Then, you can run the script to download the model from the Hugging Face Hub and then upload it to the GCS Bucket:
