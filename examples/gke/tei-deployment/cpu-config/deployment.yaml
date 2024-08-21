@@ -32,15 +32,9 @@ spec:
             - name: PORT
               value: "8080"
           volumeMounts:
-            - mountPath: /dev/shm
-              name: dshm
             - mountPath: /data
               name: data
       volumes:
-        - name: dshm
-          emptyDir:
-            medium: Memory
-            sizeLimit: 1Gi
         - name: data
           emptyDir: {}
       nodeSelector:

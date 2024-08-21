@@ -20,8 +20,6 @@ spec:
           resources:
             requests:
               nvidia.com/gpu: 1
-            limits:
-              nvidia.com/gpu: 1
           env:
             - name: MODEL_ID
               value: Snowflake/snowflake-arctic-embed-m
