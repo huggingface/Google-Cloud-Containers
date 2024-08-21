@@ -111,8 +111,8 @@ Before you proceed with the deployment of the Hugging Face DLC for TGI in the GK
 For convenience, as the reference to both the namespace and the service account will be used within the following steps, the environment variables `NAMESPACE` and `SERVICE_ACCOUNT` will be set.
 
 ```bash
-export NAMESPACE="hf-gke-namespace"
-export SERVICE_ACCOUNT="hf-gke-service-account"
+export NAMESPACE=hf-gke-namespace
+export SERVICE_ACCOUNT=hf-gke-service-account
 ```
 
 Then you can create the namespace and the service account in the GKE Cluster, enabling the creation of the IAM permissions for the pods in that namespace to access the GCS Bucket when using that service account.
@@ -191,7 +191,7 @@ curl http://localhost:8080/generate \
     -H 'Content-Type: application/json'
 ```
 
-Or send the POST request to the ingress IP instead:
+Or send a POST request to the ingress IP instead:
 
 ```bash
 curl http://$(kubectl get ingress --namespace $NAMESPACE tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/generate \
@@ -253,7 +253,7 @@ ChatCompletion(id='', choices=[Choice(finish_reason='eos_token', index=0, messag
 
 ## Delete GKE Cluster
 
-Finally, once you are done using TGI in the GKE Cluster, you can safely delete the GKE Cluster to avoid incurring in unnecessary costs.
+Finally, once you are done using TGI on the GKE Cluster, you can safely delete the GKE Cluster to avoid incurring in unnecessary costs.
 
 ```bash
 gcloud container clusters delete $CLUSTER_NAME --location=$LOCATION
