@@ -1,6 +1,6 @@
-# Deploy BGE Base v1.5 (English) with Text Embeddings Inference (TEI) in GKE from a GCS Bucket
+# Deploy BGE Base v1.5 (English) with Text Embeddings Inference (TEI) from a GCS Bucket on GKE
 
-BGE, standing for BAAI General Embedding, is a collection of embedding models released by BAAI, which is an English base model for general embedding tasks ranked in the MTEB Leaderboard. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy a text embedding model from a Google Cloud Storage (GCS) Bucket in a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
+BGE, standing for BAAI General Embedding, is a collection of embedding models released by BAAI, which is an English base model for general embedding tasks ranked in the MTEB Leaderboard. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy a text embedding model from a Google Cloud Storage (GCS) Bucket on a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
 
 ## Setup / Configuration
 
@@ -12,9 +12,10 @@ First, you need to install both `gcloud` and `kubectl` in your local machine, wh
 Optionally, to ease the usage of the commands within this tutorial, you need to set the following environment variables for GCP:
 
 ```bash
-export PROJECT_ID="your-project-id"
-export LOCATION="your-location"
-export CLUSTER_NAME="your-cluster-name"
+export PROJECT_ID=your-project-id
+export LOCATION=your-location
+export CLUSTER_NAME=your-cluster-name
+export BUCKET_NAME=hf-models-gke-bucket
 ```
 
 Then you need to login into your GCP account and set the project ID to the one you want to use for the deployment of the GKE Cluster.
@@ -87,12 +88,6 @@ gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
 This is an optional step in the tutorial, since you may want to reuse an existing model on a GCS Bucket, if that's the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
 
 Otherwise, to upload a model from the Hugging Face Hub to a GCS Bucket, you can use the script [./scripts/upload_model_to_gcs.sh](./scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS Bucket (and create the bucket if not created already).
-
-For convenience, as the reference to the bucket will be used within the following steps, the environment variable `BUCKET_NAME` will be set.
-
-```bash
-export BUCKET_NAME="hf-models-gke-bucket"
-```
 
 Also, as mentioned above, the `gsutil` component should be installed via `gcloud`, and the Python package `crcmod` should ideally be installed too in order to speed up the upload process via `gsutil cp`.
 
