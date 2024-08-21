@@ -11,16 +11,14 @@ spec:
     metadata:
       labels:
         app: tgi-server
-        hf.co/model: Meta-Llama-3-8B-Instruct
+        hf.co/model: meta-llama--Meta-Llama-3-8B-Instruct
         hf.co/task: text-generation
     spec:
       containers:
         - name: tgi-container
-          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-0.ubuntu2204:latest
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204:latest
           resources:
             requests:
-              nvidia.com/gpu: 1
-            limits:
               nvidia.com/gpu: 1
           env:
             - name: MODEL_ID
@@ -43,6 +41,7 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
+            sizeLimit: 1Gi
         - name: data
           emptyDir: {}
       nodeSelector:
