@@ -11,21 +11,19 @@ spec:
     metadata:
       labels:
         app: tgi-server
-        hf.co/model: google--gemma-2-27b-it
+        hf.co/model: google--gemma-7b-it
         hf.co/task: text-generation
     spec:
       containers:
         - name: tgi-container
-          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204:latest
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310:latest
           resources:
             requests:
               nvidia.com/gpu: 4
               ephemeral-storage: "64Gi"
           env:
             - name: MODEL_ID
-              value: google/gemma-2-27b-it
-            - name: REVISION
-              value: "2d74922e8a2961565b71fd5373081e9ecbf99c08"
+              value: "google/gemma-7b-it"
             - name: NUM_SHARD
               value: "4"
             - name: MAX_BATCH_PREFILL_TOKENS
@@ -51,16 +49,3 @@ spec:
             sizeLimit: 1Gi
       nodeSelector:
         cloud.google.com/gke-accelerator: nvidia-l4
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: tgi-service
-spec:
-  selector:
-    app: tgi-server
-  type: ClusterIP
-  ports:
-  - protocol: TCP
-    port: 8080
-    targetPort: 8080
