@@ -162,7 +162,6 @@ kubectl apply -f cpu-config/
 >
 > ```bash
 > kubectl get pods --namespace $NAMESPACE
-
 > ```
 >
 > Alternatively, you can just wait for the deployment to be ready with the following command:
@@ -209,7 +208,7 @@ curl http://localhost:8080/embed \
 Or to send the POST request to the ingress IP:
 
 ```bash
-curl http://$(kubectl get ingress tei-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/embed \
+curl http://$(kubectl get ingress --namespace=$NAMESPACE tei-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/embed \
     -X POST \
     -d '{"inputs":"What is Deep Learning?"}' \
     -H 'Content-Type: application/json'
@@ -232,5 +231,5 @@ gcloud container clusters delete $CLUSTER_NAME --location=$LOCATION
 Alternatively, you can also downscale the replicas of the deployed pod to 0 in case you want to preserve the cluster, since the default GKE Cluster deployed with GKE Autopilot mode is running just a single `e2-small` instance.
 
 ```bash
-kubectl scale --replicas=0 deployment/tei-deployment
+kubectl scale --replicas=0 --namespace=$NAMESPACE deployment/tei-deployment
 ```
