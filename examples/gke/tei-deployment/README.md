@@ -1,15 +1,15 @@
-# Deploy Snowflake's Arctic Embed (M) with Text Embeddings Inference (TEI) in GKE
+# Deploy Snowflake's Arctic Embed (M) with Text Embeddings Inference (TEI) on GKE
 
-TL; DR Snowflake's Arctic Embed is a suite of text embedding models that focuses on creating high-quality retrieval models optimized for performance, achieving state-of-the-art (SOTA) performance on the MTEB/BEIR leaderboard for each of their size variants. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy a text embedding model from the Hugging Face Hub in a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
+Snowflake's Arctic Embed is a suite of text embedding models that focuses on creating high-quality retrieval models optimized for performance, achieving state-of-the-art (SOTA) performance on the MTEB/BEIR leaderboard for each of their size variants. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy a text embedding model from the Hugging Face Hub in a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
 
 ## Setup / Configuration
 
 First, you need to install both `gcloud` and `kubectl` in your local machine, which are the command-line tools for Google Cloud and Kubernetes, respectively, to interact with the GCP and the GKE Cluster.
 
-* To install `gcloud`, follow the instructions at <https://cloud.google.com/sdk/docs/install>.
-* To install `kubectl`, follow the instructions at <https://kubernetes.io/docs/tasks/tools/#kubectl>.
+* To install `gcloud`, follow the instructions at [Cloud SDK Documentation - Install the gcloud CLI](https://cloud.google.com/sdk/docs/install).
+* To install `kubectl`, follow the instructions at [Kubernetes Documentation - Install Tools](https://kubernetes.io/docs/tasks/tools/#kubectl).
 
-Optionally, to ease the usage of the commands within this tutorial, you'll set the following environment variables for GCP:
+Optionally, to ease the usage of the commands within this tutorial, you will set the following environment variables for GCP:
 
 ```bash
 export PROJECT_ID="your-project-id"
@@ -17,7 +17,7 @@ export LOCATION="your-location"
 export CLUSTER_NAME="your-cluster-name"
 ```
 
-Then you need to login into our GCP account and set the project ID to the one you want to use for the deployment of the GKE Cluster.
+Then you need to login into your GCP account and set the project ID to the one you want to use for the deployment of the GKE Cluster.
 
 ```bash
 gcloud auth login
@@ -43,15 +43,15 @@ gcloud components install gke-gcloud-auth-plugin
 
 ## Create GKE Cluster
 
-Once you've set everything up, you are ready to start with the creation of the GKE Cluster and the node pool, which in this case will be a single CPU node as for most of the workloads CPU inference is enough to serve most of the text embeddings models, while it could benefit a lot from GPU serving.
+Once you have set everything up, you are ready to start with the creation of the GKE Cluster and the node pool, which in this case will be a single CPU node as for most of the workloads CPU inference is enough to serve most of the text embeddings models, while it could benefit a lot from GPU serving.
 
 > [!NOTE]
-> CPU is being used to run the inference on top of the text embeddings models to showcase the current capabilities of TEI, but switching to GPU is as easy as replacing `spec.containers[0].image` with `us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-2.ubuntu2204`, and then updating the requested resources as youll as the `nodeSelector` requirements in the `deployment.yaml` file. For more information, please refer to the [`gpu-config`](./gpu-config/) directory that contains a pre-defined configuration for GPU serving in TEI with an NVIDIA Tesla T4 GPU (with a compute capability of 7.5 i.e. natively supported in TEI).
+> CPU is being used to run the inference on top of the text embeddings models to showcase the current capabilities of TEI, but switching to GPU is as easy as replacing `spec.containers[0].image` with `us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-2.ubuntu2204`, and then updating the requested resources, as well as the `nodeSelector` requirements in the `deployment.yaml` file. For more information, please refer to the [`gpu-config`](./gpu-config/) directory that contains a pre-defined configuration for GPU serving in TEI with an NVIDIA Tesla T4 GPU (with a compute capability of 7.5 i.e. natively supported in TEI).
 
-In order to deploy the GKE Cluster, you will use the "Autopilot" mode, which is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, you can also use the "Standard" mode.
+In order to deploy the GKE Cluster,the "Autopilot" mode will be used as it is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, you can also use the "Standard" mode.
 
 > [!NOTE]
-> Important to check before creating the GKE Autopilot Cluster <https://cloud.google.com/kubernetes-engine/docs/how-to/performance-pods>, since not all the versions support CPUs, and the CPUs vary depending on the workload. Same applies for the GPU support e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
+> Important to check before creating the GKE Autopilot Cluster the [GKE Documentation - Optimize Autopilot Pod performance by choosing a machine series](https://cloud.google.com/kubernetes-engine/docs/how-to/performance-pods), since not all the cluster versions support every CPU. Same applies for the GPU support e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
 
 ```bash
 gcloud container clusters create-auto $CLUSTER_NAME \
@@ -62,7 +62,7 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 ```
 
 > [!NOTE]
-> To select the specific version in our location of the GKE Cluster, you can run the following command:
+> To select the specific version in your location of the GKE Cluster, you can run the following command:
 >
 > ```bash
 > gcloud container get-server-config \
@@ -74,48 +74,33 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 >
 > For more information please visit <https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version>.
 
-As of the GKE documentation and service page in GCP, the creation of the GKE Cluster can take 5 minutes or more, depending on the configuration and the location of the cluster. But once the cluster is created, you can get the credentials to access it via `kubectl` with the following command:
+![GKE Cluster in the GCP Console](./imgs/gke-cluster.png)
+
+Once the GKE Cluster is created, you can get the credentials to access it via `kubectl` with the following command:
 
 ```bash
 gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
 ```
 
-![GKE Cluster in the GCP Console](./imgs/gke-cluster.png)
-
-## Optional: Set Secrets in GKE
-
-Once the GKE Cluster is created then you can already proceed to the TEI deployment, but before that, you will create a Kubernetes secret for the GKE Cluster containing the Hugging Face Hub token, which may not be necessary in most of the cases, but it will be necessary for gated and private models.
-
-You now need to create a Kubernetes secret with the Hugging Face Hub token via `kubectl`. To generate a custom token for the Hugging Face Hub, you can follow the instructions at <https://huggingface.co/docs/hub/en/security-tokens>.
-
-```bash
-kubectl create secret generic hf-secret \
-  --from-literal=hf_token=$HF_TOKEN \
-  --dry-run=client -o yaml | kubectl apply -f -
-```
-
-![GKE Secret in the GCP Console](./imgs/gke-secrets.png)
-
-More information on how to set Kubernetes secrets in a GKE Cluster at <https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component>.
-
 ## Deploy TEI
 
-Once the GKE Cluster is created and everything's set up, you can proceed to the Kubernetes deployment of the Hugging Face LLM DLC for TEI, serving the [`Snowflake/snowflake-arctic-embed-m`](https://huggingface.co/Snowflake/snowflake-arctic-embed-m) model from the Hugging Face Hub.
-
-Recently, the Hugging Face Hub team has included the `text-embeddings-inference` tag in the Hub, so feel free to explore all the embedding models in the Hub that can be served via TEI at <https://huggingface.co/models?other=text-embeddings-inference>.
-
-You will now deploy the Hugging Face LLM DLC for TEI via `kubectl`, from the configuration files in either the `cpu-config/` or the `gpu-config/` directories depending on whether you want to use the CPU or GPU accelerators, respectively:
-
-* `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face LLM DLC setting the `MODEL_ID` to [`Snowflake/snowflake-arctic-embed-m`](https://huggingface.co/Snowflake/snowflake-arctic-embed-m).
-* `service.yaml`: contains the service details of the pod, exposing the port 80 for the TEI service.
-* (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TEI, serving the [`Snowflake/snowflake-arctic-embed-m`](https://huggingface.co/Snowflake/snowflake-arctic-embed-m) model from the Hugging Face Hub.
 
 > [!NOTE]
-> As already mentioned, for this example you will be deploying the container in a CPU node, but the configuration to deploy TEI in a GPU node is also available in the [`gpu-config`](./gpu-config/) directory, so if you're willing to deploy TEI in a GPU node, please run `kubectl apply -f gpu-config/` instead of `kubectl apply -f cpu-config/` in the following command.
+> Recently, the Hugging Face Hub team has included the `text-embeddings-inference` tag in the Hub, so feel free to explore all the embedding models in the Hub that can be served via TEI at <https://huggingface.co/models?other=text-embeddings-inference>.
+
+The Hugging Face DLC for TEI will be deployed via `kubectl`, from the configuration files in either the `cpu-config/` or the `gpu-config/` directories depending on whether you want to use the CPU or GPU accelerators, respectively:
+
+* `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TEI setting the `MODEL_ID` to [`Snowflake/snowflake-arctic-embed-m`](https://huggingface.co/Snowflake/snowflake-arctic-embed-m).
+* `service.yaml`: contains the service details of the pod, exposing the port 80 for the TEI service.
+* (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
 kubectl apply -f cpu-config/
 ```
+
+> [!NOTE]
+> As already mentioned, for this example you will be deploying the container in a CPU node, but the configuration to deploy TEI in a GPU node is also available in the [`gpu-config`](./gpu-config/) directory, so if you want to deploy TEI in a GPU node, please run `kubectl apply -f gpu-config/` instead of `kubectl apply -f cpu-config/`.
 
 ![GKE Deployment in the GCP Console](./imgs/gke-deployment.png)
 
@@ -151,9 +136,9 @@ In order to run the inference over the deployed TEI service, you can either:
 > [!NOTE]
 > TEI exposes different inference endpoints based on the task that the model is serving:
 >
-> * Text Embeddings: text embedding models expose the endpoint `/embed` expecting a payload with the key `inputs` which is either a string or a list of strings to be embedded.
-> * Re-rank: re-ranker models expose the endpoint `/rerank` expecting a payload with the keys `query` and `texts`, where the `query` is the reference used to rank the similarity against each text in `texts`.
-> * Sequence Classification: classic sequence classification models expose the endpoint `/predict` which expects a payload with the key `inputs` which is either a string or a list of strings to classify.
+> * **Text Embeddings**: text embedding models expose the endpoint `/embed` expecting a payload with the key `inputs` which is either a string or a list of strings to be embedded.
+> * **Re-rank**: re-ranker models expose the endpoint `/rerank` expecting a payload with the keys `query` and `texts`, where the `query` is the reference used to rank the similarity against each text in `texts`.
+> * **Sequence Classification**: classic sequence classification models expose the endpoint `/predict` which expects a payload with the key `inputs` which is either a string or a list of strings to classify.
 > More information at <https://huggingface.co/docs/text-embeddings-inference/quick_tour>.
 
 ### Via cURL
@@ -176,10 +161,10 @@ curl http://$(kubectl get ingress tei-ingress -o jsonpath='{.status.loadBalancer
     -H 'Content-Type: application/json'
 ```
 
-Which produces the following output (truncated for brevity, but original tensor length is 768, which is the embedding dimension of [`Snowflake/snowflake-arctic-embed-m`](https://huggingface.co/Snowflake/snowflake-arctic-embed-m) i.e. the model you're serving):
+Which produces the following output (truncated for brevity, but original tensor length is 768, which is the embedding dimension of [`Snowflake/snowflake-arctic-embed-m`](https://huggingface.co/Snowflake/snowflake-arctic-embed-m) i.e. the model you are serving):
 
 ```bash
-[[-0.01483098,0.010846359,-0.024679236,0.012507628,0.034231555,...]]⏎
+[[-0.01483098,0.010846359,-0.024679236,0.012507628,0.034231555,...]]
 ```
 
 ## Delete GKE Cluster

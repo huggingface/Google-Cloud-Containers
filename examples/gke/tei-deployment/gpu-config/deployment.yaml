@@ -13,8 +13,6 @@ spec:
         app: tei-server
         hf.co/model: Snowflake--snowflake-arctic-embed-m
         hf.co/task: text-embeddings
-      annotations:
-        deployment.kubernetes.io/max-replicas: "1"
     spec:
       containers:
         - name: tei-container
@@ -31,11 +29,6 @@ spec:
               value: "1"
             - name: PORT
               value: "8080"
-            - name: HF_API_TOKEN # Not used, but left as reference
-              valueFrom:
-                secretKeyRef:
-                  name: hf-secret
-                  key: hf_token
           volumeMounts:
             - mountPath: /dev/shm
               name: dshm
@@ -45,6 +38,7 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
+            sizeLimit: 1Gi
         - name: data
           emptyDir: {}
       nodeSelector:
