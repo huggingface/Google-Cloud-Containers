@@ -154,7 +154,7 @@ Alternatively, if your model is uploaded to the Hugging Face Hub, you can check 
 
 ## Run Job
 
-Now you can already run the Kubernetes job in the Hugging Face PyTorch DLC for training on the GKE Cluster via `kubectl` from the `job.yaml` configuration file, that contains the job specification for running the command `trl sft` provided by the TRL CLI for the SFT full fine-tuning of [`google/gemma-2b`](https://huggingface.co/google/gemma-2b) in `bfloat16` using [`timdettmers/openassistant-guanaco`](https://huggingface.co/timdettmers/openassistant-guanaco), which is a subset from [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) with ~10k samples in 4 x A100 40GiB GPUs, storing the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
+Now you can already run the Kubernetes job in the Hugging Face PyTorch DLC for training on the GKE Cluster via `kubectl` from the `job.yaml` configuration file, that contains the job specification for running the command `trl sft` provided by the TRL CLI for the SFT full fine-tuning of [`google/gemma-2b`](https://huggingface.co/google/gemma-2b) in `bfloat16` using [`timdettmers/openassistant-guanaco`](https://huggingface.co/datasets/timdettmers/openassistant-guanaco), which is a subset from [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) with ~10k samples in 4 x A100 40GiB GPUs, storing the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
 
 ```bash
 kubectl apply -f job.yaml

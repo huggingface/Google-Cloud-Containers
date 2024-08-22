@@ -154,7 +154,7 @@ Alternatively, if your model is uploaded to the Hugging Face Hub, you can check 
 
 ## Run Job
 
-Now you can already run the Kubernetes job in the Hugging Face PyTorch DLC for training on the GKE Cluster via `kubectl` from the `job.yaml` configuration file, that contains the job specification for running the command `trl sft` provided by the TRL CLI for the SFT LoRA fine-tuning of [`mistralai/Mistral-7B-v0.3`](https://huggingface.co/mistralai/Mistral-7B-v0.3) in `bfloat16` using [`timdettmers/openassistant-guanaco`](https://huggingface.co/timdettmers/openassistant-guanaco), which is a subset from [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) with ~10k samples in a single L4 24GiB GPU, storing the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
+Now you can already run the Kubernetes job in the Hugging Face PyTorch DLC for training on the GKE Cluster via `kubectl` from the `job.yaml` configuration file, that contains the job specification for running the command `trl sft` provided by the TRL CLI for the SFT LoRA fine-tuning of [`mistralai/Mistral-7B-v0.3`](https://huggingface.co/mistralai/Mistral-7B-v0.3) in `bfloat16` using [`timdettmers/openassistant-guanaco`](https://huggingface.co/datasets/timdettmers/openassistant-guanaco), which is a subset from [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) with ~10k samples in a single L4 24GiB GPU, storing the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
 
 ```bash
 kubectl apply -f job.yaml
