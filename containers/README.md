@@ -10,9 +10,7 @@ Find all the available Hugging Face DLCs in either [Google Cloud's Artifact Regi
 gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface"
 ```
 
-## Local development
-
-For documentation on how to build, run, and test the containers manually, please navigate to each specific container type directory within this repository:
+For more information on each container, check the READMEs in the following directories
 
 * [Text Generation Inference](./tgi/README.md)
 * [Text Embeddings Inference](./tei/README.md)
@@ -27,4 +25,4 @@ For example, if you want to have a look at the Dockerfile for the container with
 
 ## Updates
 
-When there is a new release of any of the frameworks (`transformers`, `text-generation-inference`, or `text-embeddings-inference`) as well as any other dependency installed within those containers that needs an update or a patch fix, we update the `Dockerfile`; creating a new directory within the [`./containers`](./containers/) directory where applicable and respecting the directory structure mentioned above, and adding the updated `Dockerfile` via a PR to the `main` branch, describing the changes applied.
+When there is a new release of any of the frameworks (`transformers`, `text-generation-inference`, or `text-embeddings-inference`) as well as any other dependency installed within those containers that needs an update or a patch fix, we update the `Dockerfile`; creating a new directory within the [`./containers`](./containers/) directory where applicable, respecting the directory structure mentioned above, and adding the updated `Dockerfile` via a PR to the `main` branch, describing the changes applied.
