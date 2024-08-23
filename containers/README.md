@@ -4,7 +4,7 @@ This directory contains the Hugging Face Deep Learning Containers (DLCs) availab
 
 Additionally, the [`container.yaml`](./container.yaml) file contains the configuration for the latest version of each container. Google uses this file to determine which container to build as of the latest version, but can also be used as a reference on the latest available containers.
 
-Find all the available Hugging Face DLCs in either [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or list those using the following `gcloud` command that lists the containers with the tag containing `huggingface-` as follows:
+Find all the available Hugging Face DLCs in either the [Google Cloud Deep Learning Containers Documentation](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face), in the [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or via the following `gcloud` command that lists all the available DLCs on Google Cloud, filtering by the `huggingface-` tag:
 
 ```bash
 gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface"

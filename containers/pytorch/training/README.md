@@ -7,7 +7,7 @@ The Hugging Face PyTorch Training Containers are Docker containers for training 
 
 ## Published Containers
 
-In order to check which of the available Hugging Face DLCs are published, you can either check [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or use the `gcloud` command to list the available containers with the tag containing `huggingface-pytorch-training` as follows:
+To check which of the available Hugging Face DLCs are published, you can either check the [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or use the `gcloud` command to list the available containers with the tag `huggingface-pytorch-training` as follows:
 
 ```bash
 gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-pytorch-training"
