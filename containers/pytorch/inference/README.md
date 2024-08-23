@@ -11,7 +11,7 @@ The `huggingface-inference-toolkit` provides default pre-processing, predict and
 
 ## Published Containers
 
-In order to check which of the available Hugging Face DLCs are published, one can either check [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or use the `gcloud` command to list the available containers with the tag containing `huggingface-pytorch-inference` as follows:
+To check which of the available Hugging Face DLCs are published, you can either check the [Google Cloud Deep Learning Containers Documentation for PyTorch Inference](https://cloud.google.com/deep-learning-containers/docs/choosing-container#pytorch-inference), the [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or use the `gcloud` command to list the available containers with the tag `huggingface-pytorch-inference` as follows:
 
 ```bash
 gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-pytorch-inference"
