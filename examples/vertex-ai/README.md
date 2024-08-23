@@ -1,4 +1,4 @@
-# Google Vertex AI Examples
+# Vertex AI Examples
 
 This directory contains usage examples of the Hugging Face Deep Learning Containers (DLCs) in Google Vertex AI for both training and inference, with a focus on Large Language Models (LLMs), while also including some examples showcasing how to train and deploy models suited for other task than text generation.
 

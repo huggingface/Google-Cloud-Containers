@@ -1,33 +1,30 @@
-# Fine-tune Mistral 7B v0.3 with TRL in GKE
+# Fine-tune Mistral 7B v0.3 with TRL on GKE
 
-TL; DR Mistral is a family of models with varying sizes, created by the Mistral AI team; the Mistral 7B v0.3 LLM is a Mistral 7B v0.2 with extended vocabulary. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to fine-tune Mistral 7B v0.3 with TRL via Supervised Fine-Tuning (SFT) and Low-Rank Adaptation (LoRA) in a single GPU.
+Mistral is a family of models with varying sizes, created by the Mistral AI team; the Mistral 7B v0.3 LLM is a Mistral 7B v0.2 with extended vocabulary. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to fine-tune Mistral 7B v0.3 with TRL via Supervised Fine-Tuning (SFT) and Low-Rank Adaptation (LoRA) in a single GPU on a GKE Cluster.
 
 ## Setup / Configuration
 
-First, we need to install both `gcloud` and `kubectl` in our local machine, which are the command-line tools for Google Cloud and Kubernetes, respectively, to interact with the GCP and the GKE Cluster.
+First, you need to install both `gcloud` and `kubectl` in your local machine, which are the command-line tools for Google Cloud and Kubernetes, respectively, to interact with the GCP and the GKE Cluster.
 
-* To install `gcloud`, follow the instructions at <https://cloud.google.com/sdk/docs/install>.
-* To install `kubectl`, follow the instructions at <https://kubernetes.io/docs/tasks/tools/#kubectl>.
+* To install `gcloud`, follow the instructions at [Cloud SDK Documentation - Install the gcloud CLI](https://cloud.google.com/sdk/docs/install).
+* To install `kubectl`, follow the instructions at [Kubernetes Documentation - Install Tools](https://kubernetes.io/docs/tasks/tools/#kubectl).
 
-Optionally, to ease the usage of the commands within this tutorial, we'll set the following environment variables for GCP:
+Optionally, to ease the usage of the commands within this tutorial, you need to set the following environment variables for GCP:
 
 ```bash
-export PROJECT_ID="your-project-id"
-export LOCATION="your-location"
-export CLUSTER_NAME="your-cluster-name"
+export PROJECT_ID=your-project-id
+export LOCATION=your-location
+export CLUSTER_NAME=your-cluster-name
 ```
 
-> [!NOTE]
-> You may be used to using `REGION` and `ZONE` in GCP, but in this case we will use `LOCATION` instead, which is essentially the same, but it's now the recommended way to refer to the location of the resources in GKE.
-
-Then we need to login into our GCP account and set the project ID to the one we want to use for the deployment of the GKE Cluster.
+Then you need to login into your GCP account and set the project ID to the one you want to use for the deployment of the GKE Cluster.
 
 ```bash
 gcloud auth login
 gcloud config set project $PROJECT_ID
 ```
 
-Once we are logged in, we need to enable the necessary services in GCP, such as the Google Kubernetes Engine API, the Google Container Registry API, and the Google Container File System API, which are necessary for the deployment of the GKE Cluster and the Hugging Face DLC for training.
+Once you are logged in, you need to enable the necessary service APIs in GCP, such as the Google Kubernetes Engine API, the Google Container Registry API, and the Google Container File System API, which are necessary for the deployment of the GKE Cluster and the Hugging Face DLC for TGI.
 
 ```bash
 gcloud services enable container.googleapis.com
@@ -35,7 +32,7 @@ gcloud services enable containerregistry.googleapis.com
 gcloud services enable containerfilesystem.googleapis.com
 ```
 
-Additionally, in order to use `kubectl` with the GKE Cluster credentials, we also need to install the `gke-gcloud-auth-plugin`, that can be installed with `gcloud` as follows:
+Additionally, to use `kubectl` with the GKE Cluster credentials, you also need to install the `gke-gcloud-auth-plugin`, that can be installed with `gcloud` as follows:
 
 ```bash
 gcloud components install gke-gcloud-auth-plugin
@@ -46,12 +43,12 @@ gcloud components install gke-gcloud-auth-plugin
 
 ## Create GKE Cluster
 
-Once we've set everything up, we are ready to start with the creation of the GKE Cluster and the node pool, which in this case will be a single GPU node to fine-tune Mistral 7B v0.3 with SFT + LoRA using TRL's CLI.
+Once everything's set up, you can proceed with the creation of the GKE Cluster and the node pool, which in this case will be a single GPU node, in order to use the GPU accelerator for high performance inference, also following TGI recommendations based on their internal optimizations for GPUs.
 
-In order to deploy the GKE Cluster, we will use the "Autopilot" mode, which is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, one can also use the "Standard" mode.
+To deploy the GKE Cluster, the "Autopilot" mode will be used as it is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, you can also use the "Standard" mode.
 
 > [!NOTE]
-> Important to check before creating the GKE Autopilot Cluster <https://cloud.google.com/kubernetes-engine/docs/how-to/autopilot-gpus#before_you_begin>, since not all the versions support GPU accelerators e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
+> Important to check before creating the GKE Autopilot Cluster the [GKE Documentation - Optimize Autopilot Pod performance by choosing a machine series](https://cloud.google.com/kubernetes-engine/docs/how-to/performance-pods), since not all the versions support GPU accelerators e.g. `nvidia-l4` is not supported in the GKE cluster versions 1.28.3 or lower.
 
 ```bash
 gcloud container clusters create-auto $CLUSTER_NAME \
@@ -62,7 +59,7 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 ```
 
 > [!NOTE]
-> To select the specific version in our location of the GKE Cluster, we can run the following command:
+> To select the specific version in your location of the GKE Cluster, you can run the following command:
 >
 > ```bash
 > gcloud container get-server-config \
@@ -74,38 +71,33 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 >
 > For more information please visit <https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version>.
 
-As of the GKE documentation and service page in GCP, the creation of the GKE Cluster can take 5 minutes or more, depending on the configuration and the location of the cluster.
-
 ![GKE Cluster in the GCP Console](./imgs/gke-cluster.png)
 
-## Configure IAM for GCS
-
-Before we proceed with the deployment of the job with the Hugging Face PyTorch DLC for training in the GKE Cluster, we need to set the IAM permissions for the GCS bucket so that the pod in the GKE Cluster can access the bucket, that will be mounted into the running container and use to write the generated artifacts so that those are automatically uploaded to the GCS Bucket. To do so, we will create a namespace and a service account in the GKE Cluster, and then set the IAM permissions for the GCS Bucket.
-
-In order to set the Kubernetes secret, we first need to get the credentials of the GKE Cluster so that we can access it via `kubectl`:
+Once the GKE Cluster is created, you can get the credentials to access it via `kubectl` with the following command:
 
 ```bash
 gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
 ```
 
-> [!NOTE]
-> The `gcloud container clusters get-credentials` command will set the `kubectl` context to the GKE Cluster, so that we can interact with the cluster via `kubectl`, meaning it will be required for the rest of the tutorial, but only needs to be ran once, that's why in the following steps we will not include it in the commands as we're assuming it's already set.
+## Configure IAM for GCS
 
-Since we will be referring to the namespace and the service account in the upcoming steps, we will set the environment variables `NAMESPACE` and `SERVICE_ACCOUNT` to the name of the namespace and the service account we want to use for the deployment of the model.
+Before you run the fine-tuning job of the Hugging Face PyTorch DLC for training on the GKE Cluster, you need to set the IAM permissions for the GCS bucket so that the pod in the GKE Cluster can access the bucket, that will be mounted into the running container and use to write the generated artifacts so that those are automatically uploaded to the GCS Bucket. To do so, you need to create a namespace and a service account in the GKE Cluster, and then set the IAM permissions for the GCS Bucket.
+
+For convenience, as the reference to both the namespace and the service account will be used within the following steps, the environment variables `NAMESPACE` and `SERVICE_ACCOUNT` will be set.
 
 ```bash
-export NAMESPACE="hf-gke-namespace"
-export SERVICE_ACCOUNT="hf-gke-service-account"
+export NAMESPACE=hf-gke-namespace
+export SERVICE_ACCOUNT=hf-gke-service-account
 ```
 
-Then we can create the namespace and the service account in the GKE Cluster, so that we can then create the IAM permissions for the pods in that namespace to read/write access the GCS Bucket when using that service account.
+Then you can create the namespace and the service account in the GKE Cluster, enabling the creation of the IAM permissions for the pods in that namespace to access the GCS Bucket when using that service account.
 
 ```bash
 kubectl create namespace $NAMESPACE
 kubectl create serviceaccount $SERVICE_ACCOUNT --namespace $NAMESPACE
 ```
 
-Then we add the IAM policy binding to the bucket as follows:
+Then you need to add the IAM policy binding to the bucket as follows:
 
 ```bash
 gcloud storage buckets add-iam-policy-binding \
@@ -114,27 +106,55 @@ gcloud storage buckets add-iam-policy-binding \
     --role "roles/storage.objectUser"
 ```
 
-> [!NOTE]
-> We are setting the role for the IAM over the bucket to `roles/storage.objectUser`, which means that read/write access will be granted, since in this case we will be using the GCS Bucket to store the generated artifacts during and after the fine-tuning.
+## Optional: Set Secrets in GKE
 
-## Deploy fine-tuning job
+As [`mistralai/Mistral-7B-v0.3`](https://huggingface.co/mistralai/Mistral-7B-v0.3) is a gated model, you need to set a Kubernetes secret with the Hugging Face Hub token via `kubectl`.
 
-Once we are all set up, we can proceed to the Kubernetes deployment of the Hugging Face PyTorch DLC for training, which will run a batch job within the cluster running the Supervised Fine-Tuning SFT with LoRA on [`mistralai/Mistral-7B-v0.3`](https://huggingface.co/mistralai/Mistral-7B-v0.3) in `bfloat16` using [`timdettmers/openassistant-guanaco`](https://huggingface.co/timdettmers/openassistant-guanaco), which is a subset from [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) with ~10k samples, with a single GPU, and will store the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
+To generate a custom token for the Hugging Face Hub, you can follow the instructions at <https://huggingface.co/docs/hub/en/security-tokens>; and the recommended way of setting it is to install the `huggingface_hub` Python SDK as follows:
 
-Before proceeding, we need to first determine which GPU is suitable and capable of fine-tuning a 7B LLM on a single GPU, for that, we can either do a rough calculation of needing ~4 times the model size in GPU memory (read more about it in [Eleuther AI - Transformer Math 101](https://blog.eleuther.ai/transformer-math/)), or, if your model is uploaded to the Hugging Face Hub, just check the numbers in [Vokturz/can-it-run-llm](https://huggingface.co/spaces/Vokturz/can-it-run-llm).
+```bash
+pip install --upgrade --quiet huggingface_hub
+```
 
-![`Vokturz/can-it-run-llm` for `mistralai/Mistral-7B-v0.3`](./imgs/can-it-run-llm.png)
+And then login in with the generated token with read-access over the gated/private model:
 
-And, since we will be fine-tuning a gated model, we need to set a Kubernetes secret in the GKE Cluster with the Hugging Face Hub token via `kubectl`. To generate a custom token for the Hugging Face Hub, you can follow the instructions at <https://huggingface.co/docs/hub/en/security-tokens>. More information on how to set Kubernetes secrets in a GKE Cluster at <https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component>.
+```bash
+huggingface-cli login
+```
+
+Finally, you can create the Kubernetes secret with the generated token for the Hugging Face Hub as follows using the `huggingface_hub` Python SDK to retrieve the token:
 
 ```bash
 kubectl create secret generic hf-secret \
-  --from-literal=hf_token=$HF_TOKEN \
-  --dry-run=client -o yaml \
-  --namespace $NAMESPACE | kubectl apply -f -
+    --from-literal=hf_token=$(python -c "from huggingface_hub import get_token; print(get_token())") \
+    --dry-run=client -o yaml \
+    --namespace $NAMESPACE | kubectl apply -f -
 ```
 
-Then we can already trigger the Hugging Face PyTorch DLC for training via `kubectl` from the `job.yaml` configuration file that contains the job specification  running the command `trl sft` provided by the TRL CLI with the settings mentioned above.
+Or, alternatively, you can directly set the token as follows:
+
+```bash
+kubectl create secret generic hf-secret \
+    --from-literal=hf_token=hf_*** \
+    --dry-run=client -o yaml \
+    --namespace $NAMESPACE | kubectl apply -f -
+```
+
+More information on how to set Kubernetes secrets in a GKE Cluster at <https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component>.
+
+## Define Job Configuration
+
+Before proceeding into the Kubernetes deployment of the batch job via the Hugging Face PyTorch DLC for training, you need to define first the configuration required for the job to run successfully i.e. which GPU is capable of fine-tuning [`mistralai/Mistral-7B-v0.3`](https://huggingface.co/mistralai/Mistral-7B-v0.3) in `bfloat16` using LoRA.
+
+As a rough calculation, you could assume that the amount of GPU VRAM required to fine-tune a model in half precision is about four times the model size (read more about it in [Eleuther AI - Transformer Math 101](https://blog.eleuther.ai/transformer-math/)).
+
+Alternatively, if your model is uploaded to the Hugging Face Hub, you can check the numbers in the community space [`Vokturz/can-it-run-llm`](https://huggingface.co/spaces/Vokturz/can-it-run-llm), which does those calculations for you, based the model to fine-tune and the available hardware.
+
+![`Vokturz/can-it-run-llm` for `mistralai/Mistral-7B-v0.3`](./imgs/can-it-run-llm.png)
+
+## Run Job
+
+Now you can already run the Kubernetes job in the Hugging Face PyTorch DLC for training on the GKE Cluster via `kubectl` from the `job.yaml` configuration file, that contains the job specification for running the command `trl sft` provided by the TRL CLI for the SFT LoRA fine-tuning of [`mistralai/Mistral-7B-v0.3`](https://huggingface.co/mistralai/Mistral-7B-v0.3) in `bfloat16` using [`timdettmers/openassistant-guanaco`](https://huggingface.co/datasets/timdettmers/openassistant-guanaco), which is a subset from [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) with ~10k samples in a single L4 24GiB GPU, storing the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
 
 ```bash
 kubectl apply -f job.yaml
@@ -145,9 +165,9 @@ kubectl apply -f job.yaml
 ![GKE Job Running in the GCP Console](./imgs/gke-job-running.png)
 
 > [!NOTE]
-> In this case, since we're running a batch job, it will only use one node as specified within the `job.yaml` file, since we don't need anything else than that. So on, the job will deploy one pod running the `trl sft` command on top of the Hugging Face PyTorch DLC container for training, and also the GCS FUSE container that is mounting the GCS Bucket into the `/data` path so as to store the generated artifacts in GCS. So on, in this case, we don't care about scaling, we just need to trigger the job and wait until it's done; which once done, it will automatically scale back to 0, meaning that it won't consume resources.
+> In this case, since you are running a batch job, it will only use one node as specified within the `job.yaml` file, since you don't need anything else than that. So on, the job will deploy one pod running the `trl sft` command on top of the Hugging Face PyTorch DLC container for training, and also the GCS FUSE container that is mounting the GCS Bucket into the `/data` path so as to store the generated artifacts in GCS. Once the job is completed, it will automatically scale back to 0, meaning that it will not consume resources.
 
-Additionally, we can use `kubectl` to stream the logs of the job as it follows:
+Additionally, you can use `kubectl` to stream the logs of the job as it follows:
 
 ```bash
 kubectl logs -f job/trl-lora-sft --container trl-container --namespace $NAMESPACE
@@ -163,10 +183,10 @@ Finally, once the job is completed, the pods will scale to 0 and the artifacts w
 
 ## Delete GKE Cluster
 
-Finally, once the fine-tuning job is done, we can safely delete the GKE Cluster we've just created to avoid incurring in unnecessary costs.
+Finally, once the fine-tuning job is completed, you can safely delete the GKE Cluster to avoid incurring in unnecessary costs.
 
 ```bash
 gcloud container clusters delete $CLUSTER_NAME --location=$LOCATION
 ```
 
-Alternatively, one may decide to keep the GKE Cluster running even when the job is done, since the default GKE Cluster deployed with GKE Autopilot mode is running just a single `e2-small` instance.
+Alternatively, you may decide to keep the GKE Cluster running even after the job is completed, since the default GKE Cluster deployed with GKE Autopilot mode is running just a single `e2-small` instance.

@@ -31,20 +31,10 @@ spec:
               value: "1"
             - name: PORT
               value: "8080"
-            - name: HF_API_TOKEN # Not used, but left as reference
-              valueFrom:
-                secretKeyRef:
-                  name: hf-secret
-                  key: hf_token
           volumeMounts:
-            - mountPath: /dev/shm
-              name: dshm
             - mountPath: /data
               name: data
       volumes:
-        - name: dshm
-          emptyDir:
-            medium: Memory
         - name: data
           emptyDir: {}
       nodeSelector:

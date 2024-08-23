@@ -1,14 +1,3 @@
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: ssd
-  namespace: hf-gke-namespace
-provisioner: pd.csi.storage.gke.io
-volumeBindingMode: WaitForFirstConsumer
-allowVolumeExpansion: true
-parameters:
-  type: pd-ssd
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -43,7 +32,7 @@ spec:
             requests:
               cpu: 8.0
       containers:
-        - name: tei-cpu-container
+        - name: tei-container
           image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-2:latest
           resources:
             requests:
@@ -62,14 +51,9 @@ spec:
             - name: HUGGINGFACE_OFFLINE
               value: "1"
           volumeMounts:
-            - mountPath: /dev/shm
-              name: dshm
             - mountPath: /data
               name: gcs-mount
       volumes:
-        - name: dshm
-          emptyDir:
-            medium: Memory
         - name: gcs-mount
           ephemeral:
             volumeClaimTemplate:
