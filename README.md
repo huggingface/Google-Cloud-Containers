@@ -1,5 +1,7 @@
 # 🤗 Hugging Face Deep Learning Containers for Google Cloud
 
+<img alt="Hugging Face x Google Cloud" src="https://raw.githubusercontent.com/huggingface/blog/main/assets/173_gcp-partnership/thumbnail.jpg" />
+
 This repository contains container files for building Hugging Face specific Deep Learning Containers (DLCs), examples on how to use those for both inference and training for Google Cloud. Ideally this containers are intended to be used within the Google Cloud's Artifact Registry, and released periodically for each supported combination of use-case (training, inference), accelerator type (CPU, GPU, TPU), and framework (PyTorch, TGI, TEI).
 
 * Training
