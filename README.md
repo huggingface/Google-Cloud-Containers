@@ -2,8 +2,9 @@
 
 <img alt="Hugging Face x Google Cloud" src="https://raw.githubusercontent.com/huggingface/blog/main/assets/173_gcp-partnership/thumbnail.jpg" />
 
-This repository contains container files for building Hugging Face specific Deep Learning Containers (DLCs), examples on how to use those for both inference and training for Google Cloud. Ideally this containers are intended to be used within the Google Cloud's Artifact Registry, and released periodically for each supported combination of use-case (training, inference), accelerator type (CPU, GPU, TPU), and framework (PyTorch, TGI, TEI).
+[Hugging Face Deep Learning Containers for Google Cloud](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face) are a set of Docker images for training and deploying Transformers, Sentence Transformers, and Diffusers models on Google Cloud Vertex AI and Google Kubernetes Engine (GKE).
 
+The [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers/tree/main) repository contains the container files for building Hugging Face-specific Deep Learning Containers (DLCs), examples on how to train and deploy models on Google Cloud. The containers are publicly maintained, updated and released periodically by Hugging Face and the Google Cloud Team and available for all Google Cloud Customers within the [Google Cloud's Artifact Registry](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face). For each supported combination of use-case (training, inference), accelerator type (CPU, GPU, TPU), and framework (PyTorch, TGI, TEI) containers are created. Those include: 
 * Training
   * [PyTorch](./containers/pytorch/training/README.md)
     * GPU
