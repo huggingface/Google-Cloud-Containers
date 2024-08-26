@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: tgi-container
-          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310:latest
+          image: ghcr.io/huggingface/text-generation-inference:sha-f852190
+          # image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310:latest
           resources:
             requests:
               nvidia.com/gpu: 4
