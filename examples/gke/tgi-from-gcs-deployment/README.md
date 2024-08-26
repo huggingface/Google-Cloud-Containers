@@ -6,8 +6,8 @@ Qwen2 is the new series of Qwen Large Language Models (LLMs) built by Alibaba Cl
 
 First, you need to install both `gcloud` and `kubectl` in your local machine, which are the command-line tools for Google Cloud and Kubernetes, respectively, to interact with the GCP and the GKE Cluster.
 
-* To install `gcloud`, follow the instructions at [Cloud SDK Documentation - Install the gcloud CLI](https://cloud.google.com/sdk/docs/install).
-* To install `kubectl`, follow the instructions at [Kubernetes Documentation - Install Tools](https://kubernetes.io/docs/tasks/tools/#kubectl).
+- To install `gcloud`, follow the instructions at [Cloud SDK Documentation - Install the gcloud CLI](https://cloud.google.com/sdk/docs/install).
+- To install `kubectl`, follow the instructions at [Kubernetes Documentation - Install Tools](https://kubernetes.io/docs/tasks/tools/#kubectl).
 
 Optionally, to ease the usage of the commands within this tutorial, you need to set the following environment variables for GCP:
 
@@ -84,7 +84,7 @@ gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
 
 This is an optional step in the tutorial, since you may want to reuse an existing model on a GCS Bucket, if that is the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
 
-Otherwise, to upload a model from the Hugging Face Hub to a GCS Bucket, you can use the script [./scripts/upload_model_to_gcs.sh](./scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS Bucket (and create the bucket if not created already).
+Otherwise, to upload a model from the Hugging Face Hub to a GCS Bucket, you can use the script [scripts/upload_model_to_gcs.sh](https://github.com/huggingface/Google-Cloud-Containers/blob/main/scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS Bucket (and create the bucket if not created already).
 
 The `gsutil` component should be installed via `gcloud`, and the Python packages `huggingface_hub` with the extra `hf_transfer`, and the package `crcmod` should also be installed.
 
@@ -96,7 +96,7 @@ pip install --upgrade --quiet "huggingface_hub[hf_transfer]" crcmod
 Then, you can run the script to download the model from the Hugging Face Hub and then upload it to the GCS Bucket:
 
 > [!NOTE]
-> Make sure to set the proper permissions to run the script i.e. `chmod +x ./scripts/upload_model_to_gcs.sh`.
+> Make sure to set the proper permissions to run the script i.e. `chmod +x scripts/upload_model_to_gcs.sh`.
 
 ```bash
 ./scripts/upload_model_to_gcs.sh --model-id Qwen/Qwen2-7B-Instruct --gcs gs://$BUCKET_NAME/Qwen2-7B-Instruct
@@ -140,10 +140,10 @@ Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TGI
 
 The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the `config/` directory:
 
-* `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/Qwen2-7B-Instruct`.
-* `service.yaml`: contains the service details of the pod, exposing the port 80 for the TEI service.
-* `storageclass.yaml`: contains the storage class details of the pod, defining the storage class for the volume mount.
-* (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+- `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/Qwen2-7B-Instruct`.
+- `service.yaml`: contains the service details of the pod, exposing the port 80 for the TEI service.
+- `storageclass.yaml`: contains the storage class details of the pod, defining the storage class for the volume mount.
+- (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
 kubectl apply -f config/
@@ -168,17 +168,17 @@ kubectl apply -f config/
 
 To run the inference over the deployed TGI service, you can either:
 
-* Port-forwarding the deployed TGI service to the port 8080, so as to access via `localhost` with the command:
+- Port-forwarding the deployed TGI service to the port 8080, so as to access via `localhost` with the command:
 
-    ```bash
-    kubectl port-forward --namespace $NAMESPACE service/tgi-service 8080:8080
-    ```
+  ```bash
+  kubectl port-forward --namespace $NAMESPACE service/tgi-service 8080:8080
+  ```
 
-* Accessing the TGI service via the external IP of the ingress, which is the default scenario here since you have defined the ingress configuration in the `config/ingress.yaml` file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
+- Accessing the TGI service via the external IP of the ingress, which is the default scenario here since you have defined the ingress configuration in the `config/ingress.yaml` file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
 
-    ```bash
-    kubectl get ingress --namespace $NAMESPACE tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
-    ```
+  ```bash
+  kubectl get ingress --namespace $NAMESPACE tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+  ```
 
 ### Via cURL
 
