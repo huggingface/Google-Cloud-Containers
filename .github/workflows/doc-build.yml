@@ -15,6 +15,7 @@ jobs:
     with:
       commit_sha: ${{ github.sha }}
       package: Google-Cloud-Containers
+      package_name: google-cloud
       additional_args: --not_python_module
     secrets:
       token: ${{ secrets.HUGGINGFACE_PUSH }}
