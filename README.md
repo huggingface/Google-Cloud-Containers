@@ -1,6 +1,6 @@
 # 🤗 Hugging Face Deep Learning Containers for Google Cloud
 
-<img alt="Hugging Face x Google Cloud" src="https://raw.githubusercontent.com/huggingface/blog/main/assets/173_gcp-partnership/thumbnail.jpg" />
+<img alt="Hugging Face x Google Cloud" src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/Google-Cloud-Containers/thumbnail.png" />
 
 [Hugging Face Deep Learning Containers for Google Cloud](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face) are a set of Docker images for training and deploying Transformers, Sentence Transformers, and Diffusers models on Google Cloud Vertex AI and Google Kubernetes Engine (GKE).
 
