@@ -1,45 +1,63 @@
 # Hugging Face on Google Cloud
 
 ![Hugging Face x Google Cloud](https://raw.githubusercontent.com/huggingface/blog/main/assets/173_gcp-partnership/thumbnail.jpg)
+
 Hugging Face collaborates with Google across open science, open source, cloud, and hardware to enable companies to build their own AI with the latest open models from Hugging Face and the latest cloud and hardware features from Google Cloud.
 
-Hugging Face enables new experiences for Google Cloud customers. They can easily train and deploy Hugging Face models within Google Kubernetes Engine (GKE) and Vertex AI, on any hardware available in Google Cloud using Hugging Face Deep Learning Containers.
+Hugging Face enables new experiences for Google Cloud customers. They can easily train and deploy Hugging Face models on Google Kubernetes Engine (GKE) and Vertex AI, on any hardware available in Google Cloud using Hugging Face Deep Learning Containers (DLCs).
 
 ## Train and Deploy Models on Google Cloud with Hugging Face Deep Learning Containers
 
-Hugging Face built Deep Learning Containers (DLCs) for Google Cloud customers to run any of their machine learning workload in an optimized environment, with no configuration or maintenance on their part. These are Docker images pre-installed with deep learning frameworks and libraries such as 🤗 Transformers, 🤗 Datasets, and 🤗 Tokenizers. The DLCs allow you to directly serve and train any models, skipping the complicated process of building and optimizing your serving and training environments from scratch. 
+Hugging Face built Deep Learning Containers (DLCs) for Google Cloud customers to run any of their machine learning workload in an optimized environment, with no configuration or maintenance on their part. These are Docker images pre-installed with deep learning frameworks and libraries such as 🤗 Transformers, 🤗 Datasets, and 🤗 Tokenizers. The DLCs allow you to directly serve and train any models, skipping the complicated process of building and optimizing your serving and training environments from scratch.
 
-For training, our DLCs are available for PyTorch via 🤗 Transformers. They include support for training on both GPUs and TPUs with libraries such as 🤗 TRL, Sentence Transformers, or 🧨 Diffusers. 
+For training, our DLCs are available for PyTorch via 🤗 Transformers. They include support for training on both GPUs and TPUs with libraries such as 🤗 TRL, Sentence Transformers, or 🧨 Diffusers.
 
-For inference, we have a general-purpose PyTorch inference DLC, for serving models trained with any of those frameworks mentioned before on both CPU and GPU. There is also the Text Generation Inference (TGI) DLC for high-performance text generation of LLMs on both GPU and TPU. Finally, there is a Text Embeddings Inference (TEI) DLC for high-performance serving of embedding models on both CPU and GPU. 
+For inference, we have a general-purpose PyTorch inference DLC, for serving models trained with any of those frameworks mentioned before on both CPU and GPU. There is also the Text Generation Inference (TGI) DLC for high-performance text generation of LLMs on both GPU and TPU. Finally, there is a Text Embeddings Inference (TEI) DLC for high-performance serving of embedding models on both CPU and GPU.
 
 The DLCs are hosted in [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) and can be used from any Google Cloud service such as Google Kubernetes Engine (GKE), Vertex AI, or Google Compute Engine.
 
 Hugging Face DLCs are open source and licensed under Apache 2.0 within the [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers) repository. For premium support, our [Expert Support Program](https://huggingface.co/support) gives you direct dedicated support from our team.
-You have two options to take advantage of these DLCs as a Google Cloud customer: 
 
-1. To [get started](https://huggingface.co/blog/google-cloud-model-garden), you can use our no-code integrations within Vertex AI or GKE. 
+You have two options to take advantage of these DLCs as a Google Cloud customer:
+
+1. To [get started](https://huggingface.co/blog/google-cloud-model-garden), you can use our no-code integrations within Vertex AI or GKE.
 2. For more advanced scenarios, you can pull the containers from the Google Cloud Artifact Registry directly in your environment. [Here](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples) is a list of notebooks examples.
 
 ## Features & benefits 🔥
 
-The Hugging Face DLCs provide ready-to-use, tested environments to train and deploy Hugging Face models. They can be used in combination with Google Cloud offerings including Google Kubernetes Engine (GKE) and Vertex AI. GKE is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using Google Cloud's infrastructure. Vertex AI is a Machine Learning (ML) platform that lets you train and deploy ML models and AI applications, and customize Large Language Models (LLMs). 
+The Hugging Face DLCs provide ready-to-use, tested environments to train and deploy Hugging Face models. They can be used in combination with Google Cloud offerings including Google Kubernetes Engine (GKE) and Vertex AI. GKE is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using Google Cloud's infrastructure. Vertex AI is a Machine Learning (ML) platform that lets you train and deploy ML models and AI applications, and customize Large Language Models (LLMs).
 
-Using Hugging Face DLCs in GKE and Vertex AI offer the following advantages:
+### One command is all you need
 
-- **Integrated Deployment and Management**: Vertex AI and GKE provide a seamless integration for deploying and managing machine learning models. This allows users to deploy models from Vertex AI onto GKE, leveraging Kubernetes' orchestration capabilities while benefiting from Vertex AI's model management features. This integration simplifies the deployment process, enabling a unified approach to managing AI workloads on Google Cloud, whilst both training and inference can also happen within Vertex AI or GKE separately, as both support model training either natively or via a Kubernetes job, respectively; as well as running an endpoint serving a model from a container.
+With the new Hugging Face DLCs, train cutting-edge Transformers-based NLP models in a single line of code. The Hugging Face PyTorch DLCs for training come with all the libraries installed to run a single command e.g. via TRL CLI to fine-tune LLMs on any setting, either single-GPU, single-node multi-GPU, and more.
 
-- **Security and Compliance**: Both Vertex AI and GKE are part of Google Cloud's robust infrastructure, which offers comprehensive security features such as data encryption, identity management, and compliance with industry standards. This ensures that AI models and containerized applications are secure and meet regulatory requirements.
+### Accelerate machine learning from science to production
 
-- **Scalability and Flexibility**: The combination of Vertex AI and GKE allows for efficient scaling of AI models. GKE provides the infrastructure to handle large-scale deployments, while Vertex AI simplifies the scaling of machine learning workflows, offering flexible resource allocation and management. This is particularly useful for handling demanding training and inference scenarios.
+In addition to Hugging Face DLCs, we created a first-class Hugging Face library for inference, [`huggingface-inference-toolkit`](https://github.com/huggingface/huggingface-inference-toolkit), that comes with the Hugging Face PyTorch DLCs for inference, with full support on serving any PyTorch model on Google Cloud.
 
-- **Ease of Use and Automation**: Using Vertex AI with GKE enables automated deployments and management of AI models, reducing the need for manual infrastructure management. This integration allows for quick deployment of models at scale, simplifying the process and reducing operational overhead.
+Deploy your trained models for inference with just one more line of code or select [any of the 170,000+ publicly available models from the model Hub](https://huggingface.co/models?library=pytorch,transformers&sort=trending) and deploy them on either Vertex AI or GKE.
 
-- **Optimized Performance**: Both platforms are optimized for performance, with GKE offering efficient resource management and Vertex AI providing tools for model tuning and monitoring. This ensures that AI applications run smoothly and efficiently, leveraging Google Cloud's infrastructure capabilities. Hugging Face offers Deep Learning Containers optimized for Cloud TPU for optimized cost performance.
+### High-performance text generation and embedding
 
-For more detailed information, you can refer to the official Google Cloud documentation on Vertex AI and Google Kubernetes Engine.
+Besides the PyTorch-oriented DLCs, Hugging Face also provides high-performance inference for both text generation and embedding models via the Hugging Face DLCs for both [Text Generation Inference (TGI)](https://github.com/huggingface/text-generation-inference) and [Text Embeddings Inference (TEI)](https://github.com/huggingface/text-embeddings-inference), respectively.
+
+The Hugging Face DLC for TGI enables you to deploy [any of the +140,000 text generation inference supported models from the Hugging Face Hub](https://huggingface.co/models?other=text-generation-inference&sort=trending), or any custom model as long as [its architecture is supported within TGI](https://huggingface.co/docs/text-generation-inference/supported_models).
+
+The Hugging Face DLC for TEI enables you to deploy [any of the +10,000 embedding, re-ranking or sequence classification supported models from the Hugging Face Hub](https://huggingface.co/models?other=text-embeddings-inference&sort=trending), or any custom model as long as [its architecture is supported within TEI](https://huggingface.co/docs/text-embeddings-inference/en/supported_models).
+
+Additionally, these DLCs come with full support for Google Cloud meaning that deploying models from Google Cloud Storage (GCS) is also straight forward and requires no configuration.
+
+### Built-in performance
+
+Hugging Face DLCs feature built-in performance optimizations for PyTorch to train models faster. The DLCs also give you the flexibility to choose a training infrastructure that best aligns with the price/performance ratio for your workload.
+
+The Hugging Face Training DLCs are fully integrated with Google Cloud, enabling the use of [the latest generation of instances available on Google Cloud Compute Engine](https://cloud.google.com/products/compute?hl=en).
+
+Hugging Face Inference DLCs provide you with production-ready endpoints that scale quickly with your Google Cloud environment, built-in monitoring, and a ton of enterprise features.
 
 ---
+
+Read more about both Vertex AI in [their official documentation](https://cloud.google.com/vertex-ai/docs) and GKE in [their official documentation](https://cloud.google.com/kubernetes-engine/docs).
 
 ## Resources, Documentation & Examples 📄
 
@@ -50,6 +68,7 @@ Learn how to use Hugging Face in Google Cloud by reading our blog posts, documen
 - [Hugging Face and Google partner for open AI collaboration](https://huggingface.co/blog/gcp-partnership)
 - [Google Cloud TPUs made available to Hugging Face users](https://huggingface.co/blog/tpu-inference-endpoints-spaces)
 - [Making thousands of open LLMs bloom in the Vertex AI Model Garden](https://huggingface.co/blog/google-cloud-model-garden)
+- [Deploy Meta Llama 3.1 405B on Google Cloud Vertex AI](https://huggingface.co/blog/llama31-on-vertex-ai)
 
 ### Documentation
 
@@ -62,12 +81,12 @@ Learn how to use Hugging Face in Google Cloud by reading our blog posts, documen
 
 #### GKE
 
-- [Full SFT fine-tuning of Gemma 2B in a multi-GPU instance with TRL in GKE](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/gke/trl-full-fine-tuning)
-- [LoRA SFT fine-tuning of Mistral 7B v0.3 in a single GPU instance with TRL in GKE](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/gke/trl-lora-fine-tuning)
-- [Deploying Llama3 8B with Text Generation Inference (TGI) in GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tgi-deployment)
-- [Deploying Qwen2 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket in GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tgi-from-gcs-deployment)
-- [Deploying Snowflake's Arctic Embed (M) with Text Embeddings Inference (TEI) in GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tei-deployment)
-- [Deploying BGE Base v1.5 (English) with Text Embeddings Inference (TEI) from a GCS Bucket in GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tei-from-gcs-deployment)
+- [Full SFT fine-tuning of Gemma 2B in a multi-GPU instance with TRL on GKE](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/gke/trl-full-fine-tuning)
+- [LoRA SFT fine-tuning of Mistral 7B v0.3 in a single GPU instance with TRL on GKE](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/gke/trl-lora-fine-tuning)
+- [Deploying Llama3 8B with Text Generation Inference (TGI) on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tgi-deployment)
+- [Deploying Qwen2 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tgi-from-gcs-deployment)
+- [Deploying Snowflake's Arctic Embed (M) with Text Embeddings Inference (TEI) on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tei-deployment)
+- [Deploying BGE Base v1.5 (English) with Text Embeddings Inference (TEI) from a GCS Bucket on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tei-from-gcs-deployment)
 
 #### Vertex AI
 
