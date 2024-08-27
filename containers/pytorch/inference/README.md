@@ -59,7 +59,7 @@ curl http://0.0.0.0:5000/predict \
     -X POST \
     -H 'Content-Type: application/json; charset=UTF-8' \
     -d '{
-        "instances": ["I love this product", "I hate this product"],
+        "inputs": ["I love this product", "I hate this product"],
         "parameters": { "top_k": 2 }
     }'
 ```
