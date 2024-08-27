@@ -2,6 +2,10 @@ import os
 import subprocess
 
 from pathlib import PosixPath
+from transformers import AutoModelForCausalLM
+
+
+MODEL_ID = "sshleifer/tiny-gpt2"
 
 
 def test_trl(tmp_path: PosixPath) -> None:
@@ -14,7 +18,7 @@ def test_trl(tmp_path: PosixPath) -> None:
         [
             "trl",
             "sft",
-            "--model_name_or_path=facebook/opt-350m",
+            f"--model_name_or_path={MODEL_ID}",
             "--dataset_text_field=text",
             "--report_to=none",
             "--learning_rate=1e-5",
@@ -30,10 +34,12 @@ def test_trl(tmp_path: PosixPath) -> None:
         check=True,
     )
 
-    # Check that the output_dir exists
     assert (tmp_path / "sft_openassistant-guanaco").exists()
+    assert (tmp_path / "sft_openassistant-guanaco" / "model.safetensors").exists()
 
-    # TODO: Make sure that the model can be loaded
+    _ = AutoModelForCausalLM.from_pretrained(
+        (tmp_path / "sft_openassistant-guanaco").as_posix()
+    )
 
 
 def test_trl_peft(tmp_path: PosixPath) -> None:
@@ -46,7 +52,7 @@ def test_trl_peft(tmp_path: PosixPath) -> None:
         [
             "trl",
             "sft",
-            "--model_name_or_path=facebook/opt-350m",
+            f"--model_name_or_path={MODEL_ID}",
             "--dataset_text_field=text",
             "--report_to=none",
             "--learning_rate=1e-5",
@@ -65,7 +71,11 @@ def test_trl_peft(tmp_path: PosixPath) -> None:
         check=True,
     )
 
-    # Check that the output_dir exists
     assert (tmp_path / "sft_openassistant-guanaco").exists()
+    assert (tmp_path / "sft_openassistant-guanaco" / "adapter_config.json").exists()
+    assert (
+        tmp_path / "sft_openassistant-guanaco" / "adapter_model.safetensors"
+    ).exists()
 
-    # TODO: Make sure that the model can be loaded
+    model = AutoModelForCausalLM.from_pretrained(MODEL_ID)
+    model.load_adapter((tmp_path / "sft_openassistant-guanaco").as_posix())
