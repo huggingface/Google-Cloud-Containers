@@ -27,33 +27,35 @@ Additionally, if you're willing to run the Docker container in GPUs you will nee
 
 Before running this container, you will need to select any supported model from the [Hugging Face Hub offering for `transformers`](https://huggingface.co/models?library=transformers&sort=trending), as well as the task that the model runs as e.g. text-classification.
 
-* **CPU**
+- **CPU**
 
-    ```bash
-    docker run -ti -p 8080:8080 \
-        -e HF_MODEL_ID=distilbert/distilbert-base-uncased-finetuned-sst-2-english \
-        -e HF_TASK=text-classification \
-        us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2.2.2.transformers.4.41.1.py311
-    ```
+  ```bash
+  docker run -ti -p 5000:5000 \
+      -e HF_MODEL_ID=distilbert/distilbert-base-uncased-finetuned-sst-2-english \
+      -e HF_TASK=text-classification \
+      --platform linux/amd64 \
+      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311
+  ```
 
-* **GPU**: Note that here you need to have an instance with at least one NVIDIA GPU and to set the `--gpus all` flag within the `docker run` command, as well as using the GPU-compatible container.
+- **GPU**: Note that here you need to have an instance with at least one NVIDIA GPU and to set the `--gpus all` flag within the `docker run` command, as well as using the GPU-compatible container.
 
-    ```bash
-    docker run -ti --gpus all -p 8080:8080 \
-        -e HF_MODEL_ID=distilbert/distilbert-base-uncased-finetuned-sst-2-english \
-        -e HF_TASK=text-classification \
-        us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2.2.2.transformers.4.41.1.py311
-    ```
+  ```bash
+  docker run -ti --gpus all -p 5000:5000 \
+      -e HF_MODEL_ID=distilbert/distilbert-base-uncased-finetuned-sst-2-english \
+      -e HF_TASK=text-classification \
+      --platform linux/amd64 \
+      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311
+  ```
 
 > [!NOTE]
-> As [huggingface-inference-toolkit](https://github.com/huggingface/huggingface-inference-toolkit) is built to be fully compatible with Google Vertex AI, then you can also set the environment variables defined by Vertex AI such as `AIP_MODE=PREDICTION`, `AIP_HTTP_PORT`, `AIP_PREDICT_ROUTE`, `AIP_HEALTH_ROUTE`, and some more. To read about all the exposed environment variables in Vertex AI please check [Vertex AI Documentation - Custom container requirements for prediction](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).
+> As [huggingface-inference-toolkit](https://github.com/huggingface/huggingface-inference-toolkit) is built to be fully compatible with Google Vertex AI, then you can also set the environment variables defined by Vertex AI such as `AIP_MODE=PREDICTION`, `AIP_HTTP_PORT=8080`, `AIP_PREDICT_ROUTE=/predict`, `AIP_HEALTH_ROUTE=/health`, and some more. To read about all the exposed environment variables in Vertex AI please check [Vertex AI Documentation - Custom container requirements for prediction](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).
 
 ## Test
 
 Once the Docker container is running, you can start sending requests to the `/predict` endpoint which is the default endpoint exposed by the PyTorch Inference containers (unless overridden with `AIP_PREDICT_ROUTE` on build time).
 
 ```bash
-curl 0.0.0.0:8080/predict \
+curl http://0.0.0.0:5000/predict \
     -X POST \
     -H 'Content-Type: application/json; charset=UTF-8' \
     -d '{
@@ -63,7 +65,7 @@ curl 0.0.0.0:8080/predict \
 ```
 
 > [!NOTE]
-> The [huggingface-inference-toolkit`(https://github.com/huggingface/huggingface-inference-toolkit) is powered by the `pipeline` method within `transformers`, that means that the payload will be different based on the model that you're deploying. So on, before sending requests to the deployed model, you will need to first check which is the task that the `pipeline` method and the model support and are running. To read more about the `pipeline` and the supported tasks please check [Transformers Documentation - Pipelines](https://huggingface.co/docs/transformers/en/main_classes/pipelines).
+> The [huggingface-inference-toolkit](https://github.com/huggingface/huggingface-inference-toolkit) is powered by the `pipeline` method within `transformers`, that means that the payload will be different based on the model that you're deploying. So on, before sending requests to the deployed model, you will need to first check which is the task that the `pipeline` method and the model support and are running. To read more about the `pipeline` and the supported tasks please check [Transformers Documentation - Pipelines](https://huggingface.co/docs/transformers/en/main_classes/pipelines).
 
 ## Optional
 
@@ -74,14 +76,14 @@ curl 0.0.0.0:8080/predict \
 
 The PyTorch Training containers come with two different containers depending on the accelerator used for training, being either CPU or GPU, but those can be built within the same instance, that does not need to have a GPU available.
 
-* **CPU**
+- **CPU**
 
-    ```bash
-    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2.2.2.transformers.4.41.1.py311 -f containers/pytorch/inference/cpu/2.2.2/transformers/4.41.1/py311/Dockerfile .
-    ```
+  ```bash
+  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311 -f containers/pytorch/inference/cpu/2.2.2/transformers/4.44.0/py311/Dockerfile --platform linux/amd64 .
+  ```
 
-* **GPU**
+- **GPU**
 
-    ```bash
-    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-gpu.2.2.2.transformers.4.41.1.py311 -f containers/pytorch/inference/gpu/2.2.2/transformers/4.41.1/py311/Dockerfile .
-    ```
+  ```bash
+  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311 -f containers/pytorch/inference/gpu/2.2.2/transformers/4.44.0/py311/Dockerfile --platform linux/amd64 .
+  ```
