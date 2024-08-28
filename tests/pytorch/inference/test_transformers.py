@@ -1,3 +1,4 @@
+import logging
 from time import sleep
 
 import docker
@@ -25,13 +26,16 @@ MAX_RETRIES = 10
     ],
 )
 def test_transformers(
+    caplog: pytest.LogCaptureFixture,
     hf_model_id: str,
     hf_task: str,
     prediction_payload: dict,
 ) -> None:
+    caplog.set_level(logging.INFO)
+
     client = docker.from_env()
 
-    print(f"Starting container for {hf_model_id}...")
+    logging.info(f"Starting container for {hf_model_id}...")
     container = client.containers.run(
         "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311",
         ports={"8080": 8080},
@@ -57,26 +61,41 @@ def test_transformers(
         tty=True,
     )
 
-    print(f"Container {container.id} started...")  # type: ignore
+    logging.info(f"Container {container.id} started...")  # type: ignore
+    container_healthy = False
     for _ in range(MAX_RETRIES):
         try:
-            print(
+            logging.info(
                 f"Trying to connect to http://localhost:8080/health [retry {_ + 1}/{MAX_RETRIES}]..."
             )
             response = requests.get("http://localhost:8080/health")
             assert response.status_code == 200
+            container_healthy = True
             break
         except requests.exceptions.ConnectionError:
             sleep(10)
 
+    if not container_healthy:
+        logging.error("Container is not healthy after several retries...")
+        container.stop()
+    assert container_healthy
+
+    container_failed = False
     try:
+        logging.info("Sending prediction request to http://localhost:8080/predict...")
         response = requests.post(
             "http://localhost:8080/predict",
             json=prediction_payload,
         )
         assert response.status_code in [200, 201]
         assert "predictions" in response.json()
+        logging.info(f"Predictions: {response.json()['predictions']}")
+    except Exception as e:
+        logging.error(f"Error while sending prediction request: {e}")
+        container_failed = True
     finally:
-        print(f"Stopping container {container.id}...")  # type: ignore
+        logging.info(f"Stopping container {container.id}...")  # type: ignore
         container.stop()  # type: ignore
         container.remove()  # type: ignore
+
+    assert not container_failed
