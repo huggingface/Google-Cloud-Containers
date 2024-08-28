@@ -21,12 +21,12 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     client = docker.from_env()
 
     logging.info("Running the container for TRL...")
-    container = client.containers.run(
+    container_logs = client.containers.run(
         os.getenv(
             "TRAINING_DLC",
-            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311",
+            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310",
         ),
-        cmd=[
+        command=[
             "trl",
             "sft",
             f"--model_name_or_path={MODEL_ID}",
@@ -42,17 +42,16 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
             "--gradient_checkpointing",
         ],
         environment={
-            "TRL_USE_RICH": 0,
+            "TRL_USE_RICH": "0",
             "ACCELERATE_LOG_LEVEL": "INFO",
             "TRANSFORMERS_LOG_LEVEL": "INFO",
-            "TQDM_POSITION": -1,
+            "TQDM_POSITION": "-1",
         },
         platform="linux/amd64",
         # To show all the `logging` messages from the container
-        stdin_open=True,
-        tty=True,
+        stream=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
-        volumes={
+        volumes={  # type: ignore
             f"{tmp_path}/sft_openassistant-guanaco": {
                 "bind": "/opt/huggingface/trained_model",
                 "mode": "rw",
@@ -62,6 +61,10 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
         runtime="nvidia",
         device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])],
     )
+
+    # Print the logs from the container after it's done
+    for container_log in container_logs:
+        logging.info(container_log)
 
     assert (tmp_path / "sft_openassistant-guanaco").exists()
     assert (tmp_path / "sft_openassistant-guanaco" / "model.safetensors").exists()
@@ -79,12 +82,12 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
     client = docker.from_env()
 
     logging.info("Running the container for TRL...")
-    container = client.containers.run(
+    container_logs = client.containers.run(
         os.getenv(
             "TRAINING_DLC",
-            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311",
+            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310",
         ),
-        cmd=[
+        command=[
             "trl",
             "sft",
             f"--model_name_or_path={MODEL_ID}",
@@ -103,17 +106,16 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
             "--lora_alpha=16",
         ],
         environment={
-            "TRL_USE_RICH": 0,
+            "TRL_USE_RICH": "0",
             "ACCELERATE_LOG_LEVEL": "INFO",
             "TRANSFORMERS_LOG_LEVEL": "INFO",
-            "TQDM_POSITION": -1,
+            "TQDM_POSITION": "-1",
         },
         platform="linux/amd64",
         # To show all the `logging` messages from the container
-        stdin_open=True,
-        tty=True,
+        stream=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
-        volumes={
+        volumes={  # type: ignore
             f"{tmp_path}/sft_openassistant-guanaco": {
                 "bind": "/opt/huggingface/trained_model",
                 "mode": "rw",
@@ -123,6 +125,10 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
         runtime="nvidia",
         device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])],
     )
+
+    # Print the logs from the container after it's done
+    for container_log in container_logs:
+        logging.info(container_log)
 
     assert (tmp_path / "sft_openassistant-guanaco").exists()
     assert (tmp_path / "sft_openassistant-guanaco" / "adapter_config.json").exists()
