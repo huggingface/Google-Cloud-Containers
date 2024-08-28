@@ -1,0 +1,33 @@
+name: Run PyTorch DLCs Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  pytorch-dlcs-cpu:
+    runs-on: cpu
+
+    steps:
+      - name: Run PyTorch DLC Tests on CPU
+        uses: ./.github/actions/pytorch-dlcs-tests
+        with:
+          inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311
+
+  pytorch-dlcs-gpu:
+    runs-on: single-gpu
+
+    steps:
+      - name: Run PyTorch DLC Tests on GPU
+        uses: ./.github/actions/pytorch-dlcs-tests
+        with:
+          training-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.transformers.4-42.ubuntu2204.py310
+          inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311
