@@ -63,8 +63,8 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     )
 
     # Print the logs from the container after it's done
-    for container_log in container_logs:
-        logging.info(container_log)
+    for container_log in container_logs:  # type: ignore
+        logging.info(container_log.decode("utf-8", errors="ignore").strip())
 
     assert (tmp_path / "sft_openassistant-guanaco").exists()
     assert (tmp_path / "sft_openassistant-guanaco" / "model.safetensors").exists()
@@ -127,8 +127,8 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
     )
 
     # Print the logs from the container after it's done
-    for container_log in container_logs:
-        logging.info(container_log)
+    for container_log in container_logs:  # type: ignore
+        logging.info(container_log.decode("utf-8", errors="ignore").strip())
 
     assert (tmp_path / "sft_openassistant-guanaco").exists()
     assert (tmp_path / "sft_openassistant-guanaco" / "adapter_config.json").exists()
