@@ -5,6 +5,9 @@ import docker
 import pytest
 import requests
 
+from docker.types.containers import DeviceRequest
+
+from tests.constants import CUDA_AVAILABLE
 
 MAX_RETRIES = 10
 
@@ -52,12 +55,20 @@ def test_transformers(
 
     client = docker.from_env()
 
+    cuda_kwargs = {}
+    if CUDA_AVAILABLE:
+        cuda_kwargs = {
+            "runtime": "nvidia",
+            "device_requests": [DeviceRequest(count=-1, capabilities=[["gpu"]])],
+        }
+
     logging.info(f"Starting container for {hf_model_id}...")
     container = client.containers.run(
         "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311",
         ports={"8080": 8080},
         environment={
             "HF_MODEL_ID": hf_model_id,
+            # "HF_MODEL_DIR": "/opt/huggingface/model",
             "HF_TASK": hf_task,
             "AIP_MODE": "PREDICTION",
             "AIP_HTTP_PORT": "8080",
@@ -72,10 +83,15 @@ def test_transformers(
             "start_period": int(30 * 1e9),
         },
         platform="linux/amd64",
+        volumes=[
+            f"/Users/alvarobartt/HuggingFace/Google-Cloud-Containers/{hf_task}:/opt/huggingface/model"
+        ],
         detach=True,
         # To show all the `logging` messages from the container
         stdin_open=True,
         tty=True,
+        # Extra kwargs related to the CUDA devices
+        **cuda_kwargs,
     )
 
     logging.info(f"Container {container.id} started...")  # type: ignore
