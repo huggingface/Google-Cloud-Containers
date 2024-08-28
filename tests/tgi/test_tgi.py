@@ -19,7 +19,7 @@ MAX_RETRIES = 10
 
 @pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA is not available")
 @pytest.mark.parametrize("model_id", ["TinyLlama/TinyLlama-1.1B-Chat-v1.0"])
-def test_transformers(
+def test_text_generation_inference(
     caplog: pytest.LogCaptureFixture,
     model_id: str,
 ) -> None:
@@ -35,14 +35,11 @@ def test_transformers(
         ),
         ports={"8080": 8080},
         environment={
-            "NUM_SHARD": len(GPUtil.getGPUs()),
+            "MODEL_ID": model_id,
+            "NUM_SHARD": str(len(GPUtil.getGPUs())),
             "MAX_INPUT_TOKENS": "512",
             "MAX_TOTAL_TOKENS": "1024",
             "MAX_BATCH_PREFILL_TOKENS": "1512",
-            "AIP_MODE": "PREDICTION",
-            "AIP_HTTP_PORT": "8080",
-            "AIP_PREDICT_ROUTE": "/predict",
-            "AIP_HEALTH_ROUTE": "/health",
         },
         healthcheck={
             "test": ["CMD", "curl", "-s", "http://localhost:8080/health"],
@@ -89,34 +86,30 @@ def test_transformers(
     try:
         for prompt in ["What's Deep Learning?", "What's the capital of France?"]:
             logging.info(
-                f"Sending prediction request for {prompt=} to http://localhost:8080/predict..."
+                f"Sending prediction request for {prompt=} to http://localhost:8080/generate..."
             )
 
             start_time = time.perf_counter()
             response = requests.post(
-                "http://localhost:8080/predict",
+                "http://localhost:8080/generate",
                 json={
-                    "instances": [
-                        {
-                            "inputs": tokenizer.apply_chat_template(
-                                [{"role": "user", "content": prompt}],
-                                tokenize=False,
-                                add_generation_prompt=True,
-                            ),
-                            "parameters": {
-                                "max_new_tokens": 256,
-                                "do_sample": True,
-                                "top_p": 0.95,
-                                "temperature": 1.0,
-                            },
-                        },
-                    ]
+                    "inputs": tokenizer.apply_chat_template(
+                        [{"role": "user", "content": prompt}],
+                        tokenize=False,
+                        add_generation_prompt=True,
+                    ),
+                    "parameters": {
+                        "max_new_tokens": 256,
+                        "do_sample": True,
+                        "top_p": 0.95,
+                        "temperature": 1.0,
+                    },
                 },
             )
             end_time = time.perf_counter()
 
             assert response.status_code in [200, 201]
-            assert "predictions" in response.json()
+            assert "generated_text" in response.json()
 
             logging.info(
                 f"Prediction request for {prompt=} took {end_time - start_time:.2f}s"
