@@ -1,4 +1,4 @@
-name: Action to Run PyTorch DLCs Tests
+name: Action to Run Hugging Face DLCs Tests
 
 inputs:
   training-dlc:
@@ -7,6 +7,9 @@ inputs:
   inference-dlc:
     description: "The URI of the Hugging Face PyTorch DLC for Inference (CPU and GPU)."
     required: true
+  tgi-dlc:
+    description: "The URI of the Hugging Face TGI DLC (GPU only)."
+    required: false
 
 runs:
   using: "composite"
@@ -23,8 +26,9 @@ runs:
     - name: Install dependencies
       run: pip install -r tests/requirements.txt
 
-    - name: Run PyTorch DLC Tests
-      run: pytest -s tests/pytorch/
+    - name: Run Hugging Face DLCs Tests
+      run: pytest -s tests/
       env:
         TRAINING_DLC: ${{ inputs.training-dlc }}
         INFERENCE_DLC: ${{ inputs.inference-dlc }}
+        TGI_DLC: ${{ inputs.tgi_dlc }}
