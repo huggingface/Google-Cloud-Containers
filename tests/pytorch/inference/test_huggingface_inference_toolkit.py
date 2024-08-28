@@ -1,16 +1,23 @@
 import logging
 import os
+import threading
 import time
 
 import docker
 import pytest
 import requests
 
+from docker.models.containers import Container
 from docker.types.containers import DeviceRequest
 
 from tests.constants import CUDA_AVAILABLE
 
 MAX_RETRIES = 10
+
+
+def stream_logs(container: Container) -> None:
+    for line in container.logs(stream=True, follow=True):
+        logging.info(line)
 
 
 # Tests below are only on some combinations of models and tasks, since most of those
@@ -89,12 +96,14 @@ def test_transformers(
         },
         platform="linux/amd64",
         detach=True,
-        # To show all the `logging` messages from the container
-        stdin_open=True,
-        tty=True,
         # Extra kwargs related to the CUDA devices
         **cuda_kwargs,
     )
+
+    # Start log streaming in a separate thread
+    log_thread = threading.Thread(target=stream_logs, args=(container,))
+    log_thread.daemon = True
+    log_thread.start()
 
     logging.info(f"Container {container.id} started...")  # type: ignore
     container_healthy = False
@@ -108,7 +117,7 @@ def test_transformers(
             container_healthy = True
             break
         except requests.exceptions.ConnectionError:
-            time.sleep(10)
+            time.sleep(30)
 
     if not container_healthy:
         logging.error("Container is not healthy after several retries...")
@@ -129,10 +138,12 @@ def test_transformers(
         logging.info(f"Prediction request took {end_time - start_time:.2f}s")
     except Exception as e:
         logging.error(
-            f"Error while sending prediction request with exception: {e}; and container logs: {[log for log in container.logs()]}"  # type: ignore
+            f"Error while sending prediction request with exception: {e}"  # type: ignore
         )
         container_failed = True
     finally:
+        if log_thread.is_alive():
+            log_thread.join(timeout=5)
         logging.info(f"Stopping container {container.id}...")  # type: ignore
         container.stop()  # type: ignore
         container.remove()  # type: ignore
