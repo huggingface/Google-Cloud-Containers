@@ -7,17 +7,12 @@ import docker
 import pytest
 import requests
 
-from docker.models.containers import Container
 from docker.types.containers import DeviceRequest
 
 from tests.constants import CUDA_AVAILABLE
+from tests.utils import stream_logs
 
 MAX_RETRIES = 10
-
-
-def stream_logs(container: Container) -> None:
-    for line in container.logs(stream=True, follow=True):
-        logging.info(line)
 
 
 # Tests below are only on some combinations of models and tasks, since most of those
