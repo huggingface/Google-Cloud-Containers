@@ -1,5 +1,5 @@
 import logging
-from time import sleep
+import time
 
 import docker
 import pytest
@@ -21,6 +21,23 @@ MAX_RETRIES = 10
             {
                 "instances": ["I love this product", "I hate this product"],
                 "parameters": {"top_k": 2},
+            },
+        ),
+        (
+            "BAAI/bge-base-en-v1.5",
+            "sentence-embeddings",
+            {"instances": ["I love this product"]},
+        ),
+        (
+            "runwayml/stable-diffusion-v1-5",
+            "text-to-image",
+            {
+                "instances": ["A cat holding a sign that says hello world"],
+                "parameters": {
+                    "negative_prompt": "",
+                    "num_inference_steps": 2,
+                    "guidance_scale": 0.7,
+                },
             },
         ),
     ],
@@ -73,7 +90,7 @@ def test_transformers(
             container_healthy = True
             break
         except requests.exceptions.ConnectionError:
-            sleep(10)
+            time.sleep(10)
 
     if not container_healthy:
         logging.error("Container is not healthy after several retries...")
@@ -83,15 +100,19 @@ def test_transformers(
     container_failed = False
     try:
         logging.info("Sending prediction request to http://localhost:8080/predict...")
+        start_time = time.perf_counter()
         response = requests.post(
             "http://localhost:8080/predict",
             json=prediction_payload,
         )
+        end_time = time.perf_counter()
         assert response.status_code in [200, 201]
         assert "predictions" in response.json()
-        logging.info(f"Predictions: {response.json()['predictions']}")
+        logging.info(f"Prediction request took {end_time - start_time:.2f}s")
     except Exception as e:
-        logging.error(f"Error while sending prediction request: {e}")
+        logging.error(
+            f"Error while sending prediction request with exception: {e}; and container logs: {container.logs()}"
+        )
         container_failed = True
     finally:
         logging.info(f"Stopping container {container.id}...")  # type: ignore
