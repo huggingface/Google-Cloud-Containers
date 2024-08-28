@@ -18,29 +18,44 @@ MAX_RETRIES = 10
 
 
 @pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA is not available")
-@pytest.mark.parametrize("model_id", ["TinyLlama/TinyLlama-1.1B-Chat-v1.0"])
+@pytest.mark.parametrize(
+    "text_generation_launcher_kwargs",
+    [
+        {
+            "MODEL_ID": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+            "NUM_SHARD": str(len(GPUtil.getGPUs())),
+            "MAX_INPUT_TOKENS": "512",
+            "MAX_TOTAL_TOKENS": "1024",
+            "MAX_BATCH_PREFILL_TOKENS": "1512",
+        },
+        {
+            "MODEL_ID": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+            "NUM_SHARD": str(len(GPUtil.getGPUs())),
+            "MAX_INPUT_TOKENS": "512",
+            "MAX_TOTAL_TOKENS": "1024",
+            "MAX_BATCH_PREFILL_TOKENS": "1512",
+            "AIP_MODE": "PREDICTION",
+        },
+    ],
+)
 def test_text_generation_inference(
     caplog: pytest.LogCaptureFixture,
-    model_id: str,
+    text_generation_launcher_kwargs: dict,
 ) -> None:
     caplog.set_level(logging.INFO)
 
     client = docker.from_env()
 
-    logging.info(f"Starting container for {model_id}...")
+    logging.info(
+        f"Starting container for {text_generation_launcher_kwargs.get('MODEL_ID', None)}..."
+    )
     container = client.containers.run(
         os.getenv(
             "TGI_DLC",
             "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310",
         ),
         ports={"8080": 8080},
-        environment={
-            "MODEL_ID": model_id,
-            "NUM_SHARD": str(len(GPUtil.getGPUs())),
-            "MAX_INPUT_TOKENS": "512",
-            "MAX_TOTAL_TOKENS": "1024",
-            "MAX_BATCH_PREFILL_TOKENS": "1512",
-        },
+        environment=text_generation_launcher_kwargs,
         healthcheck={
             "test": ["CMD", "curl", "-s", "http://localhost:8080/health"],
             "interval": int(30 * 1e9),
@@ -61,13 +76,21 @@ def test_text_generation_inference(
     log_thread.daemon = True
     log_thread.start()
 
+    # Get endpoint names for both health and predict (may differ if AIP env vars are defined)
+    health_route = os.getenv("AIP_HEALTH_ROUTE", "/health")
+    predict_route = (
+        os.getenv("AIP_PREDICT_ROUTE", "/predict")
+        if os.getenv("AIP_MODE")
+        else "/generate"
+    )
+
     container_healthy = False
     for _ in range(MAX_RETRIES):
         try:
             logging.info(
-                f"Trying to connect to http://localhost:8080/health [retry {_ + 1}/{MAX_RETRIES}]..."
+                f"Trying to connect to http://localhost:8080{health_route} [retry {_ + 1}/{MAX_RETRIES}]..."
             )
-            response = requests.get("http://localhost:8080/health")
+            response = requests.get(f"http://localhost:8080{health_route}")
             assert response.status_code == 200
             container_healthy = True
             break
@@ -80,31 +103,37 @@ def test_text_generation_inference(
 
     assert container_healthy
 
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    tokenizer = AutoTokenizer.from_pretrained(
+        text_generation_launcher_kwargs["MODEL_ID"]
+    )
 
     container_failed = False
     try:
         for prompt in ["What's Deep Learning?", "What's the capital of France?"]:
             logging.info(
-                f"Sending prediction request for {prompt=} to http://localhost:8080/generate..."
+                f"Sending prediction request for {prompt=} to http://localhost:8080{predict_route}..."
             )
+            payload = {
+                "inputs": tokenizer.apply_chat_template(
+                    [{"role": "user", "content": prompt}],
+                    tokenize=False,
+                    add_generation_prompt=True,
+                ),
+                "parameters": {
+                    "max_new_tokens": 256,
+                    "do_sample": True,
+                    "top_p": 0.95,
+                    "temperature": 1.0,
+                },
+            }
+
+            if os.getenv("AIP_MODE"):
+                payload = {"instances": [payload]}
 
             start_time = time.perf_counter()
             response = requests.post(
-                "http://localhost:8080/generate",
-                json={
-                    "inputs": tokenizer.apply_chat_template(
-                        [{"role": "user", "content": prompt}],
-                        tokenize=False,
-                        add_generation_prompt=True,
-                    ),
-                    "parameters": {
-                        "max_new_tokens": 256,
-                        "do_sample": True,
-                        "top_p": 0.95,
-                        "temperature": 1.0,
-                    },
-                },
+                f"http://localhost:8080{predict_route}",
+                json=payload,
             )
             end_time = time.perf_counter()
 
