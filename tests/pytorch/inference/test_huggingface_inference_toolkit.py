@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 
 import docker
@@ -64,7 +65,12 @@ def test_transformers(
 
     logging.info(f"Starting container for {hf_model_id}...")
     container = client.containers.run(
-        "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311",
+        os.getenv(
+            "INFERENCE_DLC",
+            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311"
+            if not CUDA_AVAILABLE
+            else "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311",
+        ),
         ports={"8080": 8080},
         environment={
             "HF_MODEL_ID": hf_model_id,
@@ -106,7 +112,7 @@ def test_transformers(
 
     if not container_healthy:
         logging.error("Container is not healthy after several retries...")
-        container.stop()
+        container.stop()  # type: ignore
     assert container_healthy
 
     container_failed = False
@@ -123,7 +129,7 @@ def test_transformers(
         logging.info(f"Prediction request took {end_time - start_time:.2f}s")
     except Exception as e:
         logging.error(
-            f"Error while sending prediction request with exception: {e}; and container logs: {container.logs()}"
+            f"Error while sending prediction request with exception: {e}; and container logs: {[log for log in container.logs()]}"  # type: ignore
         )
         container_failed = True
     finally:
