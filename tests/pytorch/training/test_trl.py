@@ -1,13 +1,17 @@
 import os
+import pytest
 import subprocess
 
 from pathlib import PosixPath
 from transformers import AutoModelForCausalLM
 
+from tests.constants import CUDA_AVAILABLE
+
 
 MODEL_ID = "sshleifer/tiny-gpt2"
 
 
+@pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA is not available")
 def test_trl(tmp_path: PosixPath) -> None:
     """Adapted from https://github.com/huggingface/trl/blob/main/examples/scripts/sft.py"""
     # Set `TRL_USE_CLI` to `0` to avoid using `rich` in the CLI
@@ -42,6 +46,7 @@ def test_trl(tmp_path: PosixPath) -> None:
     )
 
 
+@pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA is not available")
 def test_trl_peft(tmp_path: PosixPath) -> None:
     """Adapted from https://github.com/huggingface/trl/blob/main/examples/scripts/sft.py"""
     # Set `TRL_USE_CLI` to `0` to avoid using `rich` in the CLI
