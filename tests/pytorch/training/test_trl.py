@@ -7,7 +7,7 @@ from docker.types.containers import DeviceRequest
 from pathlib import PosixPath
 from transformers import AutoModelForCausalLM
 
-from tests.constants import CUDA_AVAILABLE
+from ...constants import CUDA_AVAILABLE
 
 
 MODEL_ID = "sshleifer/tiny-gpt2"

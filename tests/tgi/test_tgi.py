@@ -11,8 +11,8 @@ import requests
 from docker.types.containers import DeviceRequest
 from transformers import AutoTokenizer
 
-from tests.constants import CUDA_AVAILABLE
-from tests.utils import stream_logs
+from ..constants import CUDA_AVAILABLE
+from ..utils import stream_logs
 
 MAX_RETRIES = 10
 
