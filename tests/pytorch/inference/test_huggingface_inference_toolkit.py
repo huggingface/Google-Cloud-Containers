@@ -68,7 +68,6 @@ def test_transformers(
         ports={"8080": 8080},
         environment={
             "HF_MODEL_ID": hf_model_id,
-            # "HF_MODEL_DIR": "/opt/huggingface/model",
             "HF_TASK": hf_task,
             "AIP_MODE": "PREDICTION",
             "AIP_HTTP_PORT": "8080",
@@ -83,9 +82,6 @@ def test_transformers(
             "start_period": int(30 * 1e9),
         },
         platform="linux/amd64",
-        volumes=[
-            f"/Users/alvarobartt/HuggingFace/Google-Cloud-Containers/{hf_task}:/opt/huggingface/model"
-        ],
         detach=True,
         # To show all the `logging` messages from the container
         stdin_open=True,
