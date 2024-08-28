@@ -1,7 +1,9 @@
+import logging
 import os
 import pytest
-import subprocess
 
+import docker
+from docker.types.containers import DeviceRequest
 from pathlib import PosixPath
 from transformers import AutoModelForCausalLM
 
@@ -12,14 +14,19 @@ MODEL_ID = "sshleifer/tiny-gpt2"
 
 
 @pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA is not available")
-def test_trl(tmp_path: PosixPath) -> None:
+def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     """Adapted from https://github.com/huggingface/trl/blob/main/examples/scripts/sft.py"""
-    # Set `TRL_USE_CLI` to `0` to avoid using `rich` in the CLI
-    test_env = os.environ.copy()
-    test_env["TRL_USE_RICH"] = "0"
+    caplog.set_level(logging.INFO)
 
-    subprocess.run(
-        [
+    client = docker.from_env()
+
+    logging.info("Running the container for TRL...")
+    container = client.containers.run(
+        os.getenv(
+            "TRAINING_DLC",
+            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311",
+        ),
+        cmd=[
             "trl",
             "sft",
             f"--model_name_or_path={MODEL_ID}",
@@ -28,14 +35,32 @@ def test_trl(tmp_path: PosixPath) -> None:
             "--learning_rate=1e-5",
             "--per_device_train_batch_size=8",
             "--gradient_accumulation_steps=1",
-            f"--output_dir={str(tmp_path / 'sft_openassistant-guanaco')}",
+            "--output_dir=/opt/huggingface/trained_model",
             "--logging_steps=1",
             "--num_train_epochs=-1",
             "--max_steps=10",
             "--gradient_checkpointing",
         ],
-        env=test_env,
-        check=True,
+        environment={
+            "TRL_USE_RICH": 0,
+            "ACCELERATE_LOG_LEVEL": "INFO",
+            "TRANSFORMERS_LOG_LEVEL": "INFO",
+            "TQDM_POSITION": -1,
+        },
+        platform="linux/amd64",
+        # To show all the `logging` messages from the container
+        stdin_open=True,
+        tty=True,
+        # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
+        volumes={
+            f"{tmp_path}/sft_openassistant-guanaco": {
+                "bind": "/opt/huggingface/trained_model",
+                "mode": "rw",
+            }
+        },
+        # Extra kwargs related to the CUDA devices
+        runtime="nvidia",
+        device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])],
     )
 
     assert (tmp_path / "sft_openassistant-guanaco").exists()
@@ -47,14 +72,19 @@ def test_trl(tmp_path: PosixPath) -> None:
 
 
 @pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA is not available")
-def test_trl_peft(tmp_path: PosixPath) -> None:
+def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     """Adapted from https://github.com/huggingface/trl/blob/main/examples/scripts/sft.py"""
-    # Set `TRL_USE_CLI` to `0` to avoid using `rich` in the CLI
-    test_env = os.environ.copy()
-    test_env["TRL_USE_RICH"] = "0"
+    caplog.set_level(logging.INFO)
 
-    subprocess.run(
-        [
+    client = docker.from_env()
+
+    logging.info("Running the container for TRL...")
+    container = client.containers.run(
+        os.getenv(
+            "TRAINING_DLC",
+            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311",
+        ),
+        cmd=[
             "trl",
             "sft",
             f"--model_name_or_path={MODEL_ID}",
@@ -63,7 +93,7 @@ def test_trl_peft(tmp_path: PosixPath) -> None:
             "--learning_rate=1e-5",
             "--per_device_train_batch_size=8",
             "--gradient_accumulation_steps=1",
-            f"--output_dir={str(tmp_path / 'sft_openassistant-guanaco')}",
+            "--output_dir=/opt/huggingface/trained_model",
             "--logging_steps=1",
             "--num_train_epochs=-1",
             "--max_steps=10",
@@ -72,8 +102,26 @@ def test_trl_peft(tmp_path: PosixPath) -> None:
             "--lora_r=64",
             "--lora_alpha=16",
         ],
-        env=test_env,
-        check=True,
+        environment={
+            "TRL_USE_RICH": 0,
+            "ACCELERATE_LOG_LEVEL": "INFO",
+            "TRANSFORMERS_LOG_LEVEL": "INFO",
+            "TQDM_POSITION": -1,
+        },
+        platform="linux/amd64",
+        # To show all the `logging` messages from the container
+        stdin_open=True,
+        tty=True,
+        # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
+        volumes={
+            f"{tmp_path}/sft_openassistant-guanaco": {
+                "bind": "/opt/huggingface/trained_model",
+                "mode": "rw",
+            }
+        },
+        # Extra kwargs related to the CUDA devices
+        runtime="nvidia",
+        device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])],
     )
 
     assert (tmp_path / "sft_openassistant-guanaco").exists()
