@@ -6,8 +6,8 @@ Gemma is a family of lightweight, state-of-the-art open models built from the sa
 
 First, you need to install both `gcloud` and `kubectl` in your local machine, which are the command-line tools for Google Cloud and Kubernetes, respectively, to interact with the GCP and the GKE Cluster.
 
-* To install `gcloud`, follow the instructions at [Cloud SDK Documentation - Install the gcloud CLI](https://cloud.google.com/sdk/docs/install).
-* To install `kubectl`, follow the instructions at [Kubernetes Documentation - Install Tools](https://kubernetes.io/docs/tasks/tools/#kubectl).
+- To install `gcloud`, follow the instructions at [Cloud SDK Documentation - Install the gcloud CLI](https://cloud.google.com/sdk/docs/install).
+- To install `kubectl`, follow the instructions at [Kubernetes Documentation - Install Tools](https://kubernetes.io/docs/tasks/tools/#kubectl).
 
 Optionally, to ease the usage of the commands within this tutorial, you need to set the following environment variables for GCP:
 
@@ -21,6 +21,7 @@ Then you need to login into your GCP account and set the project ID to the one y
 
 ```bash
 gcloud auth login
+gcloud auth application-default login  # For local development
 gcloud config set project $PROJECT_ID
 ```
 
