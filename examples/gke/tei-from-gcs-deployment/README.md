@@ -6,8 +6,8 @@ BGE, standing for BAAI General Embedding, is a collection of embedding models re
 
 First, you need to install both `gcloud` and `kubectl` in your local machine, which are the command-line tools for Google Cloud and Kubernetes, respectively, to interact with the GCP and the GKE Cluster.
 
-* To install `gcloud`, follow the instructions at [Cloud SDK Documentation - Install the gcloud CLI](https://cloud.google.com/sdk/docs/install).
-* To install `kubectl`, follow the instructions at [Kubernetes Documentation - Install Tools](https://kubernetes.io/docs/tasks/tools/#kubectl).
+- To install `gcloud`, follow the instructions at [Cloud SDK Documentation - Install the gcloud CLI](https://cloud.google.com/sdk/docs/install).
+- To install `kubectl`, follow the instructions at [Kubernetes Documentation - Install Tools](https://kubernetes.io/docs/tasks/tools/#kubectl).
 
 Optionally, to ease the usage of the commands within this tutorial, you need to set the following environment variables for GCP:
 
@@ -42,7 +42,7 @@ gcloud components install gke-gcloud-auth-plugin
 
 > [!NOTE]
 > Installing the `gke-gcloud-auth-plugin` does not need to be installed via `gcloud` specifically, to read more about the alternative installation methods, please visit <https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin>.
->
+
 ## Create GKE Cluster
 
 Once everything is set up, you can proceed with the creation of the GKE Cluster and the node pool, which in this case will be a single CPU node as for most of the workloads CPU inference is enough to serve most of the text embeddings models, while it could benefit a lot from GPU serving.
@@ -144,10 +144,10 @@ Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TEI
 
 The Hugging Face DLC for TEI will be deployed via `kubectl`, from the configuration files in either the `cpu-config/` or the `gpu-config/` directories depending on whether you want to use the CPU or GPU accelerators, respectively:
 
-* `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TEI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/bge-base-en-v1.5`.
-* `service.yaml`: contains the service details of the pod, exposing the port 80 for the TEI service.
-* `storageclass.yaml`: contains the storage class details of the pod, defining the storage class for the volume mount.
-* (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+- `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TEI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/bge-base-en-v1.5`.
+- `service.yaml`: contains the service details of the pod, exposing the port 80 for the TEI service.
+- `storageclass.yaml`: contains the storage class details of the pod, defining the storage class for the volume mount.
+- (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
 kubectl apply -f cpu-config/
@@ -175,25 +175,25 @@ kubectl apply -f cpu-config/
 
 To run the inference over the deployed TEI service, you can either:
 
-* Port-forwarding the deployed TEI service to the port 8080, so as to access via `localhost` with the command:
+- Port-forwarding the deployed TEI service to the port 8080, so as to access via `localhost` with the command:
 
-    ```bash
-    kubectl port-forward --namespace $NAMESPACE service/tei-service 8080:8080
-    ```
+  ```bash
+  kubectl port-forward --namespace $NAMESPACE service/tei-service 8080:8080
+  ```
 
-* Accessing the TEI service via the external IP of the ingress, which is the default scenario here since you have defined the ingress configuration in either the `cpu-configs/ingress.yaml` or the `gpu-config/ingress.yaml` file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
+- Accessing the TEI service via the external IP of the ingress, which is the default scenario here since you have defined the ingress configuration in either the `cpu-configs/ingress.yaml` or the `gpu-config/ingress.yaml` file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
 
-    ```bash
-    kubectl get ingress --namespace $NAMESPACE tei-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
-    ```
+  ```bash
+  kubectl get ingress --namespace $NAMESPACE tei-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+  ```
 
 > [!NOTE]
 > TEI exposes different inference endpoints based on the task that the model is serving:
 >
-> * **Text Embeddings**: text embedding models expose the endpoint `/embed` expecting a payload with the key `inputs` which is either a string or a list of strings to be embedded.
-> * **Re-rank**: re-ranker models expose the endpoint `/rerank` expecting a payload with the keys `query` and `texts`, where the `query` is the reference used to rank the similarity against each text in `texts`.
-> * **Sequence Classification**: classic sequence classification models expose the endpoint `/predict` which expects a payload with the key `inputs` which is either a string or a list of strings to classify.
-> More information at <https://huggingface.co/docs/text-embeddings-inference/quick_tour>.
+> - **Text Embeddings**: text embedding models expose the endpoint `/embed` expecting a payload with the key `inputs` which is either a string or a list of strings to be embedded.
+> - **Re-rank**: re-ranker models expose the endpoint `/rerank` expecting a payload with the keys `query` and `texts`, where the `query` is the reference used to rank the similarity against each text in `texts`.
+> - **Sequence Classification**: classic sequence classification models expose the endpoint `/predict` which expects a payload with the key `inputs` which is either a string or a list of strings to classify.
+>   More information at <https://huggingface.co/docs/text-embeddings-inference/quick_tour>.
 
 ### Via cURL
 

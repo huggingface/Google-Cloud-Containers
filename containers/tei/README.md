@@ -24,29 +24,29 @@ To run this DLC, you need to first define the model to deploy i.e. any model fro
 
 Besides selecting which model to deploy, to take into consideration that TEI supports the following models:
 
-* **Text Embeddings**: these are models are pre-trained models that convert text into numerical vectors, which can be used for a variety of downstream tasks.
+- **Text Embeddings**: these are models are pre-trained models that convert text into numerical vectors, which can be used for a variety of downstream tasks.
 
-* **Re-Rankers**: these models are sequence classification cross-encoders models with a single class that scores the similarity between a query and a text.
+- **Re-Rankers**: these models are sequence classification cross-encoders models with a single class that scores the similarity between a query and a text.
 
-* **Sequence Classification**: these models are classic sequence classification models as e.g. BERT, RoBERTa, etc.
+- **Sequence Classification**: these models are classic sequence classification models as e.g. BERT, RoBERTa, etc.
 
 Then eady to run the container depending on the accelerator to use as follows:
 
-* **CPU**: To run  the image on a CPU instance, you need to provide the `MODEL_ID` environment variable and expose the port 8080.
+- **CPU**: To run the image on a CPU instance, you need to provide the `MODEL_ID` environment variable and expose the port 8080.
 
-    ```bash
-    docker run -ti -p 8080:8080 \
-        -e MODEL_ID=BAAI/bge-large-en-v1.5 \
-        us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1.4.0
-    ```
+  ```bash
+  docker run -ti -p 8080:8080 \
+      -e MODEL_ID=BAAI/bge-large-en-v1.5 \
+      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1.4.0
+  ```
 
-* **GPU**: To run the image on a GPU instance, you need to also add `--gpus all` so that the container can access the GPUs, and then provide the `MODEL_ID` environment variable and expose the port 8080.
+- **GPU**: To run the image on a GPU instance, you need to also add `--gpus all` so that the container can access the GPUs, and then provide the `MODEL_ID` environment variable and expose the port 8080.
 
-    ```bash
-    docker run -ti --gpus all -p 8080:8080 \
-        -e MODEL_ID=BAAI/bge-large-en-v1.5 \
-        us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-gpu.1.4.0
-    ```
+  ```bash
+  docker run -ti --gpus all -p 8080:8080 \
+      -e MODEL_ID=BAAI/bge-large-en-v1.5 \
+      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-gpu.1.4.0
+  ```
 
 ### Test
 
@@ -57,32 +57,32 @@ Once the Docker container is running, as it has been deployed with `text-embeddi
 
 Depending on the model that has been deployed the inference endpoints will be:
 
-* `/embed`: generates the embeddings for the input text.
+- `/embed`: generates the embeddings for the input text.
 
-    ```bash
-    curl 0.0.0.0:8080/embed \
-        -X POST \
-        -d '{"inputs":"Deep Learning is a"}' \
-        -H 'Content-Type: application/json'
-    ```
+  ```bash
+  curl 0.0.0.0:8080/embed \
+      -X POST \
+      -d '{"inputs":"Deep Learning is a"}' \
+      -H 'Content-Type: application/json'
+  ```
 
-* `/rerank`: ranks the similarity between a query and a list of texts.
+- `/rerank`: ranks the similarity between a query and a list of texts.
 
-    ```bash
-    curl 0.0.0.0:8080/rerank \
-        -X POST \
-        -d '{"query":"Deep Learning is a","texts":["Machine Learning is a","Deep Learning is a","Deep Learning is a subset of Machine Learning"]}' \
-        -H 'Content-Type: application/json'
-    ```
+  ```bash
+  curl 0.0.0.0:8080/rerank \
+      -X POST \
+      -d '{"query":"Deep Learning is a","texts":["Machine Learning is a","Deep Learning is a","Deep Learning is a subset of Machine Learning"]}' \
+      -H 'Content-Type: application/json'
+  ```
 
-* `/predict`: predicts the class of the input text.
+- `/predict`: predicts the class of the input text.
 
-    ```bash
-    curl 0.0.0.0:8080/predict \
-        -X POST \
-        -d '{"inputs":"Deep Learning is a subset of Machine Learning"}' \
-        -H 'Content-Type: application/json'
-    ```
+  ```bash
+  curl 0.0.0.0:8080/predict \
+      -X POST \
+      -d '{"inputs":"Deep Learning is a subset of Machine Learning"}' \
+      -H 'Content-Type: application/json'
+  ```
 
 > [!NOTE]
 > Additionally, note that both `/embed` for text embeddings models and `/predict` for sequence classification models support batching so that instead of a single instance with `inputs` being a string, a `List[str]` can be provided instead.
@@ -96,14 +96,14 @@ Depending on the model that has been deployed the inference endpoints will be:
 
 Since TEI comes with two different containers depending on the accelerator used for the inference, being either CPU or GPU, those have different constraints when building the Docker image as described below:
 
-* **CPU**: To build TEI for CPU, you will need an instance with enough CPU RAM, but most instances should be able to successfully build the CPU image since it's not too memory-intensive.
+- **CPU**: To build TEI for CPU, you will need an instance with enough CPU RAM, but most instances should be able to successfully build the CPU image since it's not too memory-intensive.
 
-    ```bash
-    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1.4.0 -f containers/tei/cpu/1.4.0/Dockerfile .
-    ```
+  ```bash
+  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1.4.0 -f containers/tei/cpu/1.4.0/Dockerfile .
+  ```
 
-* **GPU**: To build TEI for GPU, you will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TEI, similarly to TGI, needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~15 minutes to complete, depending on the instance's specifications.
+- **GPU**: To build TEI for GPU, you will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TEI, similarly to TGI, needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~15 minutes to complete, depending on the instance's specifications.
 
-    ```bash
-    docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-gpu.1.4.0 -f containers/tei/gpu/1.4.0/Dockerfile .
-    ```
+  ```bash
+  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-gpu.1.4.0 -f containers/tei/gpu/1.4.0/Dockerfile .
+  ```

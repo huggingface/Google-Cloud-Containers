@@ -6,8 +6,8 @@ Meta Llama 3 is the latest LLM from the Llama family, released by Meta; coming i
 
 First, you need to install both `gcloud` and `kubectl` in your local machine, which are the command-line tools for Google Cloud and Kubernetes, respectively, to interact with the GCP and the GKE Cluster.
 
-* To install `gcloud`, follow the instructions at [Cloud SDK Documentation - Install the gcloud CLI](https://cloud.google.com/sdk/docs/install).
-* To install `kubectl`, follow the instructions at [Kubernetes Documentation - Install Tools](https://kubernetes.io/docs/tasks/tools/#kubectl).
+- To install `gcloud`, follow the instructions at [Cloud SDK Documentation - Install the gcloud CLI](https://cloud.google.com/sdk/docs/install).
+- To install `kubectl`, follow the instructions at [Kubernetes Documentation - Install Tools](https://kubernetes.io/docs/tasks/tools/#kubectl).
 
 Optionally, to ease the usage of the commands within this tutorial, you need to set the following environment variables for GCP:
 
@@ -125,10 +125,10 @@ Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TGI
 
 The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the `config/` directory:
 
-* `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to [`meta-llama/Meta-Llama-3.1-8B-Instruct`](https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct).
+- `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to [`meta-llama/Meta-Llama-3.1-8B-Instruct`](https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct).
 
-* `service.yaml`: contains the service details of the pod, exposing the port 80 for the TGI service.
-* (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+- `service.yaml`: contains the service details of the pod, exposing the port 80 for the TGI service.
+- (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
 kubectl apply -f config/
@@ -153,17 +153,17 @@ kubectl apply -f config/
 
 To run the inference over the deployed TGI service, you can either:
 
-* Port-forwarding the deployed TGI service to the port 8080, so as to access via `localhost` with the command:
+- Port-forwarding the deployed TGI service to the port 8080, so as to access via `localhost` with the command:
 
-    ```bash
-    kubectl port-forward service/tgi-service 8080:8080
-    ```
+  ```bash
+  kubectl port-forward service/tgi-service 8080:8080
+  ```
 
-* Accessing the TGI service via the external IP of the ingress, which is the default scenario here since you have defined the ingress configuration in the `config/ingress.yaml` file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
+- Accessing the TGI service via the external IP of the ingress, which is the default scenario here since you have defined the ingress configuration in the `config/ingress.yaml` file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
 
-    ```bash
-    kubectl get ingress tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
-    ```
+  ```bash
+  kubectl get ingress tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+  ```
 
 ### Via cURL
 
