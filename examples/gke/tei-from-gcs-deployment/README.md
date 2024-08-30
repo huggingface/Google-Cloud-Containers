@@ -22,6 +22,7 @@ Then you need to login into your GCP account and set the project ID to the one y
 
 ```bash
 gcloud auth login
+gcloud auth application-default login  # For local development
 gcloud config set project $PROJECT_ID
 ```
 
