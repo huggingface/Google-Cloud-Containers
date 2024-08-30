@@ -35,7 +35,7 @@ MAX_RETRIES = 10
             {"instances": ["I love this product"]},
         ),
         (
-            "runwayml/stable-diffusion-v1-5",
+            "lambdalabs/miniSD-diffusers",
             "text-to-image",
             {
                 "instances": ["A cat holding a sign that says hello world"],
