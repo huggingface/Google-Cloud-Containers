@@ -1,0 +1,41 @@
+name: Action to Run Hugging Face DLCs Tests
+
+on:
+  workflow_call:
+    inputs:
+      group:
+        description: "The GitHub Runners Group to run on."
+        required: true
+      training-dlc:
+        description: "The URI of the Hugging Face PyTorch DLC for Training (GPU only)."
+        required: false
+      inference-dlc:
+        description: "The URI of the Hugging Face PyTorch DLC for Inference (CPU and GPU)."
+        required: true
+      tgi-dlc:
+        description: "The URI of the Hugging Face TGI DLC (GPU only)."
+        required: false
+
+jobs:
+  run-tests:
+    runs-on:
+      group: ${{ inputs.group }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      - name: Install dependencies
+        run: pip install -r tests/requirements.txt
+
+      - name: Run Hugging Face DLCs Tests
+        run: pytest -s tests/
+        env:
+          TRAINING_DLC: ${{ inputs.training-dlc }}
+          INFERENCE_DLC: ${{ inputs.inference-dlc }}
+          TGI_DLC: ${{ inputs.tgi_dlc }}

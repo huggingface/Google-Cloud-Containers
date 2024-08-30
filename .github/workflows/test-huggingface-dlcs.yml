@@ -14,23 +14,17 @@ concurrency:
 
 jobs:
   dlcs-on-cpu:
-    runs-on:
+    name: Run Hugging Face DLCs Tests on CPU
+    uses: ./.github/workflows/run-tests-action.yaml
+    with:
       group: aws-general-8-plus
-
-    steps:
-      - name: Run Hugging Face DLCs Tests on CPU
-        uses: ./.github/actions/run-huggingface-dlcs-tests
-        with:
-          inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311
+      inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311
 
   dlcs-on-gpu:
-    runs-on:
+    name: Run Hugging Face DLCs Tests on GPU
+    uses: ./.github/workflows/run-tests-action.yaml
+    with:
       group: aws-g4dn-2xlarge
-
-    steps:
-      - name: Run Hugging Face DLCs Tests on GPU
-        uses: ./.github/actions/run-huggingface-dlcs-tests
-        with:
-          training-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.transformers.4-42.ubuntu2204.py310
-          inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311
-          tgi-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310
+      training-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.transformers.4-42.ubuntu2204.py310
+      inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311
+      tgi-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310
