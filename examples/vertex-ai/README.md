@@ -21,6 +21,7 @@ For Google Vertex AI, we differentiate between the executable Jupyter Notebook e
 | [deploy-embedding-on-vertex-ai](./notebooks/deploy-embedding-on-vertex-ai)           | Deploying an embedding model with Text Embeddings Inference (TEI) on Vertex AI.                                                                 |
 | [deploy-gemma-on-vertex-ai](./notebooks/deploy-gemma-on-vertex-ai)                   | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) on Vertex AI.                                                                  |
 | [deploy-gemma-from-gcs-on-vertex-ai](./notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI.                                                |
+| [deploy-flux-on-vertex-ai](./notebooks/deploy-flux-on-vertex-ai)                     | Deploying FLUX with Hugging Face PyTorch DLCs for Inference on Vertex AI.                                                                       |
 
 ## Pipelines
 
