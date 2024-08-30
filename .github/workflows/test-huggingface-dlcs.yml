@@ -14,7 +14,8 @@ concurrency:
 
 jobs:
   dlcs-on-cpu:
-    runs-on: cpu
+    runs-on:
+      group: aws-general-8-plus
 
     steps:
       - name: Run Hugging Face DLCs Tests on CPU
@@ -23,7 +24,8 @@ jobs:
           inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311
 
   dlcs-on-gpu:
-    runs-on: single-gpu
+    runs-on:
+      group: aws-g4dn-2xlarge
 
     steps:
       - name: Run Hugging Face DLCs Tests on GPU
