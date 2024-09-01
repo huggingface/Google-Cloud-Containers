@@ -52,7 +52,10 @@ def test_text_embeddings_inference(
             if not CUDA_AVAILABLE
             else "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-4.ubuntu2204",
         ),
-        ports={"8080": 8080},
+        # TODO: udpate once the TEI DLCs is updated, as the current is still on revision:
+        # https://github.com/huggingface/Google-Cloud-Containers/blob/517b8728725f6249774dcd46ee8d7ede8d95bb70/containers/tei/cpu/1.2.2/Dockerfile
+        # and it exposes the 80 port and uses the /data directory instead of /tmp
+        ports={8080 if CUDA_AVAILABLE else 80: 8080},
         environment=text_embeddings_router_kwargs,
         healthcheck={
             "test": ["CMD", "curl", "-s", "http://localhost:8080/health"],
