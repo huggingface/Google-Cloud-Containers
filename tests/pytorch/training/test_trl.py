@@ -1,6 +1,7 @@
 import logging
 import os
 import pytest
+import threading
 
 import docker
 from docker.types.containers import DeviceRequest
@@ -8,6 +9,7 @@ from pathlib import PosixPath
 from transformers import AutoModelForCausalLM
 
 from ...constants import CUDA_AVAILABLE
+from ...utils import stream_logs
 
 
 MODEL_ID = "sshleifer/tiny-gpt2"
@@ -23,7 +25,7 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     os.makedirs(tmp_path / "sft_openassistant-guanaco", exist_ok=True)
 
     logging.info("Running the container for TRL...")
-    container_logs = client.containers.run(
+    container = client.containers.run(
         os.getenv(
             "TRAINING_DLC",
             "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310",
@@ -50,8 +52,7 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
             "TQDM_POSITION": "-1",
         },
         platform="linux/amd64",
-        # To show all the `logging` messages from the container
-        stream=True,
+        detach=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
         volumes={  # type: ignore
             f"{tmp_path}/sft_openassistant-guanaco": {
@@ -64,11 +65,21 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
         device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])],
     )
 
-    # Print the logs from the container after it's done
-    for container_log in container_logs:  # type: ignore
-        logging.info(container_log.decode("utf-8", errors="ignore").strip())
+    # Start log streaming in a separate thread
+    log_thread = threading.Thread(target=stream_logs, args=(container,))
+    log_thread.daemon = True
+    log_thread.start()
+
+    # Wait for the container to finish
+    container.wait()  # type: ignore
+
+    # Remove the container
+    container.remove()  # type: ignore
 
     assert (tmp_path / "sft_openassistant-guanaco").exists()
+    logging.info(
+        f"Files in {tmp_path / 'sft_openassistant-guanaco'}: {os.listdir((tmp_path / 'sft_openassistant-guanaco').as_posix())}"
+    )
     assert (tmp_path / "sft_openassistant-guanaco" / "model.safetensors").exists()
 
     _ = AutoModelForCausalLM.from_pretrained(
@@ -86,7 +97,7 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
     os.makedirs(tmp_path / "sft_openassistant-guanaco", exist_ok=True)
 
     logging.info("Running the container for TRL...")
-    container_logs = client.containers.run(
+    container = client.containers.run(
         os.getenv(
             "TRAINING_DLC",
             "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310",
@@ -116,8 +127,7 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
             "TQDM_POSITION": "-1",
         },
         platform="linux/amd64",
-        # To show all the `logging` messages from the container
-        stream=True,
+        detach=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
         volumes={  # type: ignore
             f"{tmp_path}/sft_openassistant-guanaco": {
@@ -130,9 +140,16 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
         device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])],
     )
 
-    # Print the logs from the container after it's done
-    for container_log in container_logs:  # type: ignore
-        logging.info(container_log.decode("utf-8", errors="ignore").strip())
+    # Start log streaming in a separate thread
+    log_thread = threading.Thread(target=stream_logs, args=(container,))
+    log_thread.daemon = True
+    log_thread.start()
+
+    # Wait for the container to finish
+    container.wait()  # type: ignore
+
+    # Remove the container
+    container.remove()  # type: ignore
 
     assert (tmp_path / "sft_openassistant-guanaco").exists()
     assert (tmp_path / "sft_openassistant-guanaco" / "adapter_config.json").exists()
