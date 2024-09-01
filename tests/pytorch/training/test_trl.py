@@ -20,6 +20,8 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
 
     client = docker.from_env()
 
+    os.makedirs(tmp_path / "sft_openassistant-guanaco", exist_ok=True)
+
     logging.info("Running the container for TRL...")
     container_logs = client.containers.run(
         os.getenv(
@@ -80,6 +82,8 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
     caplog.set_level(logging.INFO)
 
     client = docker.from_env()
+
+    os.makedirs(tmp_path / "sft_openassistant-guanaco", exist_ok=True)
 
     logging.info("Running the container for TRL...")
     container_logs = client.containers.run(
