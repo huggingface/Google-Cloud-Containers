@@ -4,7 +4,6 @@ import threading
 import time
 
 import docker
-import GPUtil
 import pytest
 import requests
 
@@ -23,14 +22,12 @@ MAX_RETRIES = 10
     [
         {
             "MODEL_ID": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-            "NUM_SHARD": str(len(GPUtil.getGPUs())),
             "MAX_INPUT_TOKENS": "512",
             "MAX_TOTAL_TOKENS": "1024",
             "MAX_BATCH_PREFILL_TOKENS": "1512",
         },
         {
             "MODEL_ID": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-            "NUM_SHARD": str(len(GPUtil.getGPUs())),
             "MAX_INPUT_TOKENS": "512",
             "MAX_TOTAL_TOKENS": "1024",
             "MAX_BATCH_PREFILL_TOKENS": "1512",
