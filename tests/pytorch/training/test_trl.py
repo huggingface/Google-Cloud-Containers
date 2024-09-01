@@ -26,6 +26,9 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     tmp_path.mkdir(exist_ok=True)
     tmp_path.chmod(0o775)
 
+    # Create an empty file named `model.safetensors`
+    tmp_path.joinpath("model.safetensors").touch()
+
     logging.info("Running the container for TRL...")
     container = client.containers.run(
         os.getenv(
@@ -57,7 +60,7 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
         detach=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
         volumes={
-            tmp_path: {
+            f"{tmp_path}/": {
                 "bind": "/opt/huggingface/trained_model",
                 "mode": "rw",
             }
@@ -95,6 +98,10 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
     tmp_path.mkdir(exist_ok=True)
     tmp_path.chmod(0o775)
 
+    # Create empty files named `adapter_config.json` and `adapter_model.safetensors`
+    tmp_path.joinpath("adapter_config.json").touch()
+    tmp_path.joinpath("adapter_model.safetensors").touch()
+
     logging.info("Running the container for TRL...")
     container = client.containers.run(
         os.getenv(
@@ -129,7 +136,7 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
         detach=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
         volumes={
-            tmp_path: {
+            f"{tmp_path}/": {
                 "bind": "/opt/huggingface/trained_model",
                 "mode": "rw",
             }
