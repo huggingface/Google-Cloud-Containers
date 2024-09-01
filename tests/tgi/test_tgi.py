@@ -53,14 +53,14 @@ def test_text_generation_inference(
         ),
         ports={8080: 8080},
         environment=text_generation_launcher_kwargs,
-        healthcheck={
-            "test": ["CMD", "curl", "-s", "http://localhost:8080/health"],
-            "interval": int(30 * 1e9),
-            "timeout": int(30 * 1e9),
-            "retries": 3,
-            "start_period": int(30 * 1e9),
-        },
-        platform="linux/amd64",
+        # healthcheck={
+        #     "test": ["CMD", "curl", "-s", "http://localhost:8080/health"],
+        #     "interval": int(30 * 1e9),
+        #     "timeout": int(30 * 1e9),
+        #     "retries": 3,
+        #     "start_period": int(30 * 1e9),
+        # },
+        # platform="linux/amd64",
         detach=True,
         # Extra kwargs related to the CUDA devices
         runtime="nvidia",
