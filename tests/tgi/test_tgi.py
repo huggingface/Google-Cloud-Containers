@@ -54,10 +54,10 @@ def test_text_generation_inference(
             "TGI_DLC",
             "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310",
         ),
-        ports={"8080": 8080},
+        ports={8080: 8080},
         environment=text_generation_launcher_kwargs,
         healthcheck={
-            "test": ["/bin/bash", "curl", "-s", "http://localhost:8080/health"],
+            "test": ["CMD", "curl", "-s", "http://localhost:8080/health"],
             "interval": int(30 * 1e9),
             "timeout": int(30 * 1e9),
             "retries": 3,
