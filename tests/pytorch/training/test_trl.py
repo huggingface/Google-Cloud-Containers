@@ -22,8 +22,6 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
 
     client = docker.from_env()
 
-    os.makedirs(tmp_path / "sft_openassistant-guanaco", exist_ok=True)
-
     logging.info("Running the container for TRL...")
     container = client.containers.run(
         os.getenv(
@@ -54,8 +52,8 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
         platform="linux/amd64",
         detach=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
-        volumes={  # type: ignore
-            f"{tmp_path}/sft_openassistant-guanaco": {
+        volumes={
+            tmp_path: {
                 "bind": "/opt/huggingface/trained_model",
                 "mode": "rw",
             }
@@ -76,15 +74,10 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     # Remove the container
     container.remove()  # type: ignore
 
-    assert (tmp_path / "sft_openassistant-guanaco").exists()
-    logging.info(
-        f"Files in {tmp_path / 'sft_openassistant-guanaco'}: {os.listdir((tmp_path / 'sft_openassistant-guanaco').as_posix())}"
-    )
-    assert (tmp_path / "sft_openassistant-guanaco" / "model.safetensors").exists()
+    assert tmp_path.exists()
+    assert (tmp_path / "model.safetensors").exists()
 
-    _ = AutoModelForCausalLM.from_pretrained(
-        (tmp_path / "sft_openassistant-guanaco").as_posix()
-    )
+    _ = AutoModelForCausalLM.from_pretrained(tmp_path)
 
 
 @pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA is not available")
@@ -93,8 +86,6 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
     caplog.set_level(logging.INFO)
 
     client = docker.from_env()
-
-    os.makedirs(tmp_path / "sft_openassistant-guanaco", exist_ok=True)
 
     logging.info("Running the container for TRL...")
     container = client.containers.run(
@@ -129,8 +120,8 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
         platform="linux/amd64",
         detach=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
-        volumes={  # type: ignore
-            f"{tmp_path}/sft_openassistant-guanaco": {
+        volumes={
+            tmp_path: {
                 "bind": "/opt/huggingface/trained_model",
                 "mode": "rw",
             }
@@ -151,11 +142,9 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
     # Remove the container
     container.remove()  # type: ignore
 
-    assert (tmp_path / "sft_openassistant-guanaco").exists()
-    assert (tmp_path / "sft_openassistant-guanaco" / "adapter_config.json").exists()
-    assert (
-        tmp_path / "sft_openassistant-guanaco" / "adapter_model.safetensors"
-    ).exists()
+    assert tmp_path.exists()
+    assert (tmp_path / "adapter_config.json").exists()
+    assert (tmp_path / "adapter_model.safetensors").exists()
 
     model = AutoModelForCausalLM.from_pretrained(MODEL_ID)
-    model.load_adapter((tmp_path / "sft_openassistant-guanaco").as_posix())
+    model.load_adapter(tmp_path)
