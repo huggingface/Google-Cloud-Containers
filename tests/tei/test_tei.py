@@ -19,10 +19,10 @@ MAX_RETRIES = 10
     "text_embeddings_router_kwargs",
     [
         {
-            "MODEL_ID": "BAAI/bge-base-en-v1.5",
+            "MODEL_ID": "sentence-transformers/all-MiniLM-L6-v2",
         },
         {
-            "MODEL_ID": "BAAI/bge-base-en-v1.5",
+            "MODEL_ID": "sentence-transformers/all-MiniLM-L6-v2",
             "AIP_MODE": "PREDICTION",
         },
     ],
