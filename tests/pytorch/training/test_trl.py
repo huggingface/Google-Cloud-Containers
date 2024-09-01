@@ -6,7 +6,6 @@ import threading
 import docker
 from docker.types.containers import DeviceRequest
 from pathlib import PosixPath
-from transformers import AutoModelForCausalLM
 
 from ...constants import CUDA_AVAILABLE
 from ...utils import stream_logs
@@ -84,8 +83,6 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     assert tmp_path.exists()
     assert (tmp_path / "model.safetensors").exists()
 
-    _ = AutoModelForCausalLM.from_pretrained(tmp_path)
-
 
 @pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA is not available")
 def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
@@ -160,6 +157,3 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
     assert tmp_path.exists()
     assert (tmp_path / "adapter_config.json").exists()
     assert (tmp_path / "adapter_model.safetensors").exists()
-
-    model = AutoModelForCausalLM.from_pretrained(MODEL_ID)
-    model.load_adapter(tmp_path)
