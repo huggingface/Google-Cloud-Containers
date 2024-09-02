@@ -4,13 +4,17 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types:
+      - synchronize
+      - ready_for_review
+    branches:
+      - main
     paths:
       - tests/*
       - pytest.ini
-      - .github/workflows/*.yml
-  pull_request:
-    branches:
-      - main
+      - .github/workflows/run-tests-action.yml
+      - .github/workflows/test-huggingface-dlcs.yml
   workflow_dispatch:
 
 concurrency:
