@@ -58,13 +58,6 @@ def test_transformers(
 
     client = docker.from_env()
 
-    cuda_kwargs = {}
-    if CUDA_AVAILABLE:
-        cuda_kwargs = {
-            "runtime": "nvidia",
-            "device_requests": [DeviceRequest(count=-1, capabilities=[["gpu"]])],
-        }
-
     logging.info(f"Starting container for {hf_model_id}...")
     container = client.containers.run(
         os.getenv(
@@ -91,8 +84,13 @@ def test_transformers(
         },
         platform="linux/amd64",
         detach=True,
-        # Extra kwargs related to the CUDA devices
-        **cuda_kwargs,
+        # Enable interactive mode
+        tty=True,
+        stdin_open=True,
+        # Extra `device_requests` related to the CUDA devices if any
+        device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])]
+        if CUDA_AVAILABLE
+        else None,
     )
 
     # Start log streaming in a separate thread

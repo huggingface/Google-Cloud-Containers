@@ -35,13 +35,6 @@ def test_text_embeddings_inference(
 
     client = docker.from_env()
 
-    cuda_kwargs = {}
-    if CUDA_AVAILABLE:
-        cuda_kwargs = {
-            "runtime": "nvidia",
-            "device_requests": [DeviceRequest(count=-1, capabilities=[["gpu"]])],
-        }
-
     logging.info(
         f"Starting container for {text_embeddings_router_kwargs.get('MODEL_ID', None)}..."
     )
@@ -66,8 +59,13 @@ def test_text_embeddings_inference(
         },
         platform="linux/amd64",
         detach=True,
-        # Extra kwargs related to the CUDA devices
-        **cuda_kwargs,
+        # Enable interactive mode
+        tty=True,
+        stdin_open=True,
+        # Extra `device_requests` related to the CUDA devices if any
+        device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])]
+        if CUDA_AVAILABLE
+        else None,
     )
     logging.info(f"Container {container.id} started...")  # type: ignore
 

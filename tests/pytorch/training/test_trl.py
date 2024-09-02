@@ -57,6 +57,9 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
         },
         platform="linux/amd64",
         detach=True,
+        # Enable interactive mode
+        tty=True,
+        stdin_open=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
         volumes={
             f"{tmp_path}/": {
@@ -64,8 +67,7 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
                 "mode": "rw",
             }
         },
-        # Extra kwargs related to the CUDA devices
-        runtime="nvidia",
+        # Extra `device_requests` related to the CUDA devices
         device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])],
     )
 
@@ -131,6 +133,9 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
         },
         platform="linux/amd64",
         detach=True,
+        # Enable interactive mode
+        tty=True,
+        stdin_open=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
         volumes={
             f"{tmp_path}/": {
@@ -138,8 +143,7 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
                 "mode": "rw",
             }
         },
-        # Extra kwargs related to the CUDA devices
-        runtime="nvidia",
+        # Extra `device_requests` related to the CUDA devices
         device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])],
     )
 
