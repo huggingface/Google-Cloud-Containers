@@ -98,6 +98,11 @@ def test_transformers(
     logging.info(f"Container {container.id} started...")  # type: ignore
     container_healthy = False
     for _ in range(MAX_RETRIES):
+        # It the container failed to start properly, then the health check will fail
+        if container.status == "exited":  # type: ignore
+            container_healthy = False
+            break
+
         try:
             logging.info(
                 f"Trying to connect to http://localhost:8080/health [retry {_ + 1}/{MAX_RETRIES}]..."
