@@ -45,17 +45,6 @@ jobs:
           uv venv --python 3.10
           uv pip install -r tests/requirements.txt
 
-      - name: Check Docker version
-        run: docker --version
-
-      - name: Run INFERENCE_DLC container
-        if: inputs.group == 'aws-g4dn-2xlarge'
-        run: |
-          docker run --name test-container -d -it --gpus all -p 8080:8080 ${{ inputs.tgi-dlc }} --model-id TinyLlama/TinyLlama-1.1B-Chat-v1.0
-          sleep 60
-          docker stop test-container
-          docker rm test-container
-
       - name: Run Hugging Face DLCs Tests
         run: uv run pytest -s tests/
         env:
