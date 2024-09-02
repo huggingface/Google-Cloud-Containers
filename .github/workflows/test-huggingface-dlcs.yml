@@ -28,6 +28,7 @@ jobs:
     with:
       group: aws-general-8-plus
       inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311
+      tei-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-2
 
   dlcs-on-gpu:
     name: Run Hugging Face DLCs Tests on GPU
@@ -37,3 +38,4 @@ jobs:
       training-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.transformers.4-42.ubuntu2204.py310
       inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311
       tgi-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310
+      tei-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-4.ubuntu2204

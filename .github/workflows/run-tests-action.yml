@@ -19,6 +19,10 @@ on:
         description: "The URI of the Hugging Face TGI DLC (GPU only)."
         required: false
         type: string
+      tei-dlc:
+        description: "The URI of the Hugging Face TEI DLC (CPU and GPU)."
+        required: true
+        type: string
 
 jobs:
   run-tests:
@@ -51,3 +55,4 @@ jobs:
           TRAINING_DLC: ${{ inputs.training-dlc }}
           INFERENCE_DLC: ${{ inputs.inference-dlc }}
           TGI_DLC: ${{ inputs.tgi-dlc }}
+          TEI_DLC: ${{ inputs.tei-dlc }}
