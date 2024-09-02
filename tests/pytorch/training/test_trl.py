@@ -21,10 +21,6 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
 
     client = docker.from_env()
 
-    # Ensure that `tmp_path` exists and has right permissions
-    tmp_path.mkdir(exist_ok=True)
-    tmp_path.chmod(0o775)
-
     logging.info("Running the container for TRL...")
     container = client.containers.run(
         os.getenv(
@@ -56,7 +52,7 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
         detach=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
         volumes={
-            f"{tmp_path}/": {
+            tmp_path: {
                 "bind": "/opt/huggingface/trained_model",
                 "mode": "rw",
             }
@@ -86,10 +82,6 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
     caplog.set_level(logging.INFO)
 
     client = docker.from_env()
-
-    # Ensure that `tmp_path` exists and has right permissions
-    tmp_path.mkdir(exist_ok=True)
-    tmp_path.chmod(0o775)
 
     logging.info("Running the container for TRL...")
     container = client.containers.run(
@@ -125,7 +117,7 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
         detach=True,
         # Mount the volume from the `tmp_path` to the `/opt/huggingface/trained_model`
         volumes={
-            f"{tmp_path}/": {
+            tmp_path: {
                 "bind": "/opt/huggingface/trained_model",
                 "mode": "rw",
             }

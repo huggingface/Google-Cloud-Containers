@@ -46,7 +46,7 @@ jobs:
           uv pip install -r tests/requirements.txt
 
       - name: Run Hugging Face DLCs Tests
-        run: uv run pytest -s tests/
+        run: uv run pytest -s tests/ --basetemp=${{ runner.temp }}
         env:
           TRAINING_DLC: ${{ inputs.training-dlc }}
           INFERENCE_DLC: ${{ inputs.inference-dlc }}
