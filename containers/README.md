@@ -12,10 +12,10 @@ gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platfo
 
 For more information on each container, check the READMEs in the following directories
 
-* [Text Generation Inference](./tgi/README.md)
-* [Text Embeddings Inference](./tei/README.md)
-* [PyTorch Inference](./pytorch/inference/README.md)
-* [PyTorch Training](./pytorch/training/README.md)
+- [Text Generation Inference](./tgi/README.md)
+- [Text Embeddings Inference](./tei/README.md)
+- [PyTorch Inference](./pytorch/inference/README.md)
+- [PyTorch Training](./pytorch/training/README.md)
 
 ## Directory Structure
 
