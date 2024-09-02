@@ -62,9 +62,6 @@ def test_text_generation_inference(
         },
         platform="linux/amd64",
         detach=True,
-        # Enable interactive mode
-        tty=True,
-        stdin_open=True,
         # Extra kwargs related to the CUDA devices
         device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])],
     )

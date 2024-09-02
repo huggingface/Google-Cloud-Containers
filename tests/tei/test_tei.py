@@ -59,9 +59,6 @@ def test_text_embeddings_inference(
         },
         platform="linux/amd64",
         detach=True,
-        # Enable interactive mode
-        tty=True,
-        stdin_open=True,
         # Extra `device_requests` related to the CUDA devices if any
         device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])]
         if CUDA_AVAILABLE
