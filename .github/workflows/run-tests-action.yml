@@ -50,4 +50,4 @@ jobs:
         env:
           TRAINING_DLC: ${{ inputs.training-dlc }}
           INFERENCE_DLC: ${{ inputs.inference-dlc }}
-          TGI_DLC: ${{ inputs.tgi_dlc }}
+          TGI_DLC: ${{ inputs.tgi-dlc }}
