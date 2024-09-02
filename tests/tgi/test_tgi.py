@@ -9,7 +9,6 @@ import requests
 
 import pynvml
 from docker.types.containers import DeviceRequest
-from transformers import AutoTokenizer
 
 from ..constants import CUDA_AVAILABLE
 from ..utils import stream_logs
@@ -42,6 +41,10 @@ def test_text_generation_inference(
 ) -> None:
     caplog.set_level(logging.INFO)
 
+    container_uri = os.getenv("TGI_DLC", None)
+    if container_uri is None or container_uri == "":
+        assert False, "TGI_DLC environment variable is not set"
+
     client = docker.from_env()
 
     # If the GPU compute capability is lower than 8.0 (Ampere), then set `USE_FLASH_ATTENTION=false`
@@ -56,10 +59,7 @@ def test_text_generation_inference(
         f"Starting container for {text_generation_launcher_kwargs.get('MODEL_ID', None)}..."
     )
     container = client.containers.run(
-        os.getenv(
-            "TGI_DLC",
-            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310",
-        ),
+        container_uri,
         ports={8080: 8080},
         environment=text_generation_launcher_kwargs,
         healthcheck={
@@ -113,10 +113,6 @@ def test_text_generation_inference(
 
     assert container_healthy
 
-    tokenizer = AutoTokenizer.from_pretrained(
-        text_generation_launcher_kwargs["MODEL_ID"]
-    )
-
     container_failed = False
     try:
         for prompt in ["What's Deep Learning?", "What's the capital of France?"]:
@@ -124,11 +120,7 @@ def test_text_generation_inference(
                 f"Sending prediction request for {prompt=} to http://localhost:8080{predict_route}..."
             )
             payload = {
-                "inputs": tokenizer.apply_chat_template(
-                    [{"role": "user", "content": prompt}],
-                    tokenize=False,
-                    add_generation_prompt=True,
-                ),
+                "inputs": prompt,
                 "parameters": {
                     "max_new_tokens": 256,
                     "do_sample": True,

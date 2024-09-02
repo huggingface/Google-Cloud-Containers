@@ -19,14 +19,15 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     """Adapted from https://github.com/huggingface/trl/blob/main/examples/scripts/sft.py"""
     caplog.set_level(logging.INFO)
 
+    container_uri = os.getenv("TRAINING_DLC", None)
+    if container_uri is None or container_uri == "":
+        assert False, "TRAINING_DLC environment variable is not set"
+
     client = docker.from_env()
 
     logging.info("Running the container for TRL...")
     container = client.containers.run(
-        os.getenv(
-            "TRAINING_DLC",
-            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310",
-        ),
+        container_uri,
         command=[
             "trl",
             "sft",
@@ -38,7 +39,6 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
             "--gradient_accumulation_steps=1",
             "--output_dir=/opt/huggingface/trained_model",
             "--logging_steps=1",
-            "--num_train_epochs=-1",
             "--max_steps=10",
             "--gradient_checkpointing",
         ],
@@ -81,14 +81,15 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
     """Adapted from https://github.com/huggingface/trl/blob/main/examples/scripts/sft.py"""
     caplog.set_level(logging.INFO)
 
+    container_uri = os.getenv("TRAINING_DLC", None)
+    if container_uri is None or container_uri == "":
+        assert False, "TRAINING_DLC environment variable is not set"
+
     client = docker.from_env()
 
     logging.info("Running the container for TRL...")
     container = client.containers.run(
-        os.getenv(
-            "TRAINING_DLC",
-            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310",
-        ),
+        container_uri,
         command=[
             "trl",
             "sft",
@@ -100,7 +101,6 @@ def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None
             "--gradient_accumulation_steps=1",
             "--output_dir=/opt/huggingface/trained_model",
             "--logging_steps=1",
-            "--num_train_epochs=-1",
             "--max_steps=10",
             "--gradient_checkpointing",
             "--use_peft",

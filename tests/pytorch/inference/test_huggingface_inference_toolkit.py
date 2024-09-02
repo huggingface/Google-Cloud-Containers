@@ -48,7 +48,7 @@ MAX_RETRIES = 10
         ),
     ],
 )
-def test_transformers(
+def test_huggingface_inference_toolkit(
     caplog: pytest.LogCaptureFixture,
     hf_model_id: str,
     hf_task: str,
@@ -56,16 +56,15 @@ def test_transformers(
 ) -> None:
     caplog.set_level(logging.INFO)
 
+    container_uri = os.getenv("INFERENCE_DLC", None)
+    if container_uri is None or container_uri == "":
+        assert False, "INFERENCE_DLC environment variable is not set"
+
     client = docker.from_env()
 
     logging.info(f"Starting container for {hf_model_id}...")
     container = client.containers.run(
-        os.getenv(
-            "INFERENCE_DLC",
-            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311"
-            if not CUDA_AVAILABLE
-            else "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311",
-        ),
+        container_uri,
         ports={"8080": 8080},
         environment={
             "HF_MODEL_ID": hf_model_id,

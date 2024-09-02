@@ -33,18 +33,17 @@ def test_text_embeddings_inference(
 ) -> None:
     caplog.set_level(logging.INFO)
 
+    container_uri = os.getenv("TEI_DLC", None)
+    if container_uri is None or container_uri == "":
+        assert False, "TEI_DLC environment variable is not set"
+
     client = docker.from_env()
 
     logging.info(
         f"Starting container for {text_embeddings_router_kwargs.get('MODEL_ID', None)}..."
     )
     container = client.containers.run(
-        os.getenv(
-            "TEI_DLC",
-            "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-2"
-            if not CUDA_AVAILABLE
-            else "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-4.ubuntu2204",
-        ),
+        container_uri,
         # TODO: udpate once the TEI DLCs is updated, as the current is still on revision:
         # https://github.com/huggingface/Google-Cloud-Containers/blob/517b8728725f6249774dcd46ee8d7ede8d95bb70/containers/tei/cpu/1.2.2/Dockerfile
         # and it exposes the 80 port and uses the /data directory instead of /tmp
