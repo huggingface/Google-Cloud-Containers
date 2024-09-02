@@ -7,6 +7,7 @@ import docker
 import pytest
 import requests
 
+import pynvml
 from docker.types.containers import DeviceRequest
 from transformers import AutoTokenizer
 
@@ -42,6 +43,14 @@ def test_text_generation_inference(
     caplog.set_level(logging.INFO)
 
     client = docker.from_env()
+
+    # If the GPU compute capability is lower than 8.0 (Ampere), then set `USE_FLASH_ATTENTION=false`
+    pynvml.nvmlInit()
+    handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+    compute_capability = pynvml.nvmlDeviceGetCudaComputeCapability(handle)
+    if compute_capability[0] < 8:
+        text_generation_launcher_kwargs["USE_FLASH_ATTENTION"] = "false"
+    pynvml.nvmlShutdown()
 
     logging.info(
         f"Starting container for {text_generation_launcher_kwargs.get('MODEL_ID', None)}..."
