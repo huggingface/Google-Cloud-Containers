@@ -12,9 +12,11 @@ def stream_logs(container: Container) -> None:
 
 def gpu_available() -> bool:
     """Returns whether the current environment has a GPU available."""
-    return (
-        subprocess.run(["nvidia-smi"], capture_output=True, text=True).returncode == 0
-    )
+    try:
+        subprocess.run(["nvidia-smi"], capture_output=True, text=True)
+        return True
+    except FileNotFoundError:
+        return False
 
 
 def supports_flash_attention() -> bool:

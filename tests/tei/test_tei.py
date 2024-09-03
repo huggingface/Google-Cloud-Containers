@@ -47,10 +47,10 @@ def test_text_embeddings_inference(
         # https://github.com/huggingface/Google-Cloud-Containers/blob/517b8728725f6249774dcd46ee8d7ede8d95bb70/containers/tei/cpu/1.2.2/Dockerfile
         # and it exposes the 80 port and uses the /data directory instead of /tmp
         ports={
-            8080
+            80
             if container_uri
             == "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-2"
-            else 80: 8080
+            else 8080: 8080
         },
         environment=text_embeddings_router_kwargs,
         healthcheck={
