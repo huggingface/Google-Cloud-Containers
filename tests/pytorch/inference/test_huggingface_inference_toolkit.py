@@ -9,8 +9,7 @@ import requests
 
 from docker.types.containers import DeviceRequest
 
-from ...constants import CUDA_AVAILABLE
-from ...utils import stream_logs
+from ...utils import gpu_available, stream_logs
 
 MAX_RETRIES = 10
 
@@ -85,7 +84,7 @@ def test_huggingface_inference_toolkit(
         detach=True,
         # Extra `device_requests` related to the CUDA devices if any
         device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])]
-        if CUDA_AVAILABLE
+        if gpu_available()
         else None,
     )
 

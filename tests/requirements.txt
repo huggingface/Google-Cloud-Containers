@@ -1,4 +1,2 @@
 docker==7.1.0
-GPUtil==1.4.0
 pytest==8.3.2
-nvidia-ml-py==12.560.30

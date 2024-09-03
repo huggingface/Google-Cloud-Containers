@@ -7,16 +7,14 @@ import docker
 import pytest
 import requests
 
-import pynvml
 from docker.types.containers import DeviceRequest
 
-from ..constants import CUDA_AVAILABLE
-from ..utils import stream_logs
+from ..utils import gpu_available, stream_logs, supports_flash_attention
 
 MAX_RETRIES = 10
 
 
-@pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA is not available")
+@pytest.mark.skipif(not gpu_available(), reason="CUDA is not available")
 @pytest.mark.parametrize(
     "text_generation_launcher_kwargs",
     [
@@ -47,13 +45,9 @@ def test_text_generation_inference(
 
     client = docker.from_env()
 
-    # If the GPU compute capability is lower than 8.0 (Ampere), then set `USE_FLASH_ATTENTION=false`
-    pynvml.nvmlInit()
-    handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-    compute_capability = pynvml.nvmlDeviceGetCudaComputeCapability(handle)
-    if compute_capability[0] < 8:
+    # If the GPU doesn't support Flash Attention, then set `USE_FLASH_ATTENTION=false`
+    if not supports_flash_attention():
         text_generation_launcher_kwargs["USE_FLASH_ATTENTION"] = "false"
-    pynvml.nvmlShutdown()
 
     logging.info(
         f"Starting container for {text_generation_launcher_kwargs.get('MODEL_ID', None)}..."

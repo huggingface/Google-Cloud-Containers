@@ -7,14 +7,13 @@ import docker
 from docker.types.containers import DeviceRequest
 from pathlib import PosixPath
 
-from ...constants import CUDA_AVAILABLE
-from ...utils import stream_logs
+from ...utils import gpu_available, stream_logs
 
 
 MODEL_ID = "sshleifer/tiny-gpt2"
 
 
-@pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA is not available")
+@pytest.mark.skipif(not gpu_available(), reason="CUDA is not available")
 def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     """Adapted from https://github.com/huggingface/trl/blob/main/examples/scripts/sft.py"""
     caplog.set_level(logging.INFO)
@@ -76,7 +75,7 @@ def test_trl(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     assert (tmp_path / "model.safetensors").exists()
 
 
-@pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA is not available")
+@pytest.mark.skipif(not gpu_available(), reason="CUDA is not available")
 def test_trl_peft(caplog: pytest.LogCaptureFixture, tmp_path: PosixPath) -> None:
     """Adapted from https://github.com/huggingface/trl/blob/main/examples/scripts/sft.py"""
     caplog.set_level(logging.INFO)

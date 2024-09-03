@@ -9,8 +9,7 @@ import requests
 
 from docker.types.containers import DeviceRequest
 
-from ..constants import CUDA_AVAILABLE
-from ..utils import stream_logs
+from ..utils import gpu_available, stream_logs
 
 MAX_RETRIES = 10
 
@@ -47,7 +46,12 @@ def test_text_embeddings_inference(
         # TODO: udpate once the TEI DLCs is updated, as the current is still on revision:
         # https://github.com/huggingface/Google-Cloud-Containers/blob/517b8728725f6249774dcd46ee8d7ede8d95bb70/containers/tei/cpu/1.2.2/Dockerfile
         # and it exposes the 80 port and uses the /data directory instead of /tmp
-        ports={8080 if CUDA_AVAILABLE else 80: 8080},
+        ports={
+            8080
+            if container_uri
+            == "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-2"
+            else 80: 8080
+        },
         environment=text_embeddings_router_kwargs,
         healthcheck={
             "test": ["CMD", "curl", "-s", "http://localhost:8080/health"],
@@ -60,7 +64,7 @@ def test_text_embeddings_inference(
         detach=True,
         # Extra `device_requests` related to the CUDA devices if any
         device_requests=[DeviceRequest(count=-1, capabilities=[["gpu"]])]
-        if CUDA_AVAILABLE
+        if gpu_available()
         else None,
     )
     logging.info(f"Container {container.id} started...")  # type: ignore
