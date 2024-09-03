@@ -1,4 +1,4 @@
-name: Action to Run Hugging Face DLCs Tests
+name: Reusable Workflow to Run Hugging Face DLCs Tests
 
 on:
   workflow_call:
@@ -7,6 +7,9 @@ on:
         description: "The GitHub Runners Group to run on."
         required: true
         type: string
+        options:
+          - aws-general-8-plus
+          - aws-g4dn-2xlarge
       training-dlc:
         description: "The URI of the Hugging Face PyTorch DLC for Training (GPU only)."
         required: false
