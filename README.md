@@ -2,7 +2,7 @@
 
 <img alt="Hugging Face x Google Cloud" src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/Google-Cloud-Containers/thumbnail.png" />
 
-[Hugging Face Deep Learning Containers for Google Cloud](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face) are a set of Docker images for training and deploying Transformers, Sentence Transformers, and Diffusers models on Google Cloud Vertex AI and Google Kubernetes Engine (GKE).
+[Hugging Face Deep Learning Containers for Google Cloud](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face) are a set of Docker images for training and deploying Transformers, Sentence Transformers, and Diffusers models on Google Cloud Vertex AI, Google Kubernetes Engine (GKE), and Google Cloud Run.
 
 The [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers/tree/main) repository contains the container files for building Hugging Face-specific Deep Learning Containers (DLCs), examples on how to train and deploy models on Google Cloud. The containers are publicly maintained, updated and released periodically by Hugging Face and the Google Cloud Team and available for all Google Cloud Customers within the [Google Cloud's Artifact Registry](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face). For each supported combination of use-case (training, inference), accelerator type (CPU, GPU, TPU), and framework (PyTorch, TGI, TEI) containers are created. Those include:
 
@@ -63,6 +63,3 @@ The [`examples`](./examples) directory contains examples for using the container
 | Vertex AI | [deploy-gemma-from-gcs-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI.                                                |
 | Vertex AI | [deploy-flux-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai)                     | Deploying FLUX with Hugging Face PyTorch DLCs for Inference on Vertex AI.                                                                       |
 | Cloud Run | [tgi-deployment](./examples/cloud-run/tgi-deployment/README.md)                                         | Deploying Meta Llama 3.1 8B with Text Generation Inference on Cloud Run.                                                                        |
-
-> [!WARNING]
-> Cloud Run now offers on-demand access to NVIDIA L4 GPUs for running AI inference workloads; but is still in preview, so the Cloud Run examples within this repository should be taken solely for testing and experimentation; please avoid using those for production workloads. We are actively working towards general availability and appreciate your understanding.
