@@ -62,3 +62,7 @@ The [`examples`](./examples) directory contains examples for using the container
 | Vertex AI | [deploy-gemma-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai)                   | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) on Vertex AI.                                                                  |
 | Vertex AI | [deploy-gemma-from-gcs-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI.                                                |
 | Vertex AI | [deploy-flux-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai)                     | Deploying FLUX with Hugging Face PyTorch DLCs for Inference on Vertex AI.                                                                       |
+| Cloud Run | [tgi-deployment](./examples/cloud-run/tgi-deployment/README.md)                                         | Deploying Meta Llama 3.1 8B with Text Generation Inference on Cloud Run.                                                                        |
+
+> [!WARNING]
+> Cloud Run now offers on-demand access to NVIDIA L4 GPUs for running AI inference workloads; but is still in preview, so the Cloud Run examples within this repository should be taken solely for testing and experimentation; please avoid using those for production workloads. We are actively working towards general availability and appreciate your understanding.
