@@ -14,7 +14,7 @@ For training, our DLCs are available for PyTorch via 🤗 Transformers. They inc
 
 For inference, we have a general-purpose PyTorch inference DLC, for serving models trained with any of those frameworks mentioned before on both CPU and GPU. There is also the Text Generation Inference (TGI) DLC for high-performance text generation of LLMs on both GPU and TPU. Finally, there is a Text Embeddings Inference (TEI) DLC for high-performance serving of embedding models on both CPU and GPU.
 
-The DLCs are hosted in [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) and can be used from any Google Cloud service such as Google Kubernetes Engine (GKE), Vertex AI, or Google Compute Engine.
+The DLCs are hosted in [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) and can be used from any Google Cloud service such as Google Kubernetes Engine (GKE), Vertex AI, or Cloud Run (in preview).
 
 Hugging Face DLCs are open source and licensed under Apache 2.0 within the [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers) repository. For premium support, our [Expert Support Program](https://huggingface.co/support) gives you direct dedicated support from our team.
 
@@ -83,18 +83,29 @@ Learn how to use Hugging Face in Google Cloud by reading our blog posts, documen
 
 #### GKE
 
-- [Full SFT fine-tuning of Gemma 2B in a multi-GPU instance with TRL on GKE](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/gke/trl-full-fine-tuning)
-- [LoRA SFT fine-tuning of Mistral 7B v0.3 in a single GPU instance with TRL on GKE](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/gke/trl-lora-fine-tuning)
-- [Deploying Llama3 8B with Text Generation Inference (TGI) on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tgi-deployment)
-- [Deploying Qwen2 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tgi-from-gcs-deployment)
-- [Deploying Snowflake's Arctic Embed (M) with Text Embeddings Inference (TEI) on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tei-deployment)
-- [Deploying BGE Base v1.5 (English) with Text Embeddings Inference (TEI) from a GCS Bucket on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tei-from-gcs-deployment)
+- Training
+
+  - [Full SFT fine-tuning of Gemma 2B in a multi-GPU instance with TRL on GKE](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/gke/trl-full-fine-tuning)
+  - [LoRA SFT fine-tuning of Mistral 7B v0.3 in a single GPU instance with TRL on GKE](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/gke/trl-lora-fine-tuning)
+
+- Inference
+
+  - [Deploying Llama3 8B with Text Generation Inference (TGI) on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tgi-deployment)
+  - [Deploying Qwen2 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tgi-from-gcs-deployment)
+  - [Deploying Snowflake's Arctic Embed (M) with Text Embeddings Inference (TEI) on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tei-deployment)
+  - [Deploying BGE Base v1.5 (English) with Text Embeddings Inference (TEI) from a GCS Bucket on GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke/tei-from-gcs-deployment)
 
 #### Vertex AI
 
-- [Full SFT fine-tuning of Mistral 7B v0.3 in a multi-GPU instance with TRL on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai)
-- [LoRA SFT fine-tuning of Mistral 7B v0.3 in a single GPU instance with TRL on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/vertex-ai/notebooks/trl-lora-sft-fine-tuning-on-vertex-ai)
-- [Deploying a BERT model for a text classification task using huggingface-inference-toolkit for a Custom Prediction Routine (CPR) on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai)
-- [Deploying an embedding model with Text Embeddings Inference (TEI) on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai)
-- [Deploying Gemma 7B Instruct with Text Generation Inference (TGI) on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai)
-- [Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai)
+- Training
+
+  - [Full SFT fine-tuning of Mistral 7B v0.3 in a multi-GPU instance with TRL on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai)
+  - [LoRA SFT fine-tuning of Mistral 7B v0.3 in a single GPU instance with TRL on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/blob/main/examples/vertex-ai/notebooks/trl-lora-sft-fine-tuning-on-vertex-ai)
+
+- Inference
+
+  - [Deploying a BERT model for a text classification task using huggingface-inference-toolkit for a Custom Prediction Routine (CPR) on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai)
+  - [Deploying an embedding model with Text Embeddings Inference (TEI) on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai)
+  - [Deploying Gemma 7B Instruct with Text Generation Inference (TGI) on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai)
+  - [Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai)
+  - [Deploying FLUX with Hugging Face PyTorch DLCs for Inference on Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai)
