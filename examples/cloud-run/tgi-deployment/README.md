@@ -3,7 +3,7 @@
 Meta Llama 3.1 is the latest open LLM from Meta, released in July 2024. Meta Llama 3.1 comes in three sizes: 8B for efficient deployment and development on consumer-size GPU, 70B for large-scale AI native applications, and 405B for synthetic data, LLM as a Judge or distillation; among other use cases. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Cloud Run is a serverless container platform that allows developers to deploy and manage containerized applications without managing infrastructure, enabling automatic scaling and billing only for usage. This example showcases how to deploy an LLM from the Hugging Face Hub, in this case Meta Llama 3.1 8B Instruct model quantized to INT4 using AWQ, with the Hugging Face DLC for TGI on Google Cloud Run with GPU support (on preview).
 
 > [!NOTE]
-> GPU support on Cloud Run is only available as a waitlisted public preview. If you're interested in trying out the feature, [fill out this form to join the waitlist](https://services.google.com/fb/forms/cloudrungpusignup/). At the time of writing this example, NVIDIA L4 GPUs (24GiB VRAM) are the only available GPUs on Cloud Run; enabling automatic scaling up to 5 instances (with quota increase available), as well as scaling down to zero instances when there are no requests.
+> GPU support on Cloud Run is only available as a waitlisted public preview. If you're interested in trying out the feature, [fill out this form to join the waitlist](https://services.google.com/fb/forms/cloudrungpusignup/). At the time of writing this example, NVIDIA L4 GPUs (24GiB VRAM) are the only available GPUs on Cloud Run; enabling automatic scaling up to 7 instances (subject to change), as well as scaling down to zero instances when there are no requests.
 
 ## Setup / Configuration
 
@@ -70,13 +70,18 @@ gcloud beta run deploy $SERVICE_NAME \
 ![Cloud Run Deployment Details](./imgs/cloud-run-details.png)
 
 > [!NOTE]
-> The first time you deploy a new container on Cloud Run it will take around 5 minutes to deploy as it needs to import it from the Google Cloud Container Registry, but on the follow up deployments it will take less than a minute as it will be cached and the import can be skipped.
+> The first time you deploy a new container on Cloud Run it will take around 5 minutes to deploy as it needs to import it from the Google Cloud Container Registry, but on the follow up deployments it will take less time as the image has been already imported before.
 
 ## Inference on Cloud Run
 
 Once deployed, you can send requests to the service via any of the supported TGI endpoints, check [TGI's OpenAPI Specification](https://huggingface.github.io/text-generation-inference/) to see all the available endpoints and their respective parameters.
 
-To expose the service you have two options, either using a proxy to forward it to localhost with no authentication required, or obtain the service URL on Google Cloud and directly send requests to it using the authentication token.
+All Cloud Run services are deployed privately by default, which means that they can't be accessed without providing authentication credentials in the request headers. These services are secured by IAM and are only callable by Project Owners, Project Editors, and Cloud Run Admins and Cloud Run Invokers.
+
+In this case, a couple of alternatives to enable developer access will be showcased; while the other use cases are out of the scope of this example, as those are either not secure due to the authentication being disabled (for public access scenarios), or require additional setup for a production-ready scenarios (service-to-service authentication, end-user access).
+
+> [!NOTE]
+> The alternatives mentioned below are for development scenarios, and should not be used in production-ready scenarios as is. The approach below is following the guide defined in [Cloud Run Documentation - Authenticate Developers](https://cloud.google.com/run/docs/authenticating/developers); but you can find every other guide as mentioned above in [Cloud Run Documentation - Authentication overview](https://cloud.google.com/run/docs/authenticating/overview).
 
 ### Via Cloud Run Proxy
 
@@ -346,3 +351,8 @@ gcloud auth revoke --impersonate-service-account=$SERVICE_ACCOUNT_NAME@$PROJECT_
 ```bash
 gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com
 ```
+
+## References
+
+- [Cloud Run Documentation - Overview](https://cloud.google.com/run/docs)
+- [Google Cloud Blog - Run your AI inference applications on Cloud Run with NVIDIA GPUs](https://cloud.google.com/blog/products/application-development/run-your-ai-inference-applications-on-cloud-run-with-nvidia-gpus)
