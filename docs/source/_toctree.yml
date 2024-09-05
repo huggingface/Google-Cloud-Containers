@@ -1,0 +1,4 @@
+- sections:
+  - local: index
+    title: Hugging Face on Google Cloud
+  title: Getting Started
