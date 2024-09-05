@@ -43,12 +43,12 @@ The `gcloud beta run deploy` command needs you to specify the following paramete
   - `--model-id`: The model ID to use, in this case, [`hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4`](https://huggingface.co/hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4).
   - `--quantize`: The quantization method to use, in this case, `awq`. If not specified, it will be retrieved from the `quantization_config->quant_method` in the `config.json` file.
 - `--port`: The port the container listens to.
-- `--cpu` and `--memory`: The number of CPUs and amount of memory to allocate to the container. Needs to be set to 8 and 32Gi, respectively; as that's a requirement for using the GPU.
+- `--cpu` and `--memory`: The number of CPUs and amount of memory to allocate to the container. Needs to be set to 8 and 32GiB, respectively; as that's a requirement for using the GPU.
 - `--no-cpu-throttling`: Disables CPU throttling, which is required for using the GPU.
 - `--gpu` and `--gpu-type`: The number of GPUs and the GPU type to use. Needs to be set to 1 and `nvidia-l4`, respectively; as at the time of writing this tutorial, those are the only available options as Cloud Run on GPUs is still under preview.
 - `--max-instances`: The maximum number of instances to run, set to 1 but default value is 7.
 - `--region`: The region to deploy the Cloud Run service.
-- `--no-allow-unauthenticated`: Disables unauthenticated access to the service, which is a good practice for production services.
+- `--no-allow-unauthenticated`: Disables unauthenticated access to the service, which is a good practice as adds an authentication layer managed by Google Cloud IAM.
 
 ```bash
 gcloud beta run deploy $SERVICE_NAME \
