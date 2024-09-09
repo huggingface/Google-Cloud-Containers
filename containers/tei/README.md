@@ -30,14 +30,14 @@ Besides selecting which model to deploy, to take into consideration that TEI sup
 
 - **Sequence Classification**: these models are classic sequence classification models as e.g. BERT, RoBERTa, etc.
 
-Then eady to run the container depending on the accelerator to use as follows:
+Then you are ready to run the container depending on the accelerator to use as follows:
 
 - **CPU**: To run the image on a CPU instance, you need to provide the `MODEL_ID` environment variable and expose the port 8080.
 
   ```bash
   docker run -ti -p 8080:8080 \
       -e MODEL_ID=BAAI/bge-large-en-v1.5 \
-      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1.4.0
+      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-4
   ```
 
 - **GPU**: To run the image on a GPU instance, you need to also add `--gpus all` so that the container can access the GPUs, and then provide the `MODEL_ID` environment variable and expose the port 8080.
@@ -45,7 +45,7 @@ Then eady to run the container depending on the accelerator to use as follows:
   ```bash
   docker run -ti --gpus all -p 8080:8080 \
       -e MODEL_ID=BAAI/bge-large-en-v1.5 \
-      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-gpu.1.4.0
+      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-4.ubuntu2204
   ```
 
 ### Test
@@ -99,11 +99,11 @@ Since TEI comes with two different containers depending on the accelerator used 
 - **CPU**: To build TEI for CPU, you will need an instance with enough CPU RAM, but most instances should be able to successfully build the CPU image since it's not too memory-intensive.
 
   ```bash
-  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1.4.0 -f containers/tei/cpu/1.4.0/Dockerfile .
+  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-4 -f containers/tei/cpu/1.4.0/Dockerfile .
   ```
 
 - **GPU**: To build TEI for GPU, you will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TEI, similarly to TGI, needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~15 minutes to complete, depending on the instance's specifications.
 
   ```bash
-  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-gpu.1.4.0 -f containers/tei/gpu/1.4.0/Dockerfile .
+  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-4.ubuntu2204 -f containers/tei/gpu/1.4.0/Dockerfile .
   ```
