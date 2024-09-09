@@ -46,7 +46,7 @@ The `gcloud beta run deploy` command needs you to specify the following paramete
 - `--cpu` and `--memory`: The number of CPUs and amount of memory to allocate to the container. Needs to be set to 8 and 32GiB, respectively; as that's a requirement for using the GPU.
 - `--no-cpu-throttling`: Disables CPU throttling, which is required for using the GPU.
 - `--gpu` and `--gpu-type`: The number of GPUs and the GPU type to use. Needs to be set to 1 and `nvidia-l4`, respectively; as at the time of writing this tutorial, those are the only available options as Cloud Run on GPUs is still under preview.
-- `--max-instances`: The maximum number of instances to run, set to 1 but default value is 7.
+- `--max-instances`: The maximum number of instances to run, set to 3, but default value is 7. Alternatively, one could set it to 1 too, but that could eventually lead to downtime during infrastructure migrations, so anything above 1 is recommended.
 - `--region`: The region to deploy the Cloud Run service.
 - `--no-allow-unauthenticated`: Disables unauthenticated access to the service, which is a good practice as adds an authentication layer managed by Google Cloud IAM.
 
@@ -60,7 +60,7 @@ gcloud beta run deploy $SERVICE_NAME \
     --no-cpu-throttling \
     --gpu=1 \
     --gpu-type=nvidia-l4 \
-    --max-instances 1 \
+    --max-instances=3 \
     --region=$LOCATION \
     --no-allow-unauthenticated
 ```
