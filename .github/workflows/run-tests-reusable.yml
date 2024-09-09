@@ -6,19 +6,11 @@ on:
       group:
         description: "The GitHub Runners Group to run on."
         required: true
-        type: choice
-        options:
-          - aws-general-8-plus
-          - aws-g4dn-2xlarge
+        type: string
       tests-path:
         description: "The path of the tests to run inside `tests`."
         required: true
-        type: choice
-        options:
-          - pytorch/training
-          - pytorch/inference
-          - tgi
-          - tei
+        type: string
       training-dlc:
         description: "The URI of the Hugging Face PyTorch DLC for Training (GPU only)."
         required: false
