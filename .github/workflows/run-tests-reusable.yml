@@ -6,14 +6,14 @@ on:
       group:
         description: "The GitHub Runners Group to run on."
         required: true
-        type: string
+        type: choice
         options:
           - aws-general-8-plus
           - aws-g4dn-2xlarge
       tests-path:
         description: "The path of the tests to run inside `tests`."
         required: true
-        type: string
+        type: choice
         options:
           - pytorch/training
           - pytorch/inference
