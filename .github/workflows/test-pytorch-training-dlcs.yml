@@ -1,4 +1,4 @@
-name: Test Hugging Face PyTorch DLCs for Training
+name: Test Hugging Face PyTorch DLCs for Training (GPU)
 
 on:
   push:
