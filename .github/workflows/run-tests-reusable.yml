@@ -10,6 +10,15 @@ on:
         options:
           - aws-general-8-plus
           - aws-g4dn-2xlarge
+      tests-path:
+        description: "The path of the tests to run inside `tests`."
+        required: true
+        type: string
+        options:
+          - pytorch/training
+          - pytorch/inference
+          - tgi
+          - tei
       training-dlc:
         description: "The URI of the Hugging Face PyTorch DLC for Training (GPU only)."
         required: false
@@ -54,7 +63,7 @@ jobs:
 
       - name: Run Hugging Face DLC Tests
         if:
-        run: uv run pytest -s tests/ --basetemp=${{ runner.temp }}
+        run: uv run pytest -s tests/${{ inputs.tests-path }} --basetemp=${{ runner.temp }}
         env:
           TRAINING_DLC: ${{ inputs.training-dlc }}
           INFERENCE_DLC: ${{ inputs.inference-dlc }}

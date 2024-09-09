@@ -1,0 +1,42 @@
+name: Test Hugging Face PyTorch DLCs for Inference
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - tests/pytorch/inference/*
+      - .github/workflows/run-tests-reusable.yml
+      - .github/workflows/test-pytorch-inference-dlcs.yml
+  pull_request:
+    types:
+      - synchronize
+      - ready_for_review
+    branches:
+      - main
+    paths:
+      - tests/pytorch/inference/*
+      - .github/workflows/run-tests-reusable.yml
+      - .github/workflows/test-pytorch-inference-dlcs.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  inference-on-cpu:
+    name: Test Hugging Face PyTorch DLCs for Inference on CPU
+    uses: huggingface/Google-Cloud-Containers/.github/workflows/run-tests-reusable.yml@add-integration-tests
+    with:
+      group: aws-general-8-plus
+      tests-path: pytorch/inference
+      inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311
+
+  inference-on-gpu:
+    name: Test Hugging Face PyTorch DLCs for Inference on GPU
+    uses: huggingface/Google-Cloud-Containers/.github/workflows/run-tests-reusable.yml@add-integration-tests
+    with:
+      group: aws-g4dn-2xlarge
+      tests-path: pytorch/inference
+      inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311
