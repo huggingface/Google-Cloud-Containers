@@ -54,7 +54,7 @@ def test_text_generation_inference(
     )
     container = client.containers.run(
         container_uri,
-        ports={8080: 8080},
+        ports={8080: 8080},  # type: ignore
         environment=text_generation_launcher_kwargs,
         healthcheck={
             "test": ["CMD", "curl", "-s", "http://localhost:8080/health"],
