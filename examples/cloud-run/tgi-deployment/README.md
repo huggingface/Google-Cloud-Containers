@@ -47,13 +47,14 @@ The `gcloud beta run deploy` command needs you to specify the following paramete
 - `--no-cpu-throttling`: Disables CPU throttling, which is required for using the GPU.
 - `--gpu` and `--gpu-type`: The number of GPUs and the GPU type to use. Needs to be set to 1 and `nvidia-l4`, respectively; as at the time of writing this tutorial, those are the only available options as Cloud Run on GPUs is still under preview.
 - `--max-instances`: The maximum number of instances to run, set to 3, but default value is 7. Alternatively, one could set it to 1 too, but that could eventually lead to downtime during infrastructure migrations, so anything above 1 is recommended.
+- `--concurrency`: the maximum number of concurrent requests per instance, set to 64. The value is not arbitrary, but determined after running and evaluating the results of [`text-generation-benchmark`](https://github.com/huggingface/text-generation-inference/tree/main/benchmark), as the most optimal balance between throughput and latency; where the current default for TGI being 128 is a bit too much. Note that this value is also aligned with the [`--max-concurrent-requests`](https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/launcher#maxconcurrentrequests) argument in TGI.
 - `--region`: The region to deploy the Cloud Run service.
 - `--no-allow-unauthenticated`: Disables unauthenticated access to the service, which is a good practice as adds an authentication layer managed by Google Cloud IAM.
 
 ```bash
 gcloud beta run deploy $SERVICE_NAME \
     --image=$CONTAINER_URI \
-    --args="--model-id=hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4,--quantize=awq" \
+    --args="--model-id=hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4,--quantize=awq,--max-concurrent-requests=64" \
     --port=8080 \
     --cpu=8 \
     --memory=32Gi \
@@ -61,6 +62,7 @@ gcloud beta run deploy $SERVICE_NAME \
     --gpu=1 \
     --gpu-type=nvidia-l4 \
     --max-instances=3 \
+    --concurrency=64 \
     --region=$LOCATION \
     --no-allow-unauthenticated
 ```
