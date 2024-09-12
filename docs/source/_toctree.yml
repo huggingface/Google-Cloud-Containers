@@ -3,6 +3,14 @@
       title: Hugging Face on Google Cloud
   title: Getting Started
 - sections:
-    - local: notebooks
-      title: Examples
+    - isExpanded: false
+      sections:
+        - local: ../../examples/gke/tgi-deployment/README.md
+          title: Deploy Meta Llama 3 8B with Text Generation Inference (TGI) on GKE
+      title: Inference
+    - isExpanded: false
+      sections:
+        - local: ../../examples/gke/trl-full-fine-tuning/README.md
+          title: Fine-tune Gemma 2B with TRL on GKE
+      title: Training
   title: Examples
