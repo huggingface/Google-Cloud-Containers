@@ -15,13 +15,14 @@ For Google Vertex AI, we differentiate between the executable Jupyter Notebook e
 
 ### Inference Examples
 
-| Example                                                                              | Description                                                                                                                                     |
-| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| [deploy-bert-on-vertex-ai](./notebooks/deploy-bert-on-vertex-ai)                     | Deploying a BERT model for a text classification task using `huggingface-inference-toolkit` for a Custom Prediction Routine (CPR) on Vertex AI. |
-| [deploy-embedding-on-vertex-ai](./notebooks/deploy-embedding-on-vertex-ai)           | Deploying an embedding model with Text Embeddings Inference (TEI) on Vertex AI.                                                                 |
-| [deploy-gemma-on-vertex-ai](./notebooks/deploy-gemma-on-vertex-ai)                   | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) on Vertex AI.                                                                  |
-| [deploy-gemma-from-gcs-on-vertex-ai](./notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI.                                                |
-| [deploy-flux-on-vertex-ai](./notebooks/deploy-flux-on-vertex-ai)                     | Deploying FLUX with Hugging Face PyTorch DLCs for Inference on Vertex AI.                                                                       |
+| Example                                                                                                | Description                                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| [deploy-bert-on-vertex-ai](./notebooks/deploy-bert-on-vertex-ai)                                       | Deploying a BERT model for a text classification task using `huggingface-inference-toolkit` for a Custom Prediction Routine (CPR) on Vertex AI. |
+| [deploy-embedding-on-vertex-ai](./notebooks/deploy-embedding-on-vertex-ai)                             | Deploying an embedding model with Text Embeddings Inference (TEI) on Vertex AI.                                                                 |
+| [deploy-gemma-on-vertex-ai](./notebooks/deploy-gemma-on-vertex-ai)                                     | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) on Vertex AI.                                                                  |
+| [deploy-gemma-from-gcs-on-vertex-ai](./notebooks/deploy-gemma-from-gcs-on-vertex-ai)                   | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI.                                                |
+| [deploy-flux-on-vertex-ai](./notebooks/deploy-flux-on-vertex-ai)                                       | Deploying FLUX with Hugging Face PyTorch DLCs for Inference on Vertex AI.                                                                       |
+| [deploy-llama-3-1-405b-on-vertex-ai](./notebooks/deploy-llama-405b-on-vertex-ai/vertex-notebook.ipynb) | Deploying Meta Llama 3.1 405B in FP8 with Hugging Face DLC for TGI on Vertex AI.                                                                |
 
 ## Pipelines
 
