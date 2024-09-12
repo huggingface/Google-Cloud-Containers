@@ -19,3 +19,5 @@ jobs:
       package: Google-Cloud-Containers
       package_name: google-cloud
       additional_args: --not_python_module
+      notebooks_folder: examples
+      convert_notebooks: true
