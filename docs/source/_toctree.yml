@@ -5,12 +5,13 @@
 - sections:
     - isExpanded: false
       sections:
-        - local: ../../examples/gke/tgi-deployment/README.md
+        - local: examples/gke-tgi-deployment
           title: Deploy Meta Llama 3 8B with Text Generation Inference (TGI) on GKE
       title: Inference
     - isExpanded: false
       sections:
-        - local: ../../examples/gke/trl-full-fine-tuning/README.md
+        - local: examples/gke-tgi-deployment
           title: Fine-tune Gemma 2B with TRL on GKE
       title: Training
+  local: examples/index
   title: Examples
