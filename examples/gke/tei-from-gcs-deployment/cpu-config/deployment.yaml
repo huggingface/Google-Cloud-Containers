@@ -33,7 +33,7 @@ spec:
               cpu: 8.0
       containers:
         - name: tei-container
-          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-2:latest
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-4:latest
           resources:
             requests:
               cpu: "8"
