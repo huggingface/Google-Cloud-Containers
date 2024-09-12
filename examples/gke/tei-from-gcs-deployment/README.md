@@ -1,6 +1,8 @@
 # Deploy BGE Base v1.5 (English) with Text Embeddings Inference (TEI) from a GCS Bucket on GKE
 
-BGE, standing for BAAI General Embedding, is a collection of embedding models released by BAAI, which is an English base model for general embedding tasks ranked in the MTEB Leaderboard. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy a text embedding model from a Google Cloud Storage (GCS) Bucket on a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
+BGE, standing for BAAI General Embedding, is a collection of embedding models released by BAAI, which is an English base model for general embedding tasks ranked in the MTEB Leaderboard. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
+
+This example showcases how to deploy a text embedding model from a Google Cloud Storage (GCS) Bucket on a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
 
 ## Setup / Configuration
 
