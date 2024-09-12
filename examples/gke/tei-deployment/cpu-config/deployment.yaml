@@ -38,5 +38,5 @@ spec:
         - name: data
           emptyDir: {}
       nodeSelector:
-         cloud.google.com/compute-class: "Performance"
-         cloud.google.com/machine-family: "c2"
+        cloud.google.com/compute-class: "Performance"
+        cloud.google.com/machine-family: "c2"

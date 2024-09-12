@@ -58,11 +58,11 @@ spec:
           ephemeral:
             volumeClaimTemplate:
               spec:
-                accessModes: [ "ReadWriteOnce" ]
+                accessModes: ["ReadWriteOnce"]
                 storageClassName: ssd
                 resources:
                   requests:
                     storage: 48Gi
       nodeSelector:
-         cloud.google.com/compute-class: "Performance"
-         cloud.google.com/machine-family: "c2"
+        cloud.google.com/compute-class: "Performance"
+        cloud.google.com/machine-family: "c2"
