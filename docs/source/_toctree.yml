@@ -12,16 +12,3 @@
     - local: containers/available
       title: Available DLCs on Google Cloud
   title: Deep Learning Containers (DLCs)
-- sections:
-    - isExpanded: false
-      sections:
-        - local: examples/gke-tgi-deployment
-          title: Deploy Meta Llama 3 8B with Text Generation Inference (TGI) on GKE
-      title: Inference
-    - isExpanded: false
-      sections:
-        - local: examples/gke-tgi-deployment
-          title: Fine-tune Gemma 2B with TRL on GKE
-      title: Training
-  local: examples/index
-  title: Examples
