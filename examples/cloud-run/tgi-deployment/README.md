@@ -206,40 +206,40 @@ Then you can send requests to the deployed service on Cloud Run, using the `SERV
 
 The recommended approach is to use a Service Account (SA), as the access can be controlled better and the permissions are more granular; as the Cloud Run Service was not created using a SA, which is another nice option, you need to now create the SA, gran it the necessary permissions, update the Cloud Run Service to use the SA, and then generate an access token to set as the authentication token within the requests, that can be revoked later once you are done using it.
 
-0. Set the `SERVICE_ACCOUNT_NAME` environment variable for convenience:
+- Set the `SERVICE_ACCOUNT_NAME` environment variable for convenience:
 
-```bash
-export SERVICE_ACCOUNT_NAME=text-generation-inference-invoker
-```
+  ```bash
+  export SERVICE_ACCOUNT_NAME=text-generation-inference-invoker
+  ```
 
-1. Create the Service Account:
+- Create the Service Account:
 
-```bash
-gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME
-```
+  ```bash
+  gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME
+  ```
 
-2. Grant the Service Account the Cloud Run Invoker role:
+- Grant the Service Account the Cloud Run Invoker role:
 
-```bash
-gcloud run services add-iam-policy-binding $SERVICE_NAME \
-    --member="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com" \
-    --role="roles/run.invoker" \
-    --region=$LOCATION
-```
+  ```bash
+  gcloud run services add-iam-policy-binding $SERVICE_NAME \
+      --member="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com" \
+      --role="roles/run.invoker" \
+      --region=$LOCATION
+  ```
 
-3. Update the Cloud Run service to use the Service Account:
+- Update the Cloud Run service to use the Service Account:
 
-```bash
-gcloud run services update $SERVICE_NAME \
-    --service-account $SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com \
-    --region=$REGION
-```
+  ```bash
+  gcloud run services update $SERVICE_NAME \
+      --service-account $SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com \
+      --region=$REGION
+  ```
 
-4. Generate the Access Token for the Service Account:
+- Generate the Access Token for the Service Account:
 
-```bash
-export ACCESS_TOKEN=$(gcloud auth print-access-token --impersonate-service-account=$SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com)
-```
+  ```bash
+  export ACCESS_TOKEN=$(gcloud auth print-access-token --impersonate-service-account=$SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com)
+  ```
 
 > [!WARNING]
 > The access token is short-lived and will expire, typically after 1 hour; if you want to extend the lifetime of the token you can do so via the `--lifetime` argument within the same command, up until 12 hours (value needs to be specified in seconds). Otherwise, you can also generate a new token by running the same command again.
