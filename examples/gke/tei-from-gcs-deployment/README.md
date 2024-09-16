@@ -88,7 +88,7 @@ gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
 
 This is an optional step in the tutorial, since you may want to reuse an existing model on a GCS Bucket, if that is the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
 
-Otherwise, to upload a model from the Hugging Face Hub to a GCS Bucket, you can use the script [./scripts/upload_model_to_gcs.sh](./scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS Bucket (and create the bucket if not created already).
+Otherwise, to upload a model from the Hugging Face Hub to a GCS Bucket, you can use the script [scripts/upload_model_to_gcs.sh](../../../scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS Bucket (and create the bucket if not created already).
 
 The `gsutil` component should be installed via `gcloud`, and the Python packages `huggingface_hub` with the extra `hf_transfer`, and the package `crcmod` should also be installed.
 
