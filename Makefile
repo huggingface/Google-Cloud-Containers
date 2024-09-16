@@ -1,6 +1,6 @@
 .PHONY: docs clean help
 
-docs:
+docs: clean
 	@echo "Processing README.md files from examples/gke and examples/cloud-run..."
 	@mkdir -p docs/source/examples
 	@for dir in gke cloud-run; do \
@@ -18,6 +18,8 @@ docs:
 				s|\(\.\./([^)]+)\)|(https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/'"$$dir"'/\1)|g; \
 				s|\(\.\/([^)]+)\)|(https://github.com/huggingface/Google-Cloud-Containers/tree/main/'"$${file%/*}"'/\1)|g; \
 			' "$$file" > "$$target"; \
+			sed -n -f output.sed "$$target" > "$$target.tmp" && mv "$$target.tmp" "$$target"; \
+			sed '/^>/d' "$$target" > "$$target.tmp" && mv "$$target.tmp" "$$target"; \
 			if grep -qE '\(\.\./|\(\./' "$$target"; then \
 				echo "WARNING: Relative paths still exist in the processed file."; \
 				echo "The following lines contain relative paths, consider replacing those with GitHub URLs instead:"; \
@@ -40,7 +42,11 @@ docs:
 		done; \
 		echo "      isExpanded: false" >> docs/source/_toctree.yml; \
 		echo "      local: examples/$$dir-index" >> docs/source/_toctree.yml; \
-		echo "      title: $$(echo $$dir | tr '[:lower:]' '[:upper:]')" >> docs/source/_toctree.yml; \
+		if [ "$$dir" = "cloud-run" ]; then \
+			echo "      title: Cloud Run" >> docs/source/_toctree.yml; \
+		else \
+			echo "      title: $$(echo $$dir | tr '[:lower:]' '[:upper:]')" >> docs/source/_toctree.yml; \
+		fi; \
 	done
 	@echo "  # local: examples/index" >> docs/source/_toctree.yml
 	@echo "  title: Examples" >> docs/source/_toctree.yml
@@ -53,6 +59,10 @@ clean:
 	@rm -rf docs/source/examples
 	@awk '/^# GENERATED CONTENT DO NOT EDIT!/,/^# END GENERATED CONTENT/{next} {print}' docs/source/_toctree.yml > docs/source/_toctree.yml.tmp && mv docs/source/_toctree.yml.tmp docs/source/_toctree.yml
 	@echo "Cleanup complete."
+
+serve:
+	@echo "Serving documentation via doc-builder"
+	doc-builder preview gcloud docs/source --not_python_module
 
 help:
 	@echo "Usage:"
