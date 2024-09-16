@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: tei-container
-          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-2:latest
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-4:latest
           resources:
             requests:
               cpu: "8"
@@ -38,5 +38,5 @@ spec:
         - name: data
           emptyDir: {}
       nodeSelector:
-         cloud.google.com/compute-class: "Performance"
-         cloud.google.com/machine-family: "c2"
+        cloud.google.com/compute-class: "Performance"
+        cloud.google.com/machine-family: "c2"
