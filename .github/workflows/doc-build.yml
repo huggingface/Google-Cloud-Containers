@@ -17,6 +17,7 @@ jobs:
       package: Google-Cloud-Containers
       package_name: google-cloud
       additional_args: --not_python_module
+      pre_command: make docs
     secrets:
       token: ${{ secrets.HUGGINGFACE_PUSH }}
       hf_token: ${{ secrets.HF_DOC_BUILD_PUSH }}
