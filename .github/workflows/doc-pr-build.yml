@@ -19,4 +19,4 @@ jobs:
       package: Google-Cloud-Containers
       package_name: google-cloud
       additional_args: --not_python_module
-      pre_command: ls -la && make docs
+      pre_command: cd Google-Cloud-Containers && make docs
