@@ -7,6 +7,12 @@
       title: 📄 Resources, Documentation & Examples
   title: Getting Started
 - sections:
+    - local: containers/introduction
+      title: Introduction
+    - local: containers/available
+      title: Available DLCs on Google Cloud
+  title: Deep Learning Containers (DLCs)
+- sections:
     - isExpanded: false
       sections:
         - local: examples/gke-tgi-deployment
