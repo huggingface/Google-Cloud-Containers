@@ -12,7 +12,7 @@ docs: clean
 	@echo "Generating YAML tree structure and appending to _toctree.yml..."
 	@echo "# GENERATED CONTENT DO NOT EDIT!" >> docs/source/_toctree.yml
 	@echo "- sections:" >> docs/source/_toctree.yml
-	@for dir in gke cloud-run vertex-ai; do \
+	@for dir in vertex-ai gke cloud-run; do \
 		echo "    - sections:" >> docs/source/_toctree.yml; \
 		find docs/source/examples -name "$$dir-*.mdx" ! -name "$$dir-index.mdx" | sort | while read file; do \
 			base=$$(basename "$$file" .mdx); \
