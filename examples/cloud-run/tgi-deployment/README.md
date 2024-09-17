@@ -3,7 +3,7 @@
 Meta Llama 3.1 is the latest open LLM from Meta, released in July 2024. Meta Llama 3.1 comes in three sizes: 8B for efficient deployment and development on consumer-size GPU, 70B for large-scale AI native applications, and 405B for synthetic data, LLM as a Judge or distillation; among other use cases. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Cloud Run is a serverless container platform that allows developers to deploy and manage containerized applications without managing infrastructure, enabling automatic scaling and billing only for usage. This example showcases how to deploy an LLM from the Hugging Face Hub, in this case Meta Llama 3.1 8B Instruct model quantized to INT4 using AWQ, with the Hugging Face DLC for TGI on Google Cloud Run with GPU support (on preview).
 
 > [!NOTE]
-> GPU support on Cloud Run is only available as a waitlisted public preview. If you're interested in trying out the feature, [fill out this form to join the waitlist](https://services.google.com/fb/forms/cloudrungpusignup/). At the time of writing this example, NVIDIA L4 GPUs (24GiB VRAM) are the only available GPUs on Cloud Run; enabling automatic scaling up to 7 instances (subject to change), as well as scaling down to zero instances when there are no requests.
+> GPU support on Cloud Run is only available as a waitlisted public preview. If you're interested in trying out the feature, [request a quota increase](https://cloud.google.com/run/quotas#increase) for `Total Nvidia L4 GPU allocation, per project per region`. At the time of writing this example, NVIDIA L4 GPUs (24GiB VRAM) are the only available GPUs on Cloud Run; enabling automatic scaling up to 7 instances by default (more available via quota), as well as scaling down to zero instances when there are no requests.
 
 ## Setup / Configuration
 
@@ -13,7 +13,7 @@ Optionally, to ease the usage of the commands within this tutorial, you need to 
 
 ```bash
 export PROJECT_ID=your-project-id
-export LOCATION=your-location
+export LOCATION=us-central1 # or any location where Cloud Run offers GPUs: https://cloud.google.com/run/docs/locations#gpu
 export CONTAINER_URI=us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310
 export SERVICE_NAME=text-generation-inference
 ```
@@ -72,7 +72,7 @@ gcloud beta run deploy $SERVICE_NAME \
 ![Cloud Run Deployment Details](./imgs/cloud-run-details.png)
 
 > [!NOTE]
-> The first time you deploy a new container on Cloud Run it will take around 5 minutes to deploy as it needs to import it from the Google Cloud Container Registry, but on the follow up deployments it will take less time as the image has been already imported before.
+> The first time you deploy a new container on Cloud Run it will take around 5 minutes to deploy as it needs to import it from the Google Cloud Artifact Registry, but on the follow up deployments it will take less time as the image has been already imported before.
 
 ## Inference on Cloud Run
 
