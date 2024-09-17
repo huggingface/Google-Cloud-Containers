@@ -2,9 +2,9 @@
     - local: index
       title: Hugging Face on Google Cloud
     - local: features
-      title: 🔥 Features & benefits
+      title: Features & benefits
     - local: resources
-      title: 📄 Resources, Documentation & Examples
+      title: Resources, Documentation & Examples
   title: Getting Started
 - sections:
     - local: containers/introduction
