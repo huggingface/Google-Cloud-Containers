@@ -18,8 +18,8 @@ docs: clean
 				s|\(\.\./([^)]+)\)|(https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/'"$$dir"'/\1)|g; \
 				s|\(\.\/([^)]+)\)|(https://github.com/huggingface/Google-Cloud-Containers/tree/main/'"$${file%/*}"'/\1)|g; \
 			' "$$file" > "$$target"; \
-			sed -n -f output.sed "$$target" > "$$target.tmp" && mv "$$target.tmp" "$$target"; \
-			sed '/^>/d' "$$target" > "$$target.tmp" && mv "$$target.tmp" "$$target"; \
+			sed -n -f docs/sed/huggingface-tip.sed "$$target" > "$$target.tmp" && mv "$$target.tmp" "$$target"; \
+			sed -E 's/^(>[ ]*)+//g' "$$target" > "$$target.tmp" && mv "$$target.tmp" "$$target"; \
 			if grep -qE '\(\.\./|\(\./' "$$target"; then \
 				echo "WARNING: Relative paths still exist in the processed file."; \
 				echo "The following lines contain relative paths, consider replacing those with GitHub URLs instead:"; \
