@@ -31,10 +31,10 @@ def process_file(root, file, dir):
 
     # Replace image and link paths
     content = re.sub(
-        r"\(\.\/imgs\/([^)]*\.png)\)",
+        r"\(\./(imgs|assets)/([^)]*\.png)\)",
         r"(https://raw.githubusercontent.com/huggingface/Google-Cloud-Containers/main/"
         + root
-        + r"/imgs/\1)",
+        + r"/\1/\2)",
         content,
     )
     content = re.sub(

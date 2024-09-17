@@ -21,12 +21,13 @@ docs: clean
 			echo "          title: \"$$title\"" >> docs/source/_toctree.yml; \
 		done; \
 		echo "      isExpanded: false" >> docs/source/_toctree.yml; \
-		echo "      local: examples/$$dir-index" >> docs/source/_toctree.yml; \
 		if [ "$$dir" = "cloud-run" ]; then \
+			echo "      local: examples/$$dir-index" >> docs/source/_toctree.yml; \
 			echo "      title: Cloud Run" >> docs/source/_toctree.yml; \
 		elif [ "$$dir" = "vertex-ai" ]; then \
 			echo "      title: Vertex AI" >> docs/source/_toctree.yml; \
 		else \
+			echo "      local: examples/$$dir-index" >> docs/source/_toctree.yml; \
 			echo "      title: $$(echo $$dir | tr '[:lower:]' '[:upper:]')" >> docs/source/_toctree.yml; \
 		fi; \
 	done
