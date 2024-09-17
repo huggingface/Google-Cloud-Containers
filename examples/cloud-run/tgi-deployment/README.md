@@ -254,7 +254,7 @@ Now you can already dive into the different alternatives for sending the request
 To send a POST request to the TGI service using `cURL`, you can run the following command:
 
 ```bash
-curl $SERVICE_URL:8080/v1/chat/completions \
+curl $SERVICE_URL/v1/chat/completions \
     -X POST \
     -H 'Authorization: Bearer $ACCESS_TOKEN' \
     -H 'Content-Type: application/json' \
