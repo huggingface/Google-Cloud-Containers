@@ -5,7 +5,9 @@ type: training
 
 # Fine-tune Mistral 7B v0.3 with TRL on GKE
 
-Mistral is a family of models with varying sizes, created by the Mistral AI team; the Mistral 7B v0.3 LLM is a Mistral 7B v0.2 with extended vocabulary. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to fine-tune Mistral 7B v0.3 with TRL via Supervised Fine-Tuning (SFT) and Low-Rank Adaptation (LoRA) in a single GPU on a GKE Cluster.
+Mistral is a family of models with varying sizes, created by the Mistral AI team; the Mistral 7B v0.3 LLM is a Mistral 7B v0.2 with extended vocabulary. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
+
+This example showcases how to fine-tune Mistral 7B v0.3 with TRL via Supervised Fine-Tuning (SFT) and Low-Rank Adaptation (LoRA) in a single GPU on a GKE Cluster.
 
 ## Setup / Configuration
 
