@@ -10,30 +10,7 @@ docs: clean
 	@echo "Cleaning up generated Markdown Notebook files..."
 	@find examples/vertex-ai/notebooks -name "vertex-notebook.md" -type f -delete
 	@echo "Generating YAML tree structure and appending to _toctree.yml..."
-	@echo "# GENERATED CONTENT DO NOT EDIT!" >> docs/source/_toctree.yml
-	@echo "- sections:" >> docs/source/_toctree.yml
-	@for dir in vertex-ai gke cloud-run; do \
-		echo "    - sections:" >> docs/source/_toctree.yml; \
-		find docs/source/examples -name "$$dir-*.mdx" ! -name "$$dir-index.mdx" | sort | while read file; do \
-			base=$$(basename "$$file" .mdx); \
-			title=$$(head -n1 "$$file" | sed 's/^# *//'); \
-			echo "        - local: examples/$$base" >> docs/source/_toctree.yml; \
-			echo "          title: \"$$title\"" >> docs/source/_toctree.yml; \
-		done; \
-		echo "      isExpanded: false" >> docs/source/_toctree.yml; \
-		if [ "$$dir" = "cloud-run" ]; then \
-			echo "      local: examples/$$dir-index" >> docs/source/_toctree.yml; \
-			echo "      title: Cloud Run" >> docs/source/_toctree.yml; \
-		elif [ "$$dir" = "vertex-ai" ]; then \
-			echo "      title: Vertex AI" >> docs/source/_toctree.yml; \
-		else \
-			echo "      local: examples/$$dir-index" >> docs/source/_toctree.yml; \
-			echo "      title: $$(echo $$dir | tr '[:lower:]' '[:upper:]')" >> docs/source/_toctree.yml; \
-		fi; \
-	done
-	@echo "  # local: examples/index" >> docs/source/_toctree.yml
-	@echo "  title: Examples" >> docs/source/_toctree.yml
-	@echo "# END GENERATED CONTENT" >> docs/source/_toctree.yml
+	@python docs/scripts/auto-update-toctree.py
 	@echo "YAML tree structure appended to docs/source/_toctree.yml"
 	@echo "Documentation setup complete."
 
