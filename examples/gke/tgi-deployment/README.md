@@ -1,3 +1,8 @@
+---
+title: Deploy Meta Llama 3 8B with Text Generation Inference (TGI) on GKE
+type: inference
+---
+
 # Deploy Meta Llama 3 8B with Text Generation Inference (TGI) on GKE
 
 Meta Llama 3 is the latest LLM from the Llama family, released by Meta; coming in two sizes 8B and 70B, including both the base model and the instruction-tuned model. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy an LLM from the Hugging Face Hub, as Llama3 8B Instruct, on a GKE Cluster running a purpose-built container to deploy LLMs in a secure and managed environment with the Hugging Face DLC for TGI.
