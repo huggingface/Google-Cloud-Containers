@@ -1,5 +1,7 @@
 import glob
+import os
 import re
+
 
 from pathlib import Path
 
@@ -23,23 +25,41 @@ def update_toctree_yaml():
             files_by_type = {}
 
             for file in files:
-                with open(file, "r") as mdx_file:
+                with open(file, "r+") as mdx_file:
                     content = mdx_file.read()
-                    # Extract the metadata surrounded with `---`
-                    metadata = re.search(r"---(.*?)---", content, re.DOTALL)
-                    if metadata:
-                        metadata = metadata.group(1)
-                        metadata = dict(
-                            line.split(": ", 1) for line in metadata.strip().split("\n")
+                    metadata_match = re.search(r"---(.*?)---", content, re.DOTALL)
+
+                    metadata = {}
+                    if metadata_match:
+                        metadata_str = metadata_match.group(1)
+                        metadata = dict(re.findall(r"(\w+):\s*(.+)", metadata_str))
+
+                        # Remove metadata from content assuming it's the block on top
+                        # surrounded by `---` including those too
+                        content = re.sub(
+                            r"^---\s*\n.*?\n---\s*\n",
+                            "",
+                            content,
+                            flags=re.DOTALL | re.MULTILINE,
                         )
-                    else:
-                        metadata = {}
+                        content = content.strip()
+
+                        mdx_file.seek(0)
+                        mdx_file.write(content)
+                        mdx_file.truncate()
 
                 if not all(key in metadata for key in ["title", "type"]):
                     print(f"WARNING: Metadata missing in {file}")
                     print("Ensure that the file contains the following metadata:")
                     print("title: <title>")
                     print("type: <type>")
+
+                    # Remove the file from `docs/source/examples` if doesn't contain metadata
+                    print(
+                        "Removing the file as it won't be included in the _toctree.yml"
+                    )
+                    os.remove(file)
+
                     continue
 
                 file_type = metadata["type"]
@@ -71,8 +91,6 @@ def update_toctree_yaml():
         f.write("  # local: examples/index\n")
         f.write("  title: Examples\n")
         f.write("# END GENERATED CONTENT\n")
-
-    print("YAML tree structure appended to docs/source/_toctree.yml")
 
 
 if __name__ == "__main__":
