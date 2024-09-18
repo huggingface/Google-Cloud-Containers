@@ -77,7 +77,7 @@ def update_toctree_yaml():
                 f.write("          isExpanded: false\n")
                 f.write(f"          title: {file_type.capitalize()}\n")
 
-            f.write("      isExpanded: false\n")
+            f.write("      isExpanded: true\n")
 
             if dir == "cloud-run":
                 f.write(f"      local: examples/{dir}-index\n")
