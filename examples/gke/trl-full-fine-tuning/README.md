@@ -1,9 +1,9 @@
 ---
-title: Fine-tune Gemma 2B with TRL on GKE
+title: Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE
 type: training
 ---
 
-# Fine-tune Gemma 2B with TRL on GKE
+# Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE
 
 Gemma is a family of lightweight, state-of-the-art open models built from the same research and technology used to create the Gemini models, developed by Google DeepMind and other teams across Google. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
 

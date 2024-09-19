@@ -1,9 +1,9 @@
 ---
-title: Deploy Qwen2 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on GKE
+title: Deploy Qwen2 7B with TGI DLC from GCS on GKE
 type: inference
 ---
 
-# Deploy Qwen2 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on GKE
+# Deploy Qwen2 7B with TGI DLC from GCS on GKE
 
 Qwen2 is the new series of Qwen Large Language Models (LLMs) built by Alibaba Cloud, with both base and instruction-tuned language models ranging from 0.5 to 72 billion parameters, including a Mixture-of-Experts model; the 7B variant sitting in the second place in the 7B size range in the Open LLM Leaderboard by Hugging Face and the 72B one in the first place amongst any size. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
 

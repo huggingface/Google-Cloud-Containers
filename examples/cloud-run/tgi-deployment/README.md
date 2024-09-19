@@ -1,9 +1,9 @@
 ---
-title: Deploy Meta Llama 3.1 8B with Text Generation Inference on Cloud Run
+title: Deploy Meta Llama 3.1 8B with TGI DLC on Cloud Run
 type: inference
 ---
 
-# Deploy Meta Llama 3.1 8B with Text Generation Inference on Cloud Run
+# Deploy Meta Llama 3.1 8B with TGI DLC on Cloud Run
 
 Meta Llama 3.1 is the latest open LLM from Meta, released in July 2024. Meta Llama 3.1 comes in three sizes: 8B for efficient deployment and development on consumer-size GPU, 70B for large-scale AI native applications, and 405B for synthetic data, LLM as a Judge or distillation; among other use cases. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Cloud Run is a serverless container platform that allows developers to deploy and manage containerized applications without managing infrastructure, enabling automatic scaling and billing only for usage.
 

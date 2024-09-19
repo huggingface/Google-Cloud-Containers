@@ -1,9 +1,9 @@
 ---
-title: Deploy Snowflake's Arctic Embed (M) with Text Embeddings Inference (TEI) on GKE
+title: Deploy Snowflake's Arctic Embed with TEI DLC on GKE
 type: inference
 ---
 
-# Deploy Snowflake's Arctic Embed (M) with Text Embeddings Inference (TEI) on GKE
+# Deploy Snowflake's Arctic Embed with TEI DLC on GKE
 
 Snowflake's Arctic Embed is a suite of text embedding models that focuses on creating high-quality retrieval models optimized for performance, achieving state-of-the-art (SOTA) performance on the MTEB/BEIR leaderboard for each of their size variants. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
 
