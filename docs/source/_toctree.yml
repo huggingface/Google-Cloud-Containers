@@ -4,7 +4,7 @@
     - local: features
       title: Features & benefits
     - local: resources
-      title: Resources, Documentation & Examples
+      title: Other Resources
   title: Getting Started
 - sections:
     - local: containers/introduction
