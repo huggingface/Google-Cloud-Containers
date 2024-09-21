@@ -7,6 +7,6 @@ This directory contains usage examples of the Hugging Face Deep Learning Contain
 
 ## Inference Examples
 
-| Example                            | Description                                                              |
-| ---------------------------------- | ------------------------------------------------------------------------ |
-| [tgi-deployment](./tgi-deployment) | Deploying Meta Llama 3.1 8B with Text Generation Inference on Cloud Run. |
+| Example                            | Title                                           |
+| ---------------------------------- | ----------------------------------------------- |
+| [tgi-deployment](./tgi-deployment) | Deploy Meta Llama 3.1 with TGI DLC on Cloud Run |
