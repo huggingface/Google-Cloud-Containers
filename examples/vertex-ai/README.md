@@ -8,21 +8,22 @@ For Google Vertex AI, we differentiate between the executable Jupyter Notebook e
 
 ### Training Examples
 
-| Example                                                                                    | Description                                                                             |
-| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| [trl-full-sft-fine-tuning-on-vertex-ai](./notebooks/trl-full-sft-fine-tuning-on-vertex-ai) | Full SFT fine-tuning of Mistral 7B v0.3 in a multi-GPU instance with TRL on Vertex AI.  |
-| [trl-lora-sft-fine-tuning-on-vertex-ai](./notebooks/trl-lora-sft-fine-tuning-on-vertex-ai) | LoRA SFT fine-tuning of Mistral 7B v0.3 in a single GPU instance with TRL on Vertex AI. |
+| Example                                                                                    | Title                                                                      |
+| ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| [trl-full-sft-fine-tuning-on-vertex-ai](./notebooks/trl-full-sft-fine-tuning-on-vertex-ai) | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT on Vertex AI |
+| [trl-lora-sft-fine-tuning-on-vertex-ai](./notebooks/trl-lora-sft-fine-tuning-on-vertex-ai) | Fine-tune Gemma 2B with PyTorch Training DLC using SFT + LoRA on Vertex AI |
 
 ### Inference Examples
 
-| Example                                                                              | Description                                                                                                                                     |
-| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| [deploy-bert-on-vertex-ai](./notebooks/deploy-bert-on-vertex-ai)                     | Deploying a BERT model for a text classification task using `huggingface-inference-toolkit` for a Custom Prediction Routine (CPR) on Vertex AI. |
-| [deploy-embedding-on-vertex-ai](./notebooks/deploy-embedding-on-vertex-ai)           | Deploying an embedding model with Text Embeddings Inference (TEI) on Vertex AI.                                                                 |
-| [deploy-gemma-on-vertex-ai](./notebooks/deploy-gemma-on-vertex-ai)                   | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) on Vertex AI.                                                                  |
-| [deploy-gemma-from-gcs-on-vertex-ai](./notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploying Gemma 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on Vertex AI.                                                |
-| [deploy-flux-on-vertex-ai](./notebooks/deploy-flux-on-vertex-ai)                     | Deploying FLUX with Hugging Face PyTorch DLCs for Inference on Vertex AI.                                                                       |
+| Example                                                                                                | Title                                                      |
+| ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| [deploy-bert-on-vertex-ai](./notebooks/deploy-bert-on-vertex-ai)                                       | Deploy BERT Models with PyTorch Inference DLC on Vertex AI |
+| [deploy-embedding-on-vertex-ai](./notebooks/deploy-embedding-on-vertex-ai)                             | Deploy Embedding Models with TEI DLC on Vertex AI          |
+| [deploy-gemma-on-vertex-ai](./notebooks/deploy-gemma-on-vertex-ai)                                     | Deploy Gemma 7B with TGI DLC on Vertex AI                  |
+| [deploy-gemma-from-gcs-on-vertex-ai](./notebooks/deploy-gemma-from-gcs-on-vertex-ai)                   | Deploy Gemma 7B with TGI DLC from GCS on Vertex AI         |
+| [deploy-flux-on-vertex-ai](./notebooks/deploy-flux-on-vertex-ai)                                       | Deploy FLUX with PyTorch Inference DLC on Vertex AI        |
+| [deploy-llama-3-1-405b-on-vertex-ai](./notebooks/deploy-llama-405b-on-vertex-ai/vertex-notebook.ipynb) | Deploy Meta Llama 3.1 405B with TGI DLC on Vertex AI       |
 
 ## Pipelines
 
-More to come soon!
+Coming soon!

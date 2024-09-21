@@ -1,6 +1,13 @@
-# Fine-tune Gemma 2B with TRL on GKE
+---
+title: Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE
+type: training
+---
 
-Gemma is a family of lightweight, state-of-the-art open models built from the same research and technology used to create the Gemini models, developed by Google DeepMind and other teams across Google. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to full fine-tune Gemma 2B with TRL via Supervised Fine-Tuning (SFT) in a multi-GPU setting on a GKE Cluster.
+# Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE
+
+Gemma is a family of lightweight, state-of-the-art open models built from the same research and technology used to create the Gemini models, developed by Google DeepMind and other teams across Google. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
+
+This example showcases how to full fine-tune Gemma 2B with TRL via Supervised Fine-Tuning (SFT) in a multi-GPU setting on a GKE Cluster.
 
 ## Setup / Configuration
 
@@ -56,7 +63,8 @@ gcloud container clusters create-auto $CLUSTER_NAME \
     --project=$PROJECT_ID \
     --location=$LOCATION \
     --release-channel=stable \
-    --cluster-version=1.28
+    --cluster-version=1.28 \
+    --no-autoprovisioning-enable-insecure-kubelet-readonly-port
 ```
 
 > [!NOTE]
