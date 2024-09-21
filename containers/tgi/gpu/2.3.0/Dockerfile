@@ -1,7 +1,7 @@
 # Fetch and extract the TGI sources
 FROM alpine AS tgi
 RUN mkdir -p /tgi
-ADD https://github.com/huggingface/text-generation-inference/archive/dc13e08cc2877da0e383a16b64c68a435c6eec22.tar.gz /tgi/sources.tar.gz
+ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v2.3.0.tar.gz /tgi/sources.tar.gz
 RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
 
 # Rust builder
@@ -188,10 +188,10 @@ COPY --from=tgi /tgi/server/Makefile-selective-scan Makefile
 RUN make build-all
 
 # Build flashinfer
-# FROM kernel-builder AS flashinfer-builder
-# WORKDIR /usr/src
-# COPY --from=tgi /tgi/server/Makefile-flashinfer Makefile
-# RUN make install-flashinfer
+FROM kernel-builder AS flashinfer-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/Makefile-flashinfer Makefile
+RUN make install-flashinfer
 
 # Text Generation Inference base image
 FROM nvidia/cuda:12.1.0-base-ubuntu22.04 AS base
@@ -245,7 +245,7 @@ COPY --from=vllm-builder /usr/src/vllm/build/lib.linux-x86_64-cpython-310 /opt/c
 # Copy build artifacts from mamba builder
 COPY --from=mamba-builder /usr/src/mamba/build/lib.linux-x86_64-cpython-310/ /opt/conda/lib/python3.10/site-packages
 COPY --from=mamba-builder /usr/src/causal-conv1d/build/lib.linux-x86_64-cpython-310/ /opt/conda/lib/python3.10/site-packages
-# COPY --from=flashinfer-builder /opt/conda/lib/python3.10/site-packages/flashinfer/ /opt/conda/lib/python3.10/site-packages/flashinfer/
+COPY --from=flashinfer-builder /opt/conda/lib/python3.10/site-packages/flashinfer/ /opt/conda/lib/python3.10/site-packages/flashinfer/
 
 # Install flash-attention dependencies
 RUN pip install einops --no-cache-dir
@@ -292,5 +292,5 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     apt-get install google-cloud-sdk -y
 
 # COPY custom entrypoint for Google
-COPY --chmod=775 containers/tgi/gpu/sha-2788d41/entrypoint.sh entrypoint.sh
+COPY --chmod=775 containers/tgi/gpu/2.3.0/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
