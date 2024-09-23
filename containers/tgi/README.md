@@ -57,7 +57,7 @@ docker run --gpus all -ti --shm-size 1g -p 8080:8080 \
     -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
     -e MAX_INPUT_LENGTH=4000 \
     -e MAX_TOTAL_TOKENS=4096 \
-    us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-3.ubuntu2204.py310
+    us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-3.ubuntu2204.py311
 ```
 
 ### Test
@@ -111,5 +111,5 @@ curl 0.0.0.0:8080/generate \
 In order to build TGI Docker container, you will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TGI needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~30 minutes to complete, depending on the instance's specifications.
 
 ```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-3.ubuntu2204.py310 -f containers/tgi/gpu/2.2.0/Dockerfile .
+docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-3.ubuntu2204.py311 -f containers/tgi/gpu/2.2.0/Dockerfile .
 ```
