@@ -64,3 +64,10 @@ The [`examples`](./examples) directory contains examples for using the container
 | Vertex AI | [deploy-flux-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai)                                       | Deploying FLUX with Hugging Face PyTorch DLCs for Inference on Vertex AI.                                                                       |
 | Vertex AI | [deploy-llama-3-1-405b-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-llama-405b-on-vertex-ai/vertex-notebook.ipynb) | Deploying Meta Llama 3.1 405B in FP8 with Hugging Face DLC for TGI on Vertex AI.                                                                |
 | Cloud Run | [tgi-deployment](./examples/cloud-run/tgi-deployment/README.md)                                                           | Deploying Meta Llama 3.1 8B with Text Generation Inference on Cloud Run.                                                                        |
+
+
+### Evaluation
+
+| Service   | Example                                                                                     | Description                                     |
+| --------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Vertex AI | [evaluate-llms-with-vertex-ai](./examples/vertex-ai/notebooks/evaluate-llms-with-vertex-ai) | Evaluating open LLMs with Vertex AI and Gemini. |
