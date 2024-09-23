@@ -6,7 +6,10 @@ on:
       - main
       - doc-builder*
     paths:
-      - docs/source/**
+      - docs/**
+      - examples/**/*.md
+      - examples/**/*.ipynb
+      - Makefile
       - .github/workflows/doc-build.yml
 
 jobs:
