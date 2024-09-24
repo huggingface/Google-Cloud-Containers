@@ -7,7 +7,7 @@
 - sections:
     - local: containers/introduction
       title: Introduction
-    - local: features
+    - local: containers/features
       title: Features & benefits
     - local: containers/available
       title: Available DLCs on Google Cloud
