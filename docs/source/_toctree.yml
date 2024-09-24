@@ -1,14 +1,14 @@
 - sections:
     - local: index
       title: Hugging Face on Google Cloud
-    - local: features
-      title: Features & benefits
     - local: resources
       title: Other Resources
   title: Getting Started
 - sections:
     - local: containers/introduction
       title: Introduction
+    - local: features
+      title: Features & benefits
     - local: containers/available
       title: Available DLCs on Google Cloud
   title: Deep Learning Containers (DLCs)
