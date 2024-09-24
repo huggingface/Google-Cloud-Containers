@@ -19,7 +19,7 @@ For advanced scenarios, you can pull any Hugging Face DLCs from the Google Cloud
 
 #### On Vertex AI or GKE
 
-If you want to deploy a model from the Hub in your Google Cloud account on Vertex AI or GKE, you can use our no-code integrations. Below, you will find step-by-step instructions on how to deploy (Gemma 2 9B)[https://huggingface.co/google/gemma-2-9b-it]:
+If you want to deploy a model from the Hub in your Google Cloud account on Vertex AI or GKE, you can use our no-code integrations. Below, you will find step-by-step instructions on how to deploy [Gemma 2 9B](https://huggingface.co/google/gemma-2-9b-it):
 1. On the model page, open the “Deploy” menu, and select “Google Cloud”. This will bring you straight into the Google Cloud Console.
 2. Select Vertex AI or GKE as a deployment option.
 3. Paste a [Hugging Face Token](https://huggingface.co/docs/hub/en/security-tokens) with "Read access contents of all public gated repos you can access" permission.
@@ -30,19 +30,22 @@ Alternatively, you can follow this short video.
 
 #### On Hugging Face Inference Endpoints
 
-You can deploy a model from the Hub on Hugging Face [Inference Endpoints](https://huggingface.co/inference-endpoints/dedicated) on Google Cloud instances managed by Hugging Face. Below, you will find step-by-step instructions on how to deploy [Gemma 2 9B](https://huggingface.co/google/gemma-2-9b-it):
+If you want to deploy a model from the hub but you don't have a Google Cloud environment, you can use Hugging Face [Inference Endpoints](https://huggingface.co/inference-endpoints/dedicated)on Google Cloud. Below, you will find step-by-step instructions on how to deploy [Gemma 2 9B](https://huggingface.co/google/gemma-2-9b-it):
 1. On the model page, open the “Deploy” menu, and select “Inference Endpoints (dedicated)”. This will now bring you in the Inference Endpoint deployment page.
 2. Select Google Cloud Platform, scroll down and click on "Create Endpoint". 
 
 Alternatively, you can follow this short video.
-<video src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/inference-endpoint.mp4" controls autoplay muted loop />
+<video src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/inference-endpoints.mp4" controls autoplay muted loop />
 
 ### From Vertex AI Model Garden
 
 #### On Vertex AI or GKE
 
-You can deploy a Hugging Face model from the Vertex AI Model Garden on Vertex AI or GKE. Below, you will find step-by-step instructions on how to deploy [Gemma 2 9B](https://huggingface.co/google/gemma-2-9b-it):
-1. On [Vertex AI Model Garden landing page](https://console.cloud.google.com/vertex-ai/model-garden), you can browse Hugging Face models by clicking “Deploy From Hugging Face” at the top left, or scroll down to see our curated list of open source models as well as the full catalog by clicking on "Hugging Face" in the Featured Partner section.
+If you are used to browse model directly from Vertex AI Model Garden, we brought more than 4000 models from the Hugging Face Hub. Below, you will find step-by-step instructions on how to deploy [Gemma 2 9B](https://huggingface.co/google/gemma-2-9b-it):
+1. On [Vertex AI Model Garden landing page](https://console.cloud.google.com/vertex-ai/model-garden), you can browse Hugging Face models:
+    a. by clicking “Deploy From Hugging Face” at the top left
+    b. by scrolling down to see our curated list of 12 open source models 
+    c. by clicking on "Hugging Face" in the Featured Partner section to access a catalog of 4000+ models hosted on the Hub.
 2. Once you found the model that you want to deploy, you can select Vertex AI or GKE as a deployment option.
 3. Paste a [Hugging Face Token](https://huggingface.co/docs/hub/en/security-tokens) with "Read access contents of all public gated repos you can access" permission.
 4. If Vertex AI is selected, click on "Deploy". If GKE is selected, paste the manifest code and apply to your EKS cluster.
