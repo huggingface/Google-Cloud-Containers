@@ -6,8 +6,6 @@ Hugging Face collaborates with Google across open science, open source, cloud, a
 
 Hugging Face enables new experiences for Google Cloud customers. They can easily train and deploy Hugging Face models on Google Kubernetes Engine (GKE) and Vertex AI, on any hardware available in Google Cloud using Hugging Face Deep Learning Containers (DLCs).
 
-If you have any issues using Hugging Face on Google Cloud, you can get community support by creating a new topic in the [Forum](https://discuss.huggingface.co/c/google-cloud/69/l/latest) dedicated to Google Cloud usage.
-
 ## Train and Deploy Models on Google Cloud with Hugging Face Deep Learning Containers
 
 Hugging Face built Deep Learning Containers (DLCs) for Google Cloud customers to run any of their machine learning workload in an optimized environment, with no configuration or maintenance on their part. These are Docker images pre-installed with deep learning frameworks and libraries such as 🤗 Transformers, 🤗 Datasets, and 🤗 Tokenizers. The DLCs allow you to directly serve and train any models, skipping the complicated process of building and optimizing your serving and training environments from scratch.
@@ -18,9 +16,14 @@ For inference, we have a general-purpose PyTorch inference DLC, for serving mode
 
 The DLCs are hosted in [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) and can be used from any Google Cloud service such as Google Kubernetes Engine (GKE), Vertex AI, or Cloud Run (in preview).
 
-Hugging Face DLCs are open source and licensed under Apache 2.0 within the [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers) repository. For premium support, our [Expert Support Program](https://huggingface.co/support) gives you direct dedicated support from our team.
 
 You have two options to take advantage of these DLCs as a Google Cloud customer:
 
 1. To [get started](https://huggingface.co/blog/google-cloud-model-garden), you can use our no-code integrations within Vertex AI or GKE.
 2. For more advanced scenarios, you can pull the containers from the Google Cloud Artifact Registry directly in your environment. [Here](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples) is a list of notebooks examples.
+
+## Support
+
+If you have any issues using Hugging Face on Google Cloud, you can get community support by creating a new topic in the [Forum](https://discuss.huggingface.co/c/google-cloud/69/l/latest) dedicated to Google Cloud usage.
+
+Hugging Face DLCs are open source and licensed under Apache 2.0 within the [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers) repository. For premium support, our [Expert Support Program](https://huggingface.co/support) gives you direct dedicated support from our team.
