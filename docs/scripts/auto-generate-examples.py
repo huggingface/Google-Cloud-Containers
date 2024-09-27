@@ -1,6 +1,8 @@
 import os
 import re
 
+GITHUB_BRANCH = os.getenv("GITHUB_BRANCH", "main")
+
 
 def process_readme_files():
     print("Processing README.md files from examples/gke and examples/cloud-run...")
@@ -35,21 +37,21 @@ def process_file(root, file, dir):
     # Replace image and link paths
     content = re.sub(
         r"\(\./(imgs|assets)/([^)]*\.png)\)",
-        r"(https://raw.githubusercontent.com/huggingface/Google-Cloud-Containers/main/"
+        rf"(https://raw.githubusercontent.com/huggingface/Google-Cloud-Containers/{GITHUB_BRANCH}/"
         + root
         + r"/\1/\2)",
         content,
     )
     content = re.sub(
         r"\(\.\./([^)]+)\)",
-        r"(https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/"
+        rf"(https://github.com/huggingface/Google-Cloud-Containers/tree/{GITHUB_BRANCH}/examples/"
         + dir
         + r"/\1)",
         content,
     )
     content = re.sub(
         r"\(\.\/([^)]+)\)",
-        r"(https://github.com/huggingface/Google-Cloud-Containers/tree/main/"
+        rf"(https://github.com/huggingface/Google-Cloud-Containers/tree/{GITHUB_BRANCH}/"
         + root
         + r"/\1)",
         content,
