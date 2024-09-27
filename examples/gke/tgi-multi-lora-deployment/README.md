@@ -149,8 +149,6 @@ The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configurat
 kubectl apply -f config/
 ```
 
-![GKE Deployment in the GCP Console](./imgs/gke-deployment.png)
-
 > [!NOTE]
 > The Kubernetes deployment may take a few minutes to be ready, so you can check the status of the deployment with the following command:
 >
@@ -163,6 +161,10 @@ kubectl apply -f config/
 > ```bash
 > kubectl wait --for=condition=Available --timeout=700s deployment/tgi-deployment
 > ```
+
+![GKE Deployment in the GCP Console](./imgs/gke-deployment.png)
+
+![GKE Deployment Logs in the GCP Console](./imgs/gke-deployment-logs.png)
 
 ## Inference with TGI
 
