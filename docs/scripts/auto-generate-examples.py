@@ -66,7 +66,9 @@ def process_file(root, file, dir):
 
         # Remove '> ' from the beginning of each line and strip whitespace
         lines = [
-            line.lstrip("> ").strip() for line in content.split("\n") if line.strip()
+            line[2:] if line.startswith("> ") else line
+            for line in content.split("\n")
+            if line.strip()
         ]
 
         # Determine the Tip type
