@@ -57,19 +57,12 @@ def process_file(root, file, dir):
         content,
     )
 
-    # Regular expression to match the specified blocks
-    pattern = r"> \[!(NOTE|WARNING)\]\n((?:> .*\n)+)"
-
     def replacement(match):
         block_type = match.group(1)
         content = match.group(2)
 
-        # Remove '> ' from the beginning of each line and strip whitespace
-        lines = [
-            line[2:] if line.startswith("> ") else line
-            for line in content.split("\n")
-            if line.strip()
-        ]
+        # Remove '> ' from the beginning of each line
+        lines = [line[2:] for line in content.split("\n") if line.strip()]
 
         # Determine the Tip type
         tip_type = " warning" if block_type == "WARNING" else ""
@@ -81,11 +74,14 @@ def process_file(root, file, dir):
 
         return new_block
 
+    # Regular expression to match the specified blocks
+    pattern = r"> \[!(NOTE|WARNING)\]\n((?:>.*(?:\n|$))+)"
+
     # Perform the transformation
     content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
 
-    # Remove blockquotes
-    content = re.sub(r"^(>[ ]*)+", "", content, flags=re.MULTILINE)
+    # Remove any remaining '>' or '> ' at the beginning of lines
+    content = re.sub(r"^>[ ]?", "", content, flags=re.MULTILINE)
 
     # Check for remaining relative paths
     if re.search(r"\(\.\./|\(\./", content):
