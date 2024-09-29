@@ -256,11 +256,11 @@ from huggingface_hub import InferenceClient
 client = InferenceClient(base_url="http://localhost:8080", api_key="-")
 
 chat_completion = client.chat.completions.create(
-  model="google-cloud-partnership/gemma-2-2b-it-lora-magicoder",
-  messages=[
-    {"role": "user", "content": "You are given a vector of integers, A, of length n. Your task is to implement a function that finds the maximum product of any two distinct elements in the vector. Write a function in Rust to return this maximum product. Function Signature: rust fn max_product(a: Vec<i32>) -> i32  Input: - A vector a of length n (2 <= n <= 10^5), where each element is an integer (-10^4 <= a[i] <= 10^4). Output: - Return the maximum product of two distinct elements. Example: Input: a = vec![1, 5, 3, 9] Output: max_product(a) -> 45"},
-  ],
-  max_tokens=128,
+    model="google-cloud-partnership/gemma-2-2b-it-lora-magicoder",
+    messages=[
+        {"role": "user", "content": "You are given a vector of integers, A, of length n. Your task is to implement a function that finds the maximum product of any two distinct elements in the vector. Write a function in Rust to return this maximum product. Function Signature: rust fn max_product(a: Vec<i32>) -> i32  Input: - A vector a of length n (2 <= n <= 10^5), where each element is an integer (-10^4 <= a[i] <= 10^4). Output: - Return the maximum product of two distinct elements. Example: Input: a = vec![1, 5, 3, 9] Output: max_product(a) -> 45"},
+    ],
+    max_tokens=128,
 )
 ```
 
