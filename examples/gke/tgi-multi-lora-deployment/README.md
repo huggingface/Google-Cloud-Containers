@@ -196,7 +196,7 @@ curl http://localhost:8080/v1/chat/completions \
 Or send a POST request to the ingress IP instead:
 
 ```bash
-curl http://$(kubectl get ingress tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/generate \
+curl http://$(kubectl get ingress tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/v1/chat/completions \
     -X POST \
     -d '{"messages":[{"role":"user","content":"What is Deep Learning?"}],"temperature":0.7,"top_p":0.95,"max_tokens":128}}' \
     -H 'Content-Type: application/json'
