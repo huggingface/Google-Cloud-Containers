@@ -7,7 +7,7 @@ type: inference
 
 Meta Llama 3.1 is the latest open LLM from Meta, released in July 2024. Meta Llama 3.1 comes in three sizes: 8B for efficient deployment and development on consumer-size GPU, 70B for large-scale AI native applications, and 405B for synthetic data, LLM as a Judge or distillation; among other use cases. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Cloud Run is a serverless container platform that allows developers to deploy and manage containerized applications without managing infrastructure, enabling automatic scaling and billing only for usage.
 
-This example showcases how to deploy an LLM from the Hugging Face Hub, in this case Meta Llama 3.1 8B Instruct model quantized to INT4 using AWQ, with the Hugging Face DLC for TGI on Google Cloud Run with GPU support (on preview).
+This example showcases how to deploy an LLM from the Hugging Face Hub, in this case Meta Llama 3.1 8B Instruct model quantized to INT4 using AWQ, with the Hugging Face DLC for TGI on Google Cloud Run with GPU support ([in preview](https://cloud.google.com/products#product-launch-stages)).
 
 > [!NOTE]
 > GPU support on Cloud Run is only available as a waitlisted public preview. If you're interested in trying out the feature, [request a quota increase](https://cloud.google.com/run/quotas#increase) for `Total Nvidia L4 GPU allocation, per project per region`. At the time of writing this example, NVIDIA L4 GPUs (24GiB VRAM) are the only available GPUs on Cloud Run; enabling automatic scaling up to 7 instances by default (more available via quota), as well as scaling down to zero instances when there are no requests.
@@ -50,10 +50,10 @@ The `gcloud beta run deploy` command needs you to specify the following paramete
   - `--model-id`: The model ID to use, in this case, [`hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4`](https://huggingface.co/hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4).
   - `--quantize`: The quantization method to use, in this case, `awq`. If not specified, it will be retrieved from the `quantization_config->quant_method` in the `config.json` file.
 - `--port`: The port the container listens to.
-- `--cpu` and `--memory`: The number of CPUs and amount of memory to allocate to the container. Needs to be set to 8 and 32GiB, respectively; as that's a requirement for using the GPU.
+- `--cpu` and `--memory`: The number of CPUs and amount of memory to allocate to the container. Needs to be set to 4 and 16Gi (16 GiB), respectively; as that's a requirement for using the GPU.
 - `--no-cpu-throttling`: Disables CPU throttling, which is required for using the GPU.
 - `--gpu` and `--gpu-type`: The number of GPUs and the GPU type to use. Needs to be set to 1 and `nvidia-l4`, respectively; as at the time of writing this tutorial, those are the only available options as Cloud Run on GPUs is still under preview.
-- `--max-instances`: The maximum number of instances to run, set to 3, but default value is 7. Alternatively, one could set it to 1 too, but that could eventually lead to downtime during infrastructure migrations, so anything above 1 is recommended.
+- `--max-instances`: The maximum number of instances to run, set to 3, but default maximum value is 7. Alternatively, one could set it to 1 too, but that could eventually lead to downtime during infrastructure migrations, so anything above 1 is recommended.
 - `--concurrency`: the maximum number of concurrent requests per instance, set to 64. The value is not arbitrary, but determined after running and evaluating the results of [`text-generation-benchmark`](https://github.com/huggingface/text-generation-inference/tree/main/benchmark), as the most optimal balance between throughput and latency; where the current default for TGI being 128 is a bit too much. Note that this value is also aligned with the [`--max-concurrent-requests`](https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/launcher#maxconcurrentrequests) argument in TGI.
 - `--region`: The region to deploy the Cloud Run service.
 - `--no-allow-unauthenticated`: Disables unauthenticated access to the service, which is a good practice as adds an authentication layer managed by Google Cloud IAM.
@@ -87,7 +87,7 @@ Once deployed, you can send requests to the service via any of the supported TGI
 
 All Cloud Run services are deployed privately by default, which means that they can't be accessed without providing authentication credentials in the request headers. These services are secured by IAM and are only callable by Project Owners, Project Editors, and Cloud Run Admins and Cloud Run Invokers.
 
-In this case, a couple of alternatives to enable developer access will be showcased; while the other use cases are out of the scope of this example, as those are either not secure due to the authentication being disabled (for public access scenarios), or require additional setup for a production-ready scenarios (service-to-service authentication, end-user access).
+In this case, a couple of alternatives to enable developer access will be showcased; while the other use cases are out of the scope of this example, as those are either not secure due to the authentication being disabled (for public access scenarios), or require additional setup for production-ready scenarios ([service-to-service authentication](https://cloud.google.com/run/docs/authenticating/service-to-service), [end-user access](https://cloud.google.com/run/docs/authenticating/end-users)).
 
 > [!NOTE]
 > The alternatives mentioned below are for development scenarios, and should not be used in production-ready scenarios as is. The approach below is following the guide defined in [Cloud Run Documentation - Authenticate Developers](https://cloud.google.com/run/docs/authenticating/developers); but you can find every other guide as mentioned above in [Cloud Run Documentation - Authentication overview](https://cloud.google.com/run/docs/authenticating/overview).
@@ -234,14 +234,6 @@ The recommended approach is to use a Service Account (SA), as the access can be 
       --region=$LOCATION
   ```
 
-- Update the Cloud Run service to use the Service Account:
-
-  ```bash
-  gcloud run services update $SERVICE_NAME \
-      --service-account $SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com \
-      --region=$REGION
-  ```
-
 - Generate the Access Token for the Service Account:
 
   ```bash
@@ -249,7 +241,7 @@ The recommended approach is to use a Service Account (SA), as the access can be 
   ```
 
 > [!WARNING]
-> The access token is short-lived and will expire, typically after 1 hour; if you want to extend the lifetime of the token you can do so via the `--lifetime` argument within the same command, up until 12 hours (value needs to be specified in seconds). Otherwise, you can also generate a new token by running the same command again.
+> The access token is short-lived and will expire, by default after 1 hour. If you want to extend the token lifetime beyond the default, you must create and organization policy and use the `--lifetime` argument when createing the token. Refer to (Access token lifetime)[[https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts#extend_oauth_ttl]] to learn more. Otherwise, you can also generate a new token by running the same command again.
 
 Now you can already dive into the different alternatives for sending the requests to the deployed Cloud Run Service using the `SERVICE_URL` AND `ACCESS_TOKEN` as described above.
 
@@ -341,12 +333,6 @@ To delete the Cloud Run Service you can either go to the Google Cloud Console at
 gcloud run services delete $SERVICE_NAME --region $LOCATION
 ```
 
-If you prefer to scale it down to zero instances without deleting it, you can use the following command:
-
-```bash
-gcloud run services update $SERVICE_NAME --region $LOCATION --platform managed --max-instances 0
-```
-
 Additionally, if you followed the steps in [via Cloud Run Service URL](#via-cloud-run-service-url) and generated a Service Account and an access token, you can either remove the Service Account, or just revoke the access token if it is still valid.
 
 - (recommended) Revoke the Access Token as
@@ -364,4 +350,5 @@ gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gservic
 ## References
 
 - [Cloud Run Documentation - Overview](https://cloud.google.com/run/docs)
+- [Cloud Run Documentation - GPU services](https://cloud.google.com/run/docs/configuring/services/gpu)
 - [Google Cloud Blog - Run your AI inference applications on Cloud Run with NVIDIA GPUs](https://cloud.google.com/blog/products/application-development/run-your-ai-inference-applications-on-cloud-run-with-nvidia-gpus)
