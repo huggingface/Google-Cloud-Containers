@@ -255,7 +255,7 @@ To send a POST request to the TGI service using `cURL`, you can run the followin
 ```bash
 curl $SERVICE_URL/v1/chat/completions \
     -X POST \
-    -H 'Authorization: Bearer $ACCESS_TOKEN' \
+    -H "Authorization: Bearer $ACCESS_TOKEN" \
     -H 'Content-Type: application/json' \
     -d '{
         "model": "tgi",
