@@ -6,11 +6,11 @@ spec:
   ingressClassName: "gce"
   rules:
     - http:
-      paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: tgi-service
-              port:
-                number: 8080
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tgi-service
+                port:
+                  number: 8080
