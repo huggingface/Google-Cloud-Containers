@@ -296,6 +296,8 @@ Additionally, some potential VLM use-cases, other than image captioning as shown
 
 ### Visual Question Answering (VQA)
 
+Given an image and a question about the image, generate an answer to the question.
+
 ```
 curl http://localhost:8080/v1/chat/completions \
     -X POST \
@@ -303,11 +305,25 @@ curl http://localhost:8080/v1/chat/completions \
     -H 'Content-Type: application/json'
 ```
 
-```
-{"object":"chat.completion","id":"","created":1728041432,"model":"meta-llama/Llama-3.2-11B-Vision-Instruct","system_fingerprint":"2.3.1-native","choices":[{"index":0,"message":{"role":"assistant","content":"The piece you're referring to is a painting from the Rococo era, specifically from the 18th century. The Rococo style emerged in France in the early 1700s and spread throughout Europe, particularly in Germany and Russia, during the mid-1700s.\n\n**Characteristics of Rococo Art:**\n\n* **Lightness and Airiness:** Rococo art is characterized by its lightness and airiness, often featuring delicate lines, pastel colors, and intricate details.\n* **Curves and Lines:** Rococo artists favored curves and lines over straight lines, creating a sense of fluidity and movement in their work"},"logprobs":null,"finish_reason":"length"}],"usage":{"prompt_tokens":51,"completion_tokens":128,"total_tokens":179}}
-```
+For example, given a piece of art you can ask the VLM questions about it.
+
+<table>
+    <tr>
+        <td><img src="https://huggingface.co/datasets/huggingface/release-assets/resolve/main/rococo.jpg" alt="Rococo Painting" /></td>
+        <td>
+            The piece you're referring to is a painting from the Rococo era, specifically from the 18th century. The Rococo style emerged in France in the early 1700s and spread throughout Europe, particularly in Germany and Russia, during the mid-1700s.<br><br>
+            <strong>Characteristics of Rococo Art:</strong><br><br>
+            <ul>
+                <li><strong>Lightness and Airiness:</strong> Rococo art is characterized by its lightness and airiness, often featuring delicate lines, pastel colors, and intricate details.</li>
+                <li><strong>Curves and Lines:</strong> Rococo artists favored curves and lines over straight lines, creating a sense of fluidity and movement in their work</li>
+            </ul>
+        </td>
+    </tr>
+</table>
 
 ### Image Information Retrieval
+
+Given an image, retrieve information from the image.
 
 ```
 curl http://localhost:8080/v1/chat/completions \
@@ -316,9 +332,22 @@ curl http://localhost:8080/v1/chat/completions \
     -H 'Content-Type: application/json'
 ```
 
-```
-{"object":"chat.completion","id":"","created":1728041403,"model":"meta-llama/Llama-3.2-11B-Vision-Instruct","system_fingerprint":"2.3.1-native","choices":[{"index":0,"message":{"role":"assistant","content":"To calculate the time difference between the invoice date and the due date, we need to subtract the invoice date from the due date.\n\nInvoice Date: 11/02/2019\nDue Date: 26/02/2019\n\nTime Difference = Due Date - Invoice Date\nTime Difference = 26/02/2019 - 11/02/2019\nTime Difference = 15 days\n\nTherefore, it takes **15 days** from the invoice date to the due date."},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":54,"completion_tokens":101,"total_tokens":155}}
-```
+For example, given an invoice, you can ask questions to the VLM asking about information that is either present or can be inferred from the image provided.
+
+<table>
+    <tr>
+        <td><img src="https://huggingface.co/datasets/huggingface/release-assets/resolve/main/invoice.png" alt="Invoice Image" /></td>
+        <td>
+            To calculate the time difference between the invoice date and the due date, we need to subtract the invoice date from the due date.<br><br>
+            Invoice Date: 11/02/2019<br>
+            Due Date: 26/02/2019<br><br>
+            Time Difference = Due Date - Invoice Date<br>
+            Time Difference = 26/02/2019 - 11/02/2019<br>
+            Time Difference = 15 days<br><br>
+            Therefore, it takes <strong>15 days</strong> from the invoice date to the due date.
+        </td>
+    </tr>
+</table>
 
 ## Delete GKE Cluster
 
