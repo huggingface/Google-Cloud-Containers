@@ -24,6 +24,12 @@ For Google Vertex AI, we differentiate between the executable Jupyter Notebook e
 | [deploy-flux-on-vertex-ai](./notebooks/deploy-flux-on-vertex-ai)                                       | Deploy FLUX with PyTorch Inference DLC on Vertex AI        |
 | [deploy-llama-3-1-405b-on-vertex-ai](./notebooks/deploy-llama-405b-on-vertex-ai/vertex-notebook.ipynb) | Deploy Meta Llama 3.1 405B with TGI DLC on Vertex AI       |
 
+### Evaluation Examples
+
+| Example                                                                  | Description                                     |
+| ------------------------------------------------------------------------ | ----------------------------------------------- |
+| [evaluate-llms-with-vertex-ai](./notebooks/evaluate-llms-with-vertex-ai) | Evaluating open LLMs with Vertex AI and Gemini. |
+
 ## Pipelines
 
 Coming soon!
