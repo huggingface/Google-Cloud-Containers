@@ -138,7 +138,7 @@ Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TGI
 
 The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the `config/` directory:
 
-- `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to [`meta-llama/Llama-3.2-11B-Vision-Instruct`](https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct). As the GKE Cluster was deployed in Autopilot mode, the specified resources i.e. 8 x L4s, will be automatically allocated; but if you used the Standard mode instead, you should make sure that your node pool has those GPUs available.
+- `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to [`meta-llama/Llama-3.2-11B-Vision-Instruct`](https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct). As the GKE Cluster was deployed in Autopilot mode, the specified resources i.e. 2 x L4s, will be automatically allocated; but if you used the Standard mode instead, you should make sure that your node pool has those GPUs available.
 
 - `service.yaml`: contains the service details of the pod, exposing the port 8080 for the TGI service.
 
