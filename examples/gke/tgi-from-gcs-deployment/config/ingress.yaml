@@ -3,16 +3,15 @@ kind: Ingress
 metadata:
   name: tgi-ingress
   namespace: hf-gke-namespace
-  annotations:
-    kubernetes.io/ingress.class: "gce"
 spec:
+  ingressClassName: "gce"
   rules:
     - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: tgi-service
-                port:
-                  number: 8080
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: tgi-service
+              port:
+                number: 8080
