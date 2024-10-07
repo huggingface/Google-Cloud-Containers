@@ -3,9 +3,8 @@ kind: Ingress
 metadata:
   name: tgi-ingress
   namespace: hf-gke-namespace
-  annotations:
-    kubernetes.io/ingress.class: "gce"
 spec:
+  ingressClassName: "gce"
   rules:
     - http:
         paths:
