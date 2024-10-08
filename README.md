@@ -51,21 +51,21 @@ The [`examples`](./examples) directory contains examples for using the container
 
 ### Inference Examples
 
-| Service   | Example                                                                                                                                                | Title                                                         |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| GKE       | [examples/gke/tgi-deployment](./examples/gke/tgi-deployment)                                                                                           | Deploy Meta Llama 3 8B with TGI DLC on GKE                    |
-| GKE       | [examples/gke/tgi-from-gcs-deployment](./examples/gke/tgi-from-gcs-deployment)                                                                         | Deploy Qwen2 7B with TGI DLC from GCS on GKE                  |
-| GKE       | [examples/gke/tgi-llama-405b-deployment](./examples/gke/tgi-llama-405b-deployment)                                                                     | Deploy Llama 3.1 405B with TGI DLC on GKE                     |
-| GKE       | [examples/gke/tgi-multi-lora-deployment](./examples/gke/tgi-multi-lora-deployment)                                                                     | Deploy Gemma2 with multiple LoRA adapters with TGI DLC on GKE |
-| GKE       | [examples/gke/tei-deployment](./examples/gke/tei-deployment)                                                                                           | Deploy Snowflake's Arctic Embed with TEI DLC on GKE           |
-| GKE       | [examples/gke/tei-from-gcs-deployment](./examples/gke/tei-from-gcs-deployment)                                                                         | Deploy BGE Base v1.5 with TEI DLC from GCS on GKE             |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai)                                       | Deploy BERT Models with PyTorch Inference DLC on Vertex AI    |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai)                             | Deploy Embedding Models with TEI DLC on Vertex AI             |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai)                                     | Deploy Gemma 7B with TGI DLC on Vertex AI                     |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai)                   | Deploy Gemma 7B with TGI DLC from GCS on Vertex AI            |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai)                                       | Deploy FLUX with PyTorch Inference DLC on Vertex AI           |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-llama-3-1-405b-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-llama-405b-on-vertex-ai/vertex-notebook.ipynb) | Deploy Meta Llama 3.1 405B with TGI DLC on Vertex AI          |
-| Cloud Run | [examples/cloud-run/tgi-deployment](./examples/cloud-run/tgi-deployment/README.md)                                                                     | Deploy Meta Llama 3.1 with TGI DLC on Cloud Run               |
+| Service   | Example                                                                                                                              | Title                                                         |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| Vertex AI | [examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai)                     | Deploy BERT Models with PyTorch Inference DLC on Vertex AI    |
+| Vertex AI | [examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai)           | Deploy Embedding Models with TEI DLC on Vertex AI             |
+| Vertex AI | [examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai)                     | Deploy FLUX with PyTorch Inference DLC on Vertex AI           |
+| Vertex AI | [examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploy Gemma 7B with TGI DLC from GCS on Vertex AI            |
+| Vertex AI | [examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai)                   | Deploy Gemma 7B with TGI DLC on Vertex AI                     |
+| Vertex AI | [examples/vertex-ai/notebooks/deploy-llama-3-1-405b-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-llama-3-1-405b-on-vertex-ai) | Deploy Meta Llama 3.1 405B with TGI DLC on Vertex AI          |
+| GKE       | [examples/gke/tei-from-gcs-deployment](./examples/gke/tei-from-gcs-deployment)                                                       | Deploy BGE Base v1.5 with TEI DLC from GCS on GKE             |
+| GKE       | [examples/gke/tgi-multi-lora-deployment](./examples/gke/tgi-multi-lora-deployment)                                                   | Deploy Gemma2 with multiple LoRA adapters with TGI DLC on GKE |
+| GKE       | [examples/gke/tgi-llama-405b-deployment](./examples/gke/tgi-llama-405b-deployment)                                                   | Deploy Llama 3.1 405B with TGI DLC on GKE                     |
+| GKE       | [examples/gke/tgi-deployment](./examples/gke/tgi-deployment)                                                                         | Deploy Meta Llama 3 8B with TGI DLC on GKE                    |
+| GKE       | [examples/gke/tgi-from-gcs-deployment](./examples/gke/tgi-from-gcs-deployment)                                                       | Deploy Qwen2 7B with TGI DLC from GCS on GKE                  |
+| GKE       | [examples/gke/tei-deployment](./examples/gke/tei-deployment)                                                                         | Deploy Snowflake's Arctic Embed with TEI DLC on GKE           |
+| Cloud Run | [examples/cloud-run/tgi-deployment](./examples/cloud-run/tgi-deployment)                                                             | Deploy Meta Llama 3.1 8B with TGI DLC on Cloud Run            |
 
 ### Evaluation
 
