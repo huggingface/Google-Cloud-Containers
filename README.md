@@ -42,29 +42,29 @@ The [`examples`](./examples) directory contains examples for using the container
 
 ### Training Examples
 
-| Service   | Example                                                                                                                           | Title                                                                       |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Vertex AI | [vertex-ai/notebooks/trl-lora-sft-fine-tuning-on-vertex-ai](./examples/vertex-ai/notebooks/trl-lora-sft-fine-tuning-on-vertex-ai) | Fine-tune Gemma 2B with PyTorch Training DLC using SFT + LoRA on Vertex AI  |
-| Vertex AI | [vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai](./examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai) | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT on Vertex AI  |
-| GKE       | [gke/trl-full-fine-tuning](./examples/gke/trl-full-fine-tuning)                                                                   | Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE               |
-| GKE       | [gke/trl-lora-fine-tuning](./examples/gke/trl-lora-fine-tuning)                                                                   | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT + LoRA on GKE |
+| Service   | Example                                                                                                                                                                          | Title                                                                       |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Vertex AI | [examples/vertex-ai/examples/vertex-ai/notebooks/trl-lora-sft-fine-tuning-on-vertex-ai](./examples/vertex-ai/examples/vertex-ai/notebooks/trl-lora-sft-fine-tuning-on-vertex-ai) | Fine-tune Gemma 2B with PyTorch Training DLC using SFT + LoRA on Vertex AI  |
+| Vertex AI | [examples/vertex-ai/examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai](./examples/vertex-ai/examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai) | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT on Vertex AI  |
+| GKE       | [examples/gke/examples/gke/trl-full-fine-tuning](./examples/gke/examples/gke/trl-full-fine-tuning)                                                                               | Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE               |
+| GKE       | [examples/gke/examples/gke/trl-lora-fine-tuning](./examples/gke/examples/gke/trl-lora-fine-tuning)                                                                               | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT + LoRA on GKE |
 
 ### Inference Examples
 
-| Service   | Example                                                                                                                     | Title                                                         |
-| --------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Vertex AI | [vertex-ai/notebooks/deploy-bert-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai)                     | Deploy BERT Models with PyTorch Inference DLC on Vertex AI    |
-| Vertex AI | [vertex-ai/notebooks/deploy-embedding-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai)           | Deploy Embedding Models with TEI DLC on Vertex AI             |
-| Vertex AI | [vertex-ai/notebooks/deploy-flux-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai)                     | Deploy FLUX with PyTorch Inference DLC on Vertex AI           |
-| Vertex AI | [vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploy Gemma 7B with TGI DLC from GCS on Vertex AI            |
-| Vertex AI | [vertex-ai/notebooks/deploy-gemma-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai)                   | Deploy Gemma 7B with TGI DLC on Vertex AI                     |
-| Vertex AI | [vertex-ai/notebooks/deploy-llama-3-1-405b-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-llama-3-1-405b-on-vertex-ai) | Deploy Meta Llama 3.1 405B with TGI DLC on Vertex AI          |
-| GKE       | [gke/tei-from-gcs-deployment](./examples/gke/tei-from-gcs-deployment)                                                       | Deploy BGE Base v1.5 with TEI DLC from GCS on GKE             |
-| GKE       | [gke/tgi-multi-lora-deployment](./examples/gke/tgi-multi-lora-deployment)                                                   | Deploy Gemma2 with multiple LoRA adapters with TGI DLC on GKE |
-| GKE       | [gke/tgi-deployment](./examples/gke/tgi-deployment)                                                                         | Deploy Meta Llama 3 8B with TGI DLC on GKE                    |
-| GKE       | [gke/tgi-from-gcs-deployment](./examples/gke/tgi-from-gcs-deployment)                                                       | Deploy Qwen2 7B with TGI DLC from GCS on GKE                  |
-| GKE       | [gke/tei-deployment](./examples/gke/tei-deployment)                                                                         | Deploy Snowflake's Arctic Embed with TEI DLC on GKE           |
-| Cloud Run | [cloud-run/tgi-deployment](./examples/cloud-run/tgi-deployment)                                                             | Deploy Meta Llama 3.1 8B with TGI DLC on Cloud Run            |
+| Service   | Example                                                                                                                                                                    | Title                                                         |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Vertex AI | [examples/vertex-ai/examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai](./examples/vertex-ai/examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai)                     | Deploy BERT Models with PyTorch Inference DLC on Vertex AI    |
+| Vertex AI | [examples/vertex-ai/examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai](./examples/vertex-ai/examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai)           | Deploy Embedding Models with TEI DLC on Vertex AI             |
+| Vertex AI | [examples/vertex-ai/examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai](./examples/vertex-ai/examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai)                     | Deploy FLUX with PyTorch Inference DLC on Vertex AI           |
+| Vertex AI | [examples/vertex-ai/examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai](./examples/vertex-ai/examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploy Gemma 7B with TGI DLC from GCS on Vertex AI            |
+| Vertex AI | [examples/vertex-ai/examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai](./examples/vertex-ai/examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai)                   | Deploy Gemma 7B with TGI DLC on Vertex AI                     |
+| Vertex AI | [examples/vertex-ai/examples/vertex-ai/notebooks/deploy-llama-3-1-405b-on-vertex-ai](./examples/vertex-ai/examples/vertex-ai/notebooks/deploy-llama-3-1-405b-on-vertex-ai) | Deploy Meta Llama 3.1 405B with TGI DLC on Vertex AI          |
+| GKE       | [examples/gke/examples/gke/tei-from-gcs-deployment](./examples/gke/examples/gke/tei-from-gcs-deployment)                                                                   | Deploy BGE Base v1.5 with TEI DLC from GCS on GKE             |
+| GKE       | [examples/gke/examples/gke/tgi-multi-lora-deployment](./examples/gke/examples/gke/tgi-multi-lora-deployment)                                                               | Deploy Gemma2 with multiple LoRA adapters with TGI DLC on GKE |
+| GKE       | [examples/gke/examples/gke/tgi-deployment](./examples/gke/examples/gke/tgi-deployment)                                                                                     | Deploy Meta Llama 3 8B with TGI DLC on GKE                    |
+| GKE       | [examples/gke/examples/gke/tgi-from-gcs-deployment](./examples/gke/examples/gke/tgi-from-gcs-deployment)                                                                   | Deploy Qwen2 7B with TGI DLC from GCS on GKE                  |
+| GKE       | [examples/gke/examples/gke/tei-deployment](./examples/gke/examples/gke/tei-deployment)                                                                                     | Deploy Snowflake's Arctic Embed with TEI DLC on GKE           |
+| Cloud Run | [examples/cloud-run/examples/cloud-run/tgi-deployment](./examples/cloud-run/examples/cloud-run/tgi-deployment)                                                             | Deploy Meta Llama 3.1 8B with TGI DLC on Cloud Run            |
 
 ### Evaluation
 
