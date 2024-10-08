@@ -90,13 +90,10 @@ def update_readme(examples):
                     examples[service][example_type], key=lambda x: x[1]
                 ):
                     # Format the path to include 'examples/<service>'
-                    formatted_path = (
-                        f"examples/{service.lower().replace(' ', '-')}/{path}"
-                    )
                     table_rows.append(
                         (
                             service,
-                            f"[{formatted_path}](./{formatted_path})",
+                            f"[{path}](./{path})",
                             title,
                         )
                     )
