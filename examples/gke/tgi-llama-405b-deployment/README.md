@@ -193,7 +193,7 @@ To send a POST request to the TGI service using `cURL`, you can run the followin
 ```bash
 curl http://localhost:8080/v1/chat/completions \
     -X POST \
-    -d '{"messages":[{"role": "system", "content": "You are a helpful assistant."},{"role":"user","content":"What'\'' Deep Learning?"}],"temperature":0.7,"top_p":0.95,"max_tokens":128}}' \
+    -d '{"messages":[{"role":"system","content": "You are a helpful assistant."},{"role":"user","content":"What'\''s Deep Learning?"}],"temperature":0.7,"top_p":0.95,"max_tokens":128}}' \
     -H 'Content-Type: application/json'
 ```
 
@@ -202,7 +202,7 @@ Or send a POST request to the ingress IP instead (without specifying the port as
 ```bash
 curl http://$(kubectl get ingress tgi-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/v1/chat/completions \
     -X POST \
-    -d '{"messages":[{"role": "system", "content": "You are a helpful assistant."},{"role":"user","content":"What'\'' Deep Learning?"}],"temperature":0.7,"top_p":0.95,"max_tokens":128}}' \
+    -d '{"messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"What'\''s Deep Learning?"}],"temperature":0.7,"top_p":0.95,"max_tokens":128}}' \
     -H 'Content-Type: application/json'
 ```
 
