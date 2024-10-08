@@ -298,7 +298,7 @@ Additionally, some potential VLM use-cases, other than image captioning as shown
 
 Given an image and a question about the image, generate an answer to the question.
 
-```
+```bash
 curl http://localhost:8080/v1/chat/completions \
     -X POST \
     -d '{"messages":[{"role":"user","content":[{"type":"text","text":"Which era does this piece belong to? Give details about the era."},{"type":"image_url","image_url":{"url":"https://huggingface.co/datasets/huggingface/release-assets/resolve/main/rococo.jpg"}}]}],"temperature":0.7,"top_p":0.95,"max_tokens":128,"stream":false}' \
@@ -325,7 +325,7 @@ For example, given a piece of art you can ask the VLM questions about it.
 
 Given an image, retrieve information from the image.
 
-```
+```bash
 curl http://localhost:8080/v1/chat/completions \
     -X POST \
     -d '{"messages":[{"role":"user","content":[{"type":"text","text":"How long does it take from invoice date to due date? Be short and concise."},{"type":"image_url","image_url":{"url":"https://huggingface.co/datasets/huggingface/release-assets/resolve/main/invoice.png"}}]}],"temperature":0.7,"top_p":0.95,"max_tokens":128,"stream":false}' \
