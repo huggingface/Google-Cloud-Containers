@@ -89,10 +89,14 @@ def update_readme(examples):
                 for path, title in sorted(
                     examples[service][example_type], key=lambda x: x[1]
                 ):
+                    # Format the path to include 'examples/<service>'
+                    formatted_path = (
+                        f"examples/{service.lower().replace(' ', '-')}/{path}"
+                    )
                     table_rows.append(
                         (
                             service,
-                            f"[{os.path.relpath(path, start='examples')}](./{path})",
+                            f"[{formatted_path}](./{formatted_path})",
                             title,
                         )
                     )
@@ -103,10 +107,10 @@ def update_readme(examples):
                 rf"(### {example_type.capitalize()} Examples\n\n)[\s\S]*?(\n\n###|\Z)"
             )
             replacement = rf"\1{table}\2"
-            content = re.sub(pattern, replacement, content, flags=re.IGNORECASE)
+            content = re.sub(pattern, replacement, content, flags=re.DOTALL)
 
     with open("README.md", "w") as f:
-        f.write(content)
+        f.write(content.rstrip() + "\n")
 
 
 def update_docs(examples):
