@@ -17,4 +17,5 @@ This directory contains usage examples of the Hugging Face Deep Learning Contain
 | [tei-from-gcs-deployment](./tei-from-gcs-deployment)     | Deploy BGE Base v1.5 with TEI DLC from GCS on GKE             |
 | [tgi-deployment](./tgi-deployment)                       | Deploy Meta Llama 3 8B with TGI DLC on GKE                    |
 | [tgi-from-gcs-deployment](./tgi-from-gcs-deployment)     | Deploy Qwen2 7B with TGI DLC from GCS on GKE                  |
+| [tgi-llama-405b-deployment](./tgi-llama-405b-deployment) | Deploy Llama 3.1 405B with TGI DLC on GKE                     |
 | [tgi-multi-lora-deployment](./tgi-multi-lora-deployment) | Deploy Gemma2 with multiple LoRA adapters with TGI DLC on GKE |
