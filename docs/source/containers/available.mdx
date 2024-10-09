@@ -1,6 +1,6 @@
 # Available DLCs on Google Cloud
 
-Below you can find a listing of all the Deep Learning Containers (DLCs) available on Google Cloud.
+Below you can find a listing of all the Deep Learning Containers (DLCs) available on Google Cloud. Containers are created for each supported combination of use-case (training, inference), accelerator type (CPU, GPU, TPU), and framework (PyTorch, TGI, TEI).
 
 <Tip>
 
@@ -10,11 +10,15 @@ The listing below only contains the latest version of each one of the Hugging Fa
 
 ## Text Generation Inference (TGI)
 
+Text Generation Inference (TGI) DLC is available for high-performance text generation of Large Language Models on both GPU and TPU (soon). The TGI DLC enables you to deploy [any of the +140,000 text generation inference supported models from the Hugging Face Hub](https://huggingface.co/models?other=text-generation-inference&sort=trending), or any custom model as long as [its architecture is supported within TGI](https://huggingface.co/docs/text-generation-inference/supported_models).
+
 | Container URI                                                                                                                     | Path                                                                                                                                               | Accelerator |
 | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
 | us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311           | [text-generation-inference-gpu.2.3.1](https://github.com/huggingface/Google-Cloud-Containers/tree/main/containers/tgi/gpu/2.3.1/Dockerfile)                                                                       | GPU         |
 
 ## Text Embeddings Inference (TEI)
+
+Text Embeddings Inference (TEI) DLC is available for high-performance serving of embedding models on both GPU and GPU. The TEI DLC enables you to deploy [any of the +10,000 embedding, re-ranking or sequence classification supported models from the Hugging Face Hub](https://huggingface.co/models?other=text-embeddings-inference&sort=trending), or any custom model as long as [its architecture is supported within TEI](https://huggingface.co/docs/text-embeddings-inference/en/supported_models).
 
 | Container URI                                                                                                                     | Path                                                                                                                                               | Accelerator |
 | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
@@ -23,12 +27,16 @@ The listing below only contains the latest version of each one of the Hugging Fa
 
 ## PyTorch Inference
 
+Pytorch Inference DLC is available for Pytorch via 🤗 Transformers, for serving models trained with 🤗 TRL, Sentence Transformers or 🧨 Diffusers, on both CPU and GPU.
+
 | Container URI                                                                                                                     | Path                                                                                                                                               | Accelerator |
 | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
 | us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311 | [huggingface-pytorch-inference-gpu.2.2.2.transformers.4.44.0.py311](https://github.com/huggingface/Google-Cloud-Containers/tree/main/containers/pytorch/inference/gpu/2.2.2/transformers/4.44.0/py311/Dockerfile) | GPU         |
 | us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311   | [huggingface-pytorch-inference-cpu.2.2.2.transformers.4.44.0.py311](https://github.com/huggingface/Google-Cloud-Containers/tree/main/containers/pytorch/inference/cpu/2.2.2/transformers/4.44.0/py311/Dockerfile) | CPU         |
 
 ## PyTorch Training
+
+Pytorch Training DLC is available for PyTorch via 🤗 Transformers. It includes support for training with libraries such as 🤗 TRL, Sentence Transformers, or 🧨 Diffusers, on both GPUs and TPUs (soon).
 
 | Container URI                                                                                                                     | Path                                                                                                                                               | Accelerator |
 | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
