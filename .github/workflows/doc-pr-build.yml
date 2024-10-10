@@ -3,7 +3,10 @@ name: Build PR Documentation
 on:
   pull_request:
     paths:
-      - docs/source/**
+      - docs/**
+      - examples/**/*.md
+      - examples/**/*.ipynb
+      - Makefile
       - .github/workflows/doc-pr-build.yml
 
 concurrency:
@@ -20,3 +23,5 @@ jobs:
       package_name: google-cloud
       additional_args: --not_python_module
       pre_command: cd Google-Cloud-Containers && make docs
+    env:
+      GITHUB_BRANCH: ${{ github.head_ref || github.ref_name }}

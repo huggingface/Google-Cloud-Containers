@@ -154,7 +154,7 @@ kubectl apply -f config/
 > Alternatively, you can just wait for the deployment to be ready with the following command:
 >
 > ```bash
-> kubectl wait --for=condition=Available --timeout=700s deployment/tei-deployment
+> kubectl wait --for=condition=Available --timeout=700s deployment/tgi-deployment
 > ```
 
 ## Inference with TGI
