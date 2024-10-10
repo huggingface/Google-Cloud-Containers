@@ -27,8 +27,8 @@ Besides that, you also need to define the model to deploy, as well as the genera
 ```bash
 curl -G https://huggingface.co/api/integrations/tgi/v1/provider/gcp/recommend \
     -d "model_id=google/gemma-7b-it" \
-    -d "gpu_memory=80" \
-    -d "num_gpus=2"
+    -d "gpu_memory=24" \
+    -d "num_gpus=1"
 ```
 
 Which returns the following output containing the optimal configuration for deploying / serving that model via TGI:
@@ -53,7 +53,7 @@ Then you are ready to run the container as follows:
 ```bash
 docker run --gpus all -ti --shm-size 1g -p 8080:8080 \
     -e MODEL_ID=google/gemma-7b-it \
-    -e NUM_SHARD=4 \
+    -e NUM_SHARD=1 \
     -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
     -e MAX_INPUT_LENGTH=4000 \
     -e MAX_TOTAL_TOKENS=4096 \
