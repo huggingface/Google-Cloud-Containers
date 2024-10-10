@@ -216,9 +216,9 @@ curl http://localhost:8080/v1/chat/completions \
 
 Which generates the following solution to the given prompt:
 
-````
-{"object":"chat.completion","id":"","created":1727378101,"model":"google/gemma-2-2b-it","system_fingerprint":"2.3.1-dev0-native","choices":[{"index":0,"message":{"role":"assistant","content":"```rust\nfn max_product(a: Vec<i32>) -> i32 {\n    let mut max1 = a[0];\n    let mut max2 = a[1];\n    if max2 < max1 {\n        std::mem::swap(&mut max1, &mut max2);\n    }\n    for i in 2..a.len() {\n        if a[i] > max1 {\n            max2 = max1;\n            max1 = a[i];\n        } else if a[i] > max2 {\n            "},"logprobs":null,"finish_reason":"length"}],"usage":{"prompt_tokens":163,"completion_tokens":128,"total_tokens":291}}
-````
+```
+{"object":"chat.completion","id":"","created":1727378101,"model":"google/gemma-2-2b-it","system_fingerprint":"2.3.1-dev0-native","choices":[{"index":0,"message":{"role":"assistant","content":"\`\`\`rust\nfn max_product(a: Vec<i32>) -> i32 {\n    let mut max1 = a[0];\n    let mut max2 = a[1];\n    if max2 < max1 {\n        std::mem::swap(&mut max1, &mut max2);\n    }\n    for i in 2..a.len() {\n        if a[i] > max1 {\n            max2 = max1;\n            max1 = a[i];\n        } else if a[i] > max2 {\n            "},"logprobs":null,"finish_reason":"length"}],"usage":{"prompt_tokens":163,"completion_tokens":128,"total_tokens":291}}
+```
 
 Translated to Rust code that would be:
 
