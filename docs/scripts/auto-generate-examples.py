@@ -1,6 +1,8 @@
 import os
 import re
 
+GITHUB_BRANCH = os.getenv("GITHUB_BRANCH", "main")
+
 
 def process_readme_files():
     print("Processing README.md files from examples/gke and examples/cloud-run...")
@@ -35,37 +37,32 @@ def process_file(root, file, dir):
     # Replace image and link paths
     content = re.sub(
         r"\(\./(imgs|assets)/([^)]*\.png)\)",
-        r"(https://raw.githubusercontent.com/huggingface/Google-Cloud-Containers/main/"
+        rf"(https://raw.githubusercontent.com/huggingface/Google-Cloud-Containers/{GITHUB_BRANCH}/"
         + root
         + r"/\1/\2)",
         content,
     )
     content = re.sub(
         r"\(\.\./([^)]+)\)",
-        r"(https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/"
+        rf"(https://github.com/huggingface/Google-Cloud-Containers/tree/{GITHUB_BRANCH}/examples/"
         + dir
         + r"/\1)",
         content,
     )
     content = re.sub(
         r"\(\.\/([^)]+)\)",
-        r"(https://github.com/huggingface/Google-Cloud-Containers/tree/main/"
+        rf"(https://github.com/huggingface/Google-Cloud-Containers/tree/{GITHUB_BRANCH}/"
         + root
         + r"/\1)",
         content,
     )
 
-    # Regular expression to match the specified blocks
-    pattern = r"> \[!(NOTE|WARNING)\]\n((?:> .*\n)+)"
-
     def replacement(match):
         block_type = match.group(1)
         content = match.group(2)
 
-        # Remove '> ' from the beginning of each line and strip whitespace
-        lines = [
-            line.lstrip("> ").strip() for line in content.split("\n") if line.strip()
-        ]
+        # Remove '> ' from the beginning of each line
+        lines = [line[2:] for line in content.split("\n") if line.strip()]
 
         # Determine the Tip type
         tip_type = " warning" if block_type == "WARNING" else ""
@@ -77,11 +74,14 @@ def process_file(root, file, dir):
 
         return new_block
 
+    # Regular expression to match the specified blocks
+    pattern = r"> \[!(NOTE|WARNING)\]\n((?:>.*(?:\n|$))+)"
+
     # Perform the transformation
     content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
 
-    # Remove blockquotes
-    content = re.sub(r"^(>[ ]*)+", "", content, flags=re.MULTILINE)
+    # Remove any remaining '>' or '> ' at the beginning of lines
+    content = re.sub(r"^>[ ]?", "", content, flags=re.MULTILINE)
 
     # Check for remaining relative paths
     if re.search(r"\(\.\./|\(\./", content):
