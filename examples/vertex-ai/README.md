@@ -22,6 +22,7 @@ For Google Vertex AI, we differentiate between the executable Jupyter Notebook e
 | [notebooks/deploy-flux-on-vertex-ai](./notebooks/deploy-flux-on-vertex-ai)                     | Deploy FLUX with PyTorch Inference DLC on Vertex AI        |
 | [notebooks/deploy-gemma-from-gcs-on-vertex-ai](./notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploy Gemma 7B with TGI DLC from GCS on Vertex AI         |
 | [notebooks/deploy-gemma-on-vertex-ai](./notebooks/deploy-gemma-on-vertex-ai)                   | Deploy Gemma 7B with TGI DLC on Vertex AI                  |
+| [notebooks/deploy-llama-vision-on-vertex-ai](./notebooks/deploy-llama-vision-on-vertex-ai)     | Deploy Llama 3.2 11B Vision with TGI DLC on Vertex AI      |
 | [notebooks/deploy-llama-3-1-405b-on-vertex-ai](./notebooks/deploy-llama-3-1-405b-on-vertex-ai) | Deploy Meta Llama 3.1 405B with TGI DLC on Vertex AI       |
 
 ### Evaluation Examples
