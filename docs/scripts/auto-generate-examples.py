@@ -1,7 +1,7 @@
 import os
 import re
 
-GITHUB_BRANCH = os.getenv("GITHUB_BRANCH", "main")
+GITHUB_BRANCH = os.getenv("GITHUB_HEAD_REF", "main")
 
 
 def process_readme_files():
