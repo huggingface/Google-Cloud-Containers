@@ -4,23 +4,65 @@
 
 Hugging Face collaborates with Google across open science, open source, cloud, and hardware to enable companies to build their own AI with the latest open models from Hugging Face and the latest cloud and hardware features from Google Cloud.
 
-Hugging Face enables new experiences for Google Cloud customers. They can easily train and deploy Hugging Face models on Google Kubernetes Engine (GKE) and Vertex AI, on any hardware available in Google Cloud using Hugging Face Deep Learning Containers (DLCs).
+Hugging Face enables new experiences for Google Cloud customers. They can easily train and deploy Hugging Face models on Google Kubernetes Engine (GKE), Vertex AI, and Cloud Run, on any hardware available in Google Cloud using Hugging Face Deep Learning Containers (DLCs) or our no-code integrations.
+
+## Deploy Models on Google Cloud
+
+### With Hugging Face DLCs
+
+For advanced scenarios, you can pull any Hugging Face DLCs from the Google Cloud Artifact Registry directly in your environment. We are curating a list of notebook examples on how to deploy models with Hugging Face DLCs in:
+- [Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai#inference-examples)
+- [GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke#inference-examples)
+- [Cloud Run](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/cloud-run#inference-examples) (preview)
+
+### From the Hub Model Page
+
+#### On Vertex AI or GKE
+
+If you want to deploy a model from the Hub in your Google Cloud account on Vertex AI or GKE, you can use our no-code integrations. Below, you will find step-by-step instructions on how to deploy [Gemma 2 9B](https://huggingface.co/google/gemma-2-9b-it):
+1. On the model page, open the “Deploy” menu, and select “Google Cloud”. This will bring you straight into the Google Cloud Console.
+2. Select Vertex AI or GKE as a deployment option.
+3. Paste a [Hugging Face Token](https://huggingface.co/docs/hub/en/security-tokens) with "Read access contents of all public gated repos you can access" permission.
+4. If Vertex AI is selected, click on "Deploy". If GKE is selected, paste the manifest code and apply to your EKS cluster.
+
+Alternatively, you can follow this short video.
+<video src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/deploy-google-cloud.mp4" controls autoplay muted loop />
+
+#### On Hugging Face Inference Endpoints
+
+If you want to deploy a model from the hub but you don't have a Google Cloud environment, you can use Hugging Face [Inference Endpoints](https://huggingface.co/inference-endpoints/dedicated) on Google Cloud. Below, you will find step-by-step instructions on how to deploy [Gemma 2 9B](https://huggingface.co/google/gemma-2-9b-it):
+1. On the model page, open the “Deploy” menu, and select “Inference Endpoints (dedicated)”. This will now bring you in the Inference Endpoint deployment page.
+2. Select Google Cloud Platform, scroll down and click on "Create Endpoint". 
+
+Alternatively, you can follow this short video.
+<video src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/inference-endpoints.mp4" controls autoplay muted loop />
+
+### From Vertex AI Model Garden
+
+#### On Vertex AI or GKE
+
+If you are used to browse models directly from Vertex AI Model Garden, we brought more than 4000 models from the Hugging Face Hub to it. Below, you will find step-by-step instructions on how to deploy [Gemma 2 9B](https://huggingface.co/google/gemma-2-9b-it):
+1. On [Vertex AI Model Garden landing page](https://console.cloud.google.com/vertex-ai/model-garden), you can browse Hugging Face models:
+    1. by clicking “Deploy From Hugging Face” at the top left
+    2. by scrolling down to see our curated list of 12 open source models 
+    3. by clicking on "Hugging Face" in the Featured Partner section to access a catalog of 4000+ models hosted on the Hub.
+2. Once you found the model that you want to deploy, you can select Vertex AI or GKE as a deployment option.
+3. Paste a [Hugging Face Token](https://huggingface.co/docs/hub/en/security-tokens) with "Read access contents of all public gated repos you can access" permission.
+4. If Vertex AI is selected, click on "Deploy". If GKE is selected, paste the manifest code and apply to your EKS cluster.
+
+Alternatively, you can follow this short video.
+<video src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/vertex-ai-model-garden.mp4" controls autoplay muted loop />
+
+## Train models on Google Cloud
+
+### With Hugging Face DLCs
+
+For advanced scenarios, you can pull the containers from the Google Cloud Artifact Registry directly in your environment. We are curating a list of notebook examples on how to train models with Hugging Face DLCs in:
+- [Vertex AI](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/vertex-ai#training-examples)
+- [GKE](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/gke#training-examples)
+
+## Support
 
 If you have any issues using Hugging Face on Google Cloud, you can get community support by creating a new topic in the [Forum](https://discuss.huggingface.co/c/google-cloud/69/l/latest) dedicated to Google Cloud usage.
 
-## Train and Deploy Models on Google Cloud with Hugging Face Deep Learning Containers
-
-Hugging Face built Deep Learning Containers (DLCs) for Google Cloud customers to run any of their machine learning workload in an optimized environment, with no configuration or maintenance on their part. These are Docker images pre-installed with deep learning frameworks and libraries such as 🤗 Transformers, 🤗 Datasets, and 🤗 Tokenizers. The DLCs allow you to directly serve and train any models, skipping the complicated process of building and optimizing your serving and training environments from scratch.
-
-For training, our DLCs are available for PyTorch via 🤗 Transformers. They include support for training on both GPUs and TPUs with libraries such as 🤗 TRL, Sentence Transformers, or 🧨 Diffusers.
-
-For inference, we have a general-purpose PyTorch inference DLC, for serving models trained with any of those frameworks mentioned before on both CPU and GPU. There is also the Text Generation Inference (TGI) DLC for high-performance text generation of LLMs on both GPU and TPU. Finally, there is a Text Embeddings Inference (TEI) DLC for high-performance serving of embedding models on both CPU and GPU.
-
-The DLCs are hosted in [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) and can be used from any Google Cloud service such as Google Kubernetes Engine (GKE), Vertex AI, or Cloud Run (in preview).
-
 Hugging Face DLCs are open source and licensed under Apache 2.0 within the [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers) repository. For premium support, our [Expert Support Program](https://huggingface.co/support) gives you direct dedicated support from our team.
-
-You have two options to take advantage of these DLCs as a Google Cloud customer:
-
-1. To [get started](https://huggingface.co/blog/google-cloud-model-garden), you can use our no-code integrations within Vertex AI or GKE.
-2. For more advanced scenarios, you can pull the containers from the Google Cloud Artifact Registry directly in your environment. [Here](https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples) is a list of notebooks examples.
