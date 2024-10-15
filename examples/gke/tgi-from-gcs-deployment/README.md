@@ -147,12 +147,12 @@ Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TGI
 > [!NOTE]
 > To explore all the models that can be served via TGI, you can explore the models tagged with `text-generation-inference` in the Hub at <https://huggingface.co/models?other=text-generation-inference>.
 
-The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the `config/` directory:
+The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the [`config/`](./config/) directory:
 
-- `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/Qwen2-7B-Instruct`.
-- `service.yaml`: contains the service details of the pod, exposing the port 80 for the TEI service.
-- `storageclass.yaml`: contains the storage class details of the pod, defining the storage class for the volume mount.
-- (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+- [`deployment.yaml`](./config/deployment.yaml): contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/Qwen2-7B-Instruct`.
+- [`service.yaml`](./config/service.yaml): contains the service details of the pod, exposing the port 8080 for the TGI service.
+- [`storageclass.yaml`](./config/storageclass.yaml): contains the storage class details of the pod, defining the storage class for the volume mount.
+- (optional) [`ingress.yaml`](./config/ingress.yaml): contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
 kubectl apply -f config/

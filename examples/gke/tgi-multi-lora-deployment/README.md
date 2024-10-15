@@ -130,17 +130,14 @@ Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TGI
 > [!NOTE]
 > To explore all the models that can be served via TGI, you can explore [the models tagged with `text-generation-inference` in the Hub](https://huggingface.co/models?other=text-generation-inference).
 
-The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the `config/` directory:
+The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the [`config/`](./config/) directory:
 
-- `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to [`google/gemma-2-2b-it`](https://huggingface.co/google/gemma-2-2b-it), and the `LORA_ADAPTERS` to `google-cloud-partnership/gemma-2-2b-it-lora-magicoder,google-cloud-partnership/gemma-2-2b-it-lora-sql`, being the following adapters:
-
+- [`deployment.yaml`](./config/deployment.yaml): contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to [`google/gemma-2-2b-it`](https://huggingface.co/google/gemma-2-2b-it), and the `LORA_ADAPTERS` to `google-cloud-partnership/gemma-2-2b-it-lora-magicoder,google-cloud-partnership/gemma-2-2b-it-lora-sql`, being the following adapters:
   - [`google-cloud-partnership/gemma-2-2b-it-lora-sql`](https://huggingface.co/google-cloud-partnership/gemma-2-2b-it-lora-sql): fine-tuned with [`gretelai/synthetic_text_to_sql`](https://huggingface.co/datasets/gretelai/synthetic_text_to_sql) to generate SQL queries with an explanation, given an SQL context and a prompt / question about it.
   - [`google-cloud-partnership/gemma-2-2b-it-lora-magicoder`](https://huggingface.co/google-cloud-partnership/gemma-2-2b-it-lora-magicoder): fine-tuned with [`ise-uiuc/Magicoder-OSS-Instruct-75K`](https://huggingface.co/datasets/ise-uiuc/Magicoder-OSS-Instruct-75K) to generate code in diverse programming languages such as Python, Rust, or C, among many others; based on an input problem.
   - [`google-cloud-partnership/gemma-2-2b-it-lora-jap-en`](https://huggingface.co/google-cloud-partnership/gemma-2-2b-it-lora-jap-en): fine-tuned with [`Jofthomas/japanese-english-translation`](https://huggingface.co/datasets/Jofthomas/japanese-english-translation), a synthetically generated dataset of short Japanese sentences translated to English; to translate English to Japanese and the other way around.
-
-- `service.yaml`: contains the service details of the pod, exposing the port 8080 for the TGI service.
-
-- (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+- [`service.yaml`](./config/service.yaml): contains the service details of the pod, exposing the port 8080 for the TGI service.
+- (optional) [`ingress.yaml`](./config/ingress.yaml): contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 > [!WARNING]
 > Note that the selected LoRA adapters are not intended to be used on production environments, as the fine-tuned adapters have not been tested extensively.
