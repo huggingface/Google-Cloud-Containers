@@ -211,7 +211,7 @@ The recommended approach is to use a Service Account (SA), as the access can be 
 - Set the `SERVICE_ACCOUNT_NAME` environment variable for convenience:
 
   ```bash
-  export SERVICE_ACCOUNT_NAME=text-generation-inference-invoker
+  export SERVICE_ACCOUNT_NAME=tgi-invoker
   ```
 
 - Create the Service Account:
