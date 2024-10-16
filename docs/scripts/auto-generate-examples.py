@@ -99,7 +99,7 @@ def process_file(root, file, dir):
     )
 
     # Add the final note
-    content += f"\n\n📍 Find the complete example on GitHub [here]({example_url})!"
+    content += f"\n\n<Tip important>\n\n📍 Find the complete example on GitHub [here]({example_url})!\n\n</Tip>"
 
     with open(target, "w") as f:
         f.write(content)
