@@ -59,13 +59,34 @@ The `gcloud beta run deploy` command needs you to specify the following paramete
 - `--region`: The region to deploy the Cloud Run service.
 - `--no-allow-unauthenticated`: Disables unauthenticated access to the service, which is a good practice as adds an authentication layer managed by Google Cloud IAM.
 
-Additionally, you can include the arguments `--vpc-egress=all-traffic` and `--subnet=default` ...
-
-```bash
-
-```
+> [!NOTE]
+> Optionally, you can include the arguments `--vpc-egress=all-traffic` and `--subnet=default`, as there is external traffic being sent to the public internet, so in order to speed the network, you need to route all traffic through the VPC network by setting those flags. Note that besides setting the flags, you need to set up Google Cloud NAT to reach the public internet, which is a paid product. Find more information in [Cloud Run Documentation - Networking best practices](https://cloud.google.com/run/docs/configuring/networking-best-practices).
+>
+> ```bash
+> gcloud compute routers create nat-router --network=default --region=$LOCATION
+> gcloud compute routers nats create vm-nat --router=nat-router --region=$LOCATION --auto-allocate-nat-external-ips --nat-all-subnet-ip-ranges
+> ```
 
 Finally, you can run the `gcloud beta run deploy` command to deploy TGI on Cloud Run as:
+
+```bash
+gcloud beta run deploy $SERVICE_NAME \
+    --image=$CONTAINER_URI \
+    --args="--model-id=hugging-quants/gemma-2-9b-it-AWQ-INT4,--max-concurrent-requests=64" \
+    --set-env-vars=HF_HUB_ENABLE_HF_TRANSFER=1 \
+    --port=8080 \
+    --cpu=8 \
+    --memory=32Gi \
+    --no-cpu-throttling \
+    --gpu=1 \
+    --gpu-type=nvidia-l4 \
+    --max-instances=3 \
+    --concurrency=64 \
+    --region=$LOCATION \
+    --no-allow-unauthenticated
+```
+
+Or as it follows if you created the Cloud NAT:
 
 ```bash
 gcloud beta run deploy $SERVICE_NAME \
@@ -335,7 +356,7 @@ gcloud run services delete $SERVICE_NAME --region $LOCATION
 
 Additionally, if you followed the steps in [via Cloud Run Service URL](#via-cloud-run-service-url) and generated a Service Account and an access token, you can either remove the Service Account, or just revoke the access token if it is still valid.
 
-- (recommended) Revoke the Access Token as
+- (recommended) Revoke the Access Token as:
 
 ```bash
 gcloud auth revoke --impersonate-service-account=$SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com
@@ -345,6 +366,13 @@ gcloud auth revoke --impersonate-service-account=$SERVICE_ACCOUNT_NAME@$PROJECT_
 
 ```bash
 gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com
+```
+
+Finally, if you decided to enable the VPC network via Cloud NAT, you can also remove the Cloud NAT (which is a paid product) as:
+
+```bash
+gcloud compute routers nats delete vm-nat --router=nat-router --region=$LOCATION
+gcloud compute routers delete nat-router --region=$LOCATION
 ```
 
 ## References
