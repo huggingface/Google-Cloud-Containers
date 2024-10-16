@@ -47,7 +47,7 @@ The `gcloud beta run deploy` command needs you to specify the following paramete
 
 - `--image`: The container image URI to deploy.
 - `--args`: The arguments to pass to the container entrypoint, being `text-generation-launcher` for the Hugging Face DLC for TGI. Read more about the supported arguments at [Text-generation-launcher arguments](https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/launcher).
-  - `--model-id`: The model ID to use, in this case, [`hugging-quants/gemma-2-9b-it-AWQ-INT4`](https://huggingface.co/hugging-quants/gemma-2-9b-it-AWQ-INT4).
+  - `--model-id`: The model ID to use, in this case, [`hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4`](https://huggingface.co/hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4).
   - `--quantize`: The quantization method to use, in this case, `awq`. If not specified, it will be retrieved from the `quantization_config->quant_method` in the `config.json` file.
 - `--port`: The port the container listens to.
 - `--cpu` and `--memory`: The number of CPUs and amount of memory to allocate to the container. Needs to be set to 4 and 16Gi (16 GiB), respectively; as that's the minimum requirement for using the GPU.
@@ -61,7 +61,7 @@ The `gcloud beta run deploy` command needs you to specify the following paramete
 ```bash
 gcloud beta run deploy $SERVICE_NAME \
     --image=$CONTAINER_URI \
-    --args="--model-id=hugging-quants/gemma-2-9b-it-AWQ-INT4,--quantize=awq,--max-concurrent-requests=64" \
+    --args="--model-id=hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4,--quantize=awq,--max-concurrent-requests=64" \
     --port=8080 \
     --cpu=4 \
     --memory=16Gi \
@@ -143,7 +143,7 @@ from huggingface_hub import InferenceClient
 client = InferenceClient(base_url="http://localhost:8080", api_key="-")
 
 chat_completion = client.chat.completions.create(
-  model="hugging-quants/gemma-2-9b-it-AWQ-INT4",
+  model="hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4",
   messages=[
     {"role": "system", "content": "You are a helpful assistant."},
     {"role": "user", "content": "What is Deep Learning?"},
@@ -241,7 +241,7 @@ The recommended approach is to use a Service Account (SA), as the access can be 
   ```
 
 > [!WARNING]
-> The access token is short-lived and will expire, by default after 1 hour. If you want to extend the token lifetime beyond the default, you must create and organization policy and use the `--lifetime` argument when createing the token. Refer to (Access token lifetime)[[https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts#extend_oauth_ttl]] to learn more. Otherwise, you can also generate a new token by running the same command again.
+> The access token is short-lived and will expire, by default after 1 hour. If you want to extend the token lifetime beyond the default, you must create and organization policy and use the `--lifetime` argument when createing the token. Refer to [Access token lifetime](https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts#extend_oauth_ttl) to learn more. Otherwise, you can also generate a new token by running the same command again.
 
 Now you can already dive into the different alternatives for sending the requests to the deployed Cloud Run Service using the `SERVICE_URL` AND `ACCESS_TOKEN` as described above.
 
@@ -291,7 +291,7 @@ client = InferenceClient(
 )
 
 chat_completion = client.chat.completions.create(
-  model="hugging-quants/gemma-2-9b-it-AWQ-INT4",
+  model="hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4",
   messages=[
     {"role": "system", "content": "You are a helpful assistant."},
     {"role": "user", "content": "What is Deep Learning?"},
