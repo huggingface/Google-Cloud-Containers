@@ -97,9 +97,11 @@ def process_file(root, file, dir):
     example_url = (
         f"https://github.com/huggingface/Google-Cloud-Containers/tree/main/{root}"
     )
+    if file.__contains__("ipynb"):
+        example_url += "/vertex-notebook.ipynb"
 
     # Add the final note
-    content += f"\n\n<Tip important>\n\n📍 Find the complete example on GitHub [here]({example_url})!\n\n</Tip>"
+    content += f"\n\n---\n\n<Tip>\n\n📍 Find the complete example on GitHub [here]({example_url})!\n\n</Tip>"
 
     with open(target, "w") as f:
         f.write(content)
