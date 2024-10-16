@@ -1,13 +1,13 @@
 ---
-title: Deploy Meta Llama 3.1 8B with TGI DLC on Cloud Run
+title: Deploy Llama 3.1 8B with TGI DLC on Cloud Run
 type: inference
 ---
 
-# Deploy Meta Llama 3.1 8B with TGI DLC on Cloud Run
+# Deploy Llama 3.1 8B with TGI DLC on Cloud Run
 
-Meta Llama 3.1 is the latest open LLM from Meta, released in July 2024. Meta Llama 3.1 comes in three sizes: 8B for efficient deployment and development on consumer-size GPU, 70B for large-scale AI native applications, and 405B for synthetic data, LLM as a Judge or distillation; among other use cases. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Cloud Run is a serverless container platform that allows developers to deploy and manage containerized applications without managing infrastructure, enabling automatic scaling and billing only for usage.
+Llama 3.1 is the latest open LLM from Meta, released in July 2024. Llama 3.1 comes in three sizes: 8B for efficient deployment and development on consumer-size GPU, 70B for large-scale AI native applications, and 405B for synthetic data, LLM as a Judge or distillation; among other use cases. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Cloud Run is a serverless container platform that allows developers to deploy and manage containerized applications without managing infrastructure, enabling automatic scaling and billing only for usage.
 
-This example showcases how to deploy an LLM from the Hugging Face Hub, in this case Meta Llama 3.1 8B Instruct model quantized to INT4 using AWQ, with the Hugging Face DLC for TGI on Google Cloud Run with GPU support ([in preview](https://cloud.google.com/products#product-launch-stages)).
+This example showcases how to deploy an LLM from the Hugging Face Hub, in this case Llama 3.1 8B Instruct model quantized to INT4 using AWQ, with the Hugging Face DLC for TGI on Google Cloud Run with GPU support ([in preview](https://cloud.google.com/products#product-launch-stages)).
 
 > [!NOTE]
 > GPU support on Cloud Run is only available as a waitlisted public preview. If you're interested in trying out the feature, [request a quota increase](https://cloud.google.com/run/quotas#increase) for `Total Nvidia L4 GPU allocation, per project per region`. At the time of writing this example, NVIDIA L4 GPUs (24GiB VRAM) are the only available GPUs on Cloud Run; enabling automatic scaling up to 7 instances by default (more available via quota), as well as scaling down to zero instances when there are no requests.
@@ -47,7 +47,7 @@ The `gcloud beta run deploy` command needs you to specify the following paramete
 
 - `--image`: The container image URI to deploy.
 - `--args`: The arguments to pass to the container entrypoint, being `text-generation-launcher` for the Hugging Face DLC for TGI. Read more about the supported arguments at [Text-generation-launcher arguments](https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/launcher).
-  - `--model-id`: The model ID to use, in this case, [`hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4`](https://huggingface.co/hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4).
+  - `--model-id`: The model ID to use, in this case, [`hugging-quants/gemma-2-9b-it-AWQ-INT4`](https://huggingface.co/hugging-quants/gemma-2-9b-it-AWQ-INT4).
   - `--quantize`: The quantization method to use, in this case, `awq`. If not specified, it will be retrieved from the `quantization_config->quant_method` in the `config.json` file.
 - `--port`: The port the container listens to.
 - `--cpu` and `--memory`: The number of CPUs and amount of memory to allocate to the container. Needs to be set to 4 and 16Gi (16 GiB), respectively; as that's the minimum requirement for using the GPU.
@@ -61,7 +61,7 @@ The `gcloud beta run deploy` command needs you to specify the following paramete
 ```bash
 gcloud beta run deploy $SERVICE_NAME \
     --image=$CONTAINER_URI \
-    --args="--model-id=hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4,--quantize=awq,--max-concurrent-requests=64" \
+    --args="--model-id=hugging-quants/gemma-2-9b-it-AWQ-INT4,--quantize=awq,--max-concurrent-requests=64" \
     --port=8080 \
     --cpu=4 \
     --memory=16Gi \
@@ -143,7 +143,7 @@ from huggingface_hub import InferenceClient
 client = InferenceClient(base_url="http://localhost:8080", api_key="-")
 
 chat_completion = client.chat.completions.create(
-  model="hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4",
+  model="hugging-quants/gemma-2-9b-it-AWQ-INT4",
   messages=[
     {"role": "system", "content": "You are a helpful assistant."},
     {"role": "user", "content": "What is Deep Learning?"},
@@ -291,7 +291,7 @@ client = InferenceClient(
 )
 
 chat_completion = client.chat.completions.create(
-  model="hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4",
+  model="hugging-quants/gemma-2-9b-it-AWQ-INT4",
   messages=[
     {"role": "system", "content": "You are a helpful assistant."},
     {"role": "user", "content": "What is Deep Learning?"},
