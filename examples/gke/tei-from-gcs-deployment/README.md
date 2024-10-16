@@ -150,12 +150,12 @@ Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TEI
 > [!NOTE]
 > Recently, the Hugging Face Hub team has included the `text-embeddings-inference` tag in the Hub, so feel free to explore all the embedding models in the Hub that can be served via TEI at <https://huggingface.co/models?other=text-embeddings-inference>.
 
-The Hugging Face DLC for TEI will be deployed via `kubectl`, from the configuration files in either the `cpu-config/` or the `gpu-config/` directories depending on whether you want to use the CPU or GPU accelerators, respectively:
+The Hugging Face DLC for TEI will be deployed via `kubectl`, from the configuration files in either the [`cpu-config/`](./cpu-config/) or the [`gpu-config/`](./gpu-config/) directories depending on whether you want to use the CPU or GPU accelerators, respectively:
 
-- `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TEI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/bge-base-en-v1.5`.
-- `service.yaml`: contains the service details of the pod, exposing the port 80 for the TEI service.
-- `storageclass.yaml`: contains the storage class details of the pod, defining the storage class for the volume mount.
-- (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+- [`deployment.yaml`](./cpu-config/deployment.yaml): contains the deployment details of the pod including the reference to the Hugging Face DLC for TEI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/bge-base-en-v1.5`.
+- [`service.yaml`](./cpu-config/service.yaml): contains the service details of the pod, exposing the port 8080 for the TEI service.
+- [`storageclass.yaml`](./cpu-config): contains the storage class details of the pod, defining the storage class for the volume mount.
+- (optional) [`ingress.yaml`](./cpu-config/ingress.yaml): contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
 kubectl apply -f cpu-config/
