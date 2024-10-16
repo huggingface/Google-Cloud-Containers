@@ -5,7 +5,7 @@ type: inference
 
 # Deploy Gemma2 9B with TGI DLC on Cloud Run
 
-TODO. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Cloud Run is a serverless container platform that allows developers to deploy and manage containerized applications without managing infrastructure, enabling automatic scaling and billing only for usage.
+Gemma 2 is an advanced, lightweight open model that enhances performance and efficiency while building on the research and technology of its predecessor and the Gemini models developed by Google DeepMind and other teams across Google. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Cloud Run is a serverless container platform that allows developers to deploy and manage containerized applications without managing infrastructure, enabling automatic scaling and billing only for usage.
 
 This example showcases how to deploy Gemma2 9B Instruct model quantized to INT4 using AWQ from the Hugging Face Hub with the Hugging Face DLC for TGI on Google Cloud Run with GPU support ([in preview](https://cloud.google.com/products#product-launch-stages)).
 
@@ -22,7 +22,7 @@ Optionally, to ease the usage of the commands within this tutorial, you need to 
 export PROJECT_ID=your-project-id
 export LOCATION=us-central1  # or any location where Cloud Run offers GPUs: https://cloud.google.com/run/docs/locations#gpu
 export CONTAINER_URI=us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311
-export SERVICE_NAME=gemma2-awq-tgi
+export SERVICE_NAME=gemma2-tgi
 ```
 
 Then you need to login into your Google Cloud account and set the project ID you want to use to deploy Cloud Run.
@@ -59,20 +59,31 @@ The `gcloud beta run deploy` command needs you to specify the following paramete
 - `--region`: The region to deploy the Cloud Run service.
 - `--no-allow-unauthenticated`: Disables unauthenticated access to the service, which is a good practice as adds an authentication layer managed by Google Cloud IAM.
 
+Additionally, you can include the arguments `--vpc-egress=all-traffic` and `--subnet=default` ...
+
+```bash
+
+```
+
+Finally, you can run the `gcloud beta run deploy` command to deploy TGI on Cloud Run as:
+
 ```bash
 gcloud beta run deploy $SERVICE_NAME \
     --image=$CONTAINER_URI \
     --args="--model-id=hugging-quants/gemma-2-9b-it-AWQ-INT4,--max-concurrent-requests=64" \
+    --set-env-vars=HF_HUB_ENABLE_HF_TRANSFER=1 \
     --port=8080 \
-    --cpu=4 \
-    --memory=16Gi \
+    --cpu=8 \
+    --memory=32Gi \
     --no-cpu-throttling \
     --gpu=1 \
     --gpu-type=nvidia-l4 \
     --max-instances=3 \
     --concurrency=64 \
     --region=$LOCATION \
-    --no-allow-unauthenticated
+    --no-allow-unauthenticated \
+    --vpc-egress=all-traffic \
+    --subnet=default
 ```
 
 ![Cloud Run Deployment](./imgs/cloud-run-deployment.png)
