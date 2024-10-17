@@ -5,13 +5,30 @@ import subprocess
 
 def current_git_branch():
     try:
-        # Run the git command to get the current branch
-        return subprocess.run(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.strip()
+        # First, try to get the branch name from GitHub Actions environment variables
+        if "GITHUB_REF" in os.environ:
+            branch = os.environ["GITHUB_REF"].split("/")[-1]
+        else:
+            # If not in GitHub Actions, use git command
+            result = subprocess.run(
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            branch = result.stdout.strip()
+
+        # Check if the branch is 'HEAD' (detached state in CI)
+        if branch == "HEAD":
+            # Try to get the branch name from GitHub Actions specific environment variable
+            if "GITHUB_HEAD_REF" in os.environ:
+                branch = os.environ["GITHUB_HEAD_REF"]
+            elif "GITHUB_REF" in os.environ:
+                branch = os.environ["GITHUB_REF"].split("/")[-1]
+            else:
+                branch = "Unable to determine branch name"
+
+        return branch
     except:  # noqa: E722
         return "main"
 
