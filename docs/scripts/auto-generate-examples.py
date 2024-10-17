@@ -26,7 +26,7 @@ def current_git_branch():
             elif "GITHUB_REF" in os.environ:
                 branch = os.environ["GITHUB_REF"].split("/")[-1]
             else:
-                branch = "Unable to determine branch name"
+                branch = "main"
 
         return branch
     except:  # noqa: E722
