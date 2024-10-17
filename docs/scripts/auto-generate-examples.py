@@ -1,5 +1,19 @@
 import os
 import re
+import subprocess
+
+
+def current_git_branch():
+    try:
+        # Run the git command to get the current branch
+        return subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+    except:  # noqa: E722
+        return "main"
 
 
 def process_readme_files():
@@ -29,27 +43,30 @@ def process_file(root, file, dir):
     with open(file_path, "r") as f:
         content = f.read()
 
+    # Obtain the current checked out Git branch
+    git_branch = current_git_branch()
+
     # For Juypter Notebooks, remove the comment i.e. `<!--` and the `--!>` but keep the metadata
     content = re.sub(r"<!-- (.*?) -->", r"\1", content, flags=re.DOTALL)
 
     # Replace image and link paths
     content = re.sub(
         r"\(\./(imgs|assets)/([^)]*\.png)\)",
-        r"(https://raw.githubusercontent.com/huggingface/Google-Cloud-Containers/main/"
+        rf"(https://raw.githubusercontent.com/huggingface/Google-Cloud-Containers/{git_branch}/"
         + root
         + r"/\1/\2)",
         content,
     )
     content = re.sub(
         r"\(\.\./([^)]+)\)",
-        r"(https://github.com/huggingface/Google-Cloud-Containers/tree/main/examples/"
+        rf"(https://github.com/huggingface/Google-Cloud-Containers/tree/{git_branch}/examples/"
         + dir
         + r"/\1)",
         content,
     )
     content = re.sub(
         r"\(\.\/([^)]+)\)",
-        r"(https://github.com/huggingface/Google-Cloud-Containers/tree/main/"
+        rf"(https://github.com/huggingface/Google-Cloud-Containers/tree/{git_branch}/"
         + root
         + r"/\1)",
         content,
@@ -94,9 +111,7 @@ def process_file(root, file, dir):
         print("No relative paths found in the processed file.")
 
     # Calculate the example URL
-    example_url = (
-        f"https://github.com/huggingface/Google-Cloud-Containers/tree/main/{root}"
-    )
+    example_url = f"https://github.com/huggingface/Google-Cloud-Containers/tree/{git_branch}/{root}"
     if file.__contains__("ipynb"):
         example_url += "/vertex-notebook.ipynb"
 
