@@ -1,13 +1,13 @@
 ---
-title: Deploy Meta Llama 3.1 8B with TGI DLC on Cloud Run
+title: Deploy Llama 3.1 8B with TGI DLC on Cloud Run
 type: inference
 ---
 
-# Deploy Meta Llama 3.1 8B with TGI DLC on Cloud Run
+# Deploy Llama 3.1 8B with TGI DLC on Cloud Run
 
-Meta Llama 3.1 is the latest open LLM from Meta, released in July 2024. Meta Llama 3.1 comes in three sizes: 8B for efficient deployment and development on consumer-size GPU, 70B for large-scale AI native applications, and 405B for synthetic data, LLM as a Judge or distillation; among other use cases. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Cloud Run is a serverless container platform that allows developers to deploy and manage containerized applications without managing infrastructure, enabling automatic scaling and billing only for usage.
+Llama 3.1 is the latest open LLM from Meta, released in July 2024. Llama 3.1 comes in three sizes: 8B for efficient deployment and development on consumer-size GPU, 70B for large-scale AI native applications, and 405B for synthetic data, LLM as a Judge or distillation; among other use cases. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Cloud Run is a serverless container platform that allows developers to deploy and manage containerized applications without managing infrastructure, enabling automatic scaling and billing only for usage.
 
-This example showcases how to deploy an LLM from the Hugging Face Hub, in this case Meta Llama 3.1 8B Instruct model quantized to INT4 using AWQ, with the Hugging Face DLC for TGI on Google Cloud Run with GPU support ([in preview](https://cloud.google.com/products#product-launch-stages)).
+This example showcases how to deploy an LLM from the Hugging Face Hub, in this case Llama 3.1 8B Instruct model quantized to INT4 using AWQ, with the Hugging Face DLC for TGI on Google Cloud Run with GPU support ([in preview](https://cloud.google.com/products#product-launch-stages)).
 
 > [!NOTE]
 > GPU support on Cloud Run is only available as a waitlisted public preview. If you're interested in trying out the feature, [request a quota increase](https://cloud.google.com/run/quotas#increase) for `Total Nvidia L4 GPU allocation, per project per region`. At the time of writing this example, NVIDIA L4 GPUs (24GiB VRAM) are the only available GPUs on Cloud Run; enabling automatic scaling up to 7 instances by default (more available via quota), as well as scaling down to zero instances when there are no requests.
@@ -216,7 +216,7 @@ The recommended approach is to use a Service Account (SA), as the access can be 
 - Set the `SERVICE_ACCOUNT_NAME` environment variable for convenience:
 
   ```bash
-  export SERVICE_ACCOUNT_NAME=text-generation-inference-invoker
+  export SERVICE_ACCOUNT_NAME=tgi-invoker
   ```
 
 - Create the Service Account:
@@ -241,7 +241,7 @@ The recommended approach is to use a Service Account (SA), as the access can be 
   ```
 
 > [!WARNING]
-> The access token is short-lived and will expire, by default after 1 hour. If you want to extend the token lifetime beyond the default, you must create and organization policy and use the `--lifetime` argument when createing the token. Refer to (Access token lifetime)[[https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts#extend_oauth_ttl]] to learn more. Otherwise, you can also generate a new token by running the same command again.
+> The access token is short-lived and will expire, by default after 1 hour. If you want to extend the token lifetime beyond the default, you must create and organization policy and use the `--lifetime` argument when createing the token. Refer to [Access token lifetime](https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts#extend_oauth_ttl) to learn more. Otherwise, you can also generate a new token by running the same command again.
 
 Now you can already dive into the different alternatives for sending the requests to the deployed Cloud Run Service using the `SERVICE_URL` AND `ACCESS_TOKEN` as described above.
 
