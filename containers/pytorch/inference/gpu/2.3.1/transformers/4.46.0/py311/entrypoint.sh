@@ -36,7 +36,7 @@ if [[ $AIP_STORAGE_URI == gs://* ]]; then
     # Check if requirements.txt exists and if so install dependencies
     if [ -f "${HF_MODEL_DIR}/requirements.txt" ]; then
         echo "Installing custom dependencies from ${HF_MODEL_DIR}/requirements.txt"
-        uv pip install -r ${HF_MODEL_DIR}/requirements.txt --no-cache-dir --system
+        pip install -r ${HF_MODEL_DIR}/requirements.txt --no-cache-dir
     fi
 fi
 
