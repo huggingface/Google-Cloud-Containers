@@ -42,7 +42,7 @@ RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
 # Hugging Face Inference Toolkit
 ARG HF_INFERENCE_TOOLKIT_VERSION=bump-dependencies
 ARG HF_INFERENCE_TOOLKIT_URL=git+https://github.com/huggingface/huggingface-inference-toolkit.git@${HF_INFERENCE_TOOLKIT_VERSION}
-RUN pip install --upgrade "huggingface-inference-toolkit[torch,diffusers,st,google]" @ ${HF_INFERENCE_TOOLKIT_URL} --no-cache-dir
+RUN pip install --upgrade "huggingface-inference-toolkit[torch,diffusers,st,google] @ ${HF_INFERENCE_TOOLKIT_URL}" --no-cache-dir
 
 ENV HF_HUB_ENABLE_HF_TRANSFER="1"
 
