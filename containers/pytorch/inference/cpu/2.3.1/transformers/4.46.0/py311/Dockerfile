@@ -59,4 +59,3 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
 # Copy entrypoint and change permissions
 COPY --chmod=0755 containers/pytorch/inference/cpu/2.3.1/transformers/4.46.0/py311/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["bash", "-c", "./entrypoint.sh"]
-
