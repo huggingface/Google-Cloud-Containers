@@ -1,0 +1,279 @@
+# Fetch and extract the TGI sources
+FROM alpine AS tgi
+RUN mkdir -p /tgi
+ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v2.4.0.tar.gz /tgi/sources.tar.gz
+RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
+
+# Rust builder
+FROM lukemathwalker/cargo-chef:latest-rust-1.80.1 AS chef
+WORKDIR /usr/src
+
+ARG CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
+
+FROM chef AS planner
+COPY --from=tgi /tgi/Cargo.lock Cargo.lock
+COPY --from=tgi /tgi/Cargo.toml Cargo.toml
+COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
+COPY --from=tgi /tgi/proto proto
+COPY --from=tgi /tgi/benchmark benchmark
+COPY --from=tgi /tgi/router router
+COPY --from=tgi /tgi/backends backends
+COPY --from=tgi /tgi/launcher launcher
+
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM chef AS builder
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    python3.11-dev
+RUN PROTOC_ZIP=protoc-21.12-linux-x86_64.zip && \
+    curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v21.12/$PROTOC_ZIP && \
+    unzip -o $PROTOC_ZIP -d /usr/local bin/protoc && \
+    unzip -o $PROTOC_ZIP -d /usr/local 'include/*' && \
+    rm -f $PROTOC_ZIP
+
+COPY --from=planner /usr/src/recipe.json recipe.json
+RUN cargo chef cook --profile release-opt --recipe-path recipe.json
+
+COPY --from=tgi /tgi/Cargo.lock Cargo.lock
+COPY --from=tgi /tgi/Cargo.toml Cargo.toml
+COPY --from=tgi /tgi/rust-toolchain.toml rust-toolchain.toml
+COPY --from=tgi /tgi/proto proto
+COPY --from=tgi /tgi/benchmark benchmark
+COPY --from=tgi /tgi/router router
+COPY --from=tgi /tgi/backends backends
+COPY --from=tgi /tgi/launcher launcher
+RUN cargo build --profile release-opt --features google --frozen
+
+# Python builder
+# Adapted from: https://github.com/pytorch/pytorch/blob/master/Dockerfile
+FROM nvidia/cuda:12.4.1-devel-ubuntu22.04 AS pytorch-install
+
+# NOTE: When updating PyTorch version, beware to remove `pip install nvidia-nccl-cu12==2.22.3` below in the Dockerfile. Context: https://github.com/huggingface/text-generation-inference/pull/2099
+ARG PYTORCH_VERSION=2.4.0
+
+ARG PYTHON_VERSION=3.11
+# Keep in sync with `server/pyproject.toml
+ARG CUDA_VERSION=12.4
+ARG MAMBA_VERSION=24.3.0-0
+ARG CUDA_CHANNEL=nvidia
+ARG INSTALL_CHANNEL=pytorch
+# Automatically set by buildx
+ARG TARGETPLATFORM
+
+ENV PATH /opt/conda/bin:$PATH
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    ccache \
+    curl \
+    git && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install conda
+# translating Docker's TARGETPLATFORM into mamba arches
+RUN case ${TARGETPLATFORM} in \
+    "linux/arm64")  MAMBA_ARCH=aarch64  ;; \
+    *)              MAMBA_ARCH=x86_64   ;; \
+    esac && \
+    curl -fsSL -v -o ~/mambaforge.sh -O  "https://github.com/conda-forge/miniforge/releases/download/${MAMBA_VERSION}/Mambaforge-${MAMBA_VERSION}-Linux-${MAMBA_ARCH}.sh"
+RUN chmod +x ~/mambaforge.sh && \
+    bash ~/mambaforge.sh -b -p /opt/conda && \
+    rm ~/mambaforge.sh
+
+# Install pytorch
+# On arm64 we exit with an error code
+RUN case ${TARGETPLATFORM} in \
+    "linux/arm64")  exit 1 ;; \
+    *)              /opt/conda/bin/conda update -y conda &&  \
+    /opt/conda/bin/conda install -c "${INSTALL_CHANNEL}" -c "${CUDA_CHANNEL}" -y "python=${PYTHON_VERSION}" "pytorch=$PYTORCH_VERSION" "pytorch-cuda=$(echo $CUDA_VERSION | cut -d'.' -f 1-2)"  ;; \
+    esac && \
+    /opt/conda/bin/conda clean -ya
+
+# CUDA kernels builder image
+FROM pytorch-install AS kernel-builder
+
+ARG MAX_JOBS=4
+ENV TORCH_CUDA_ARCH_LIST="8.0;8.6;9.0+PTX"
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    ninja-build cmake \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build Flash Attention CUDA kernels
+FROM kernel-builder AS flash-att-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/Makefile-flash-att Makefile
+# Build specific version of flash attention
+RUN make build-flash-attention
+
+# Build Flash Attention v2 CUDA kernels
+FROM kernel-builder AS flash-att-v2-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/Makefile-flash-att-v2 Makefile
+# Build specific version of flash attention v2
+RUN make build-flash-attention-v2-cuda
+
+# Build Transformers exllama kernels
+FROM kernel-builder AS exllama-kernels-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/exllama_kernels/ .
+RUN python setup.py build
+
+# Build Transformers exllama kernels
+FROM kernel-builder AS exllamav2-kernels-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/Makefile-exllamav2/ Makefile
+# Build specific version of transformers
+RUN make build-exllamav2
+
+# Build Transformers awq kernels
+FROM kernel-builder AS awq-kernels-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/Makefile-awq Makefile
+# Build specific version of transformers
+RUN make build-awq
+
+# Build eetq kernels
+FROM kernel-builder AS eetq-kernels-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/Makefile-eetq Makefile
+# Build specific version of transformers
+RUN make build-eetq
+
+# Build Lorax Punica kernels
+FROM kernel-builder AS lorax-punica-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/Makefile-lorax-punica Makefile
+# Build specific version of transformers
+RUN TORCH_CUDA_ARCH_LIST="8.0;8.6+PTX" make build-lorax-punica
+
+# Build Transformers CUDA kernels
+FROM kernel-builder AS custom-kernels-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/custom_kernels/ .
+# Build specific version of transformers
+RUN python setup.py build
+
+# Build vllm CUDA kernels
+FROM kernel-builder AS vllm-builder
+WORKDIR /usr/src
+ENV TORCH_CUDA_ARCH_LIST="7.0 7.5 8.0 8.6 8.9 9.0+PTX"
+COPY --from=tgi /tgi/server/Makefile-vllm Makefile
+# Build specific version of vllm
+RUN make build-vllm-cuda
+
+# Build mamba kernels
+FROM kernel-builder AS mamba-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/Makefile-selective-scan Makefile
+RUN make build-all
+
+# Build flashinfer
+FROM kernel-builder AS flashinfer-builder
+WORKDIR /usr/src
+COPY --from=tgi /tgi/server/Makefile-flashinfer Makefile
+RUN make install-flashinfer
+
+# Text Generation Inference base image
+FROM nvidia/cuda:12.1.0-base-ubuntu22.04 AS base
+
+# Conda env
+ENV PATH=/opt/conda/bin:$PATH \
+    CONDA_PREFIX=/opt/conda
+
+# Text Generation Inference base env
+ENV HF_HOME=/tmp \
+    HF_HUB_ENABLE_HF_TRANSFER=1 \
+    PORT=8080
+
+WORKDIR /usr/src
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    libssl-dev \
+    ca-certificates \
+    make \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy conda with PyTorch installed
+COPY --from=pytorch-install /opt/conda /opt/conda
+
+# Copy build artifacts from flash attention builder
+COPY --from=flash-att-builder /usr/src/flash-attention/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
+COPY --from=flash-att-builder /usr/src/flash-attention/csrc/layer_norm/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
+COPY --from=flash-att-builder /usr/src/flash-attention/csrc/rotary/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
+
+# Copy build artifacts from flash attention v2 builder
+COPY --from=flash-att-v2-builder /opt/conda/lib/python3.11/site-packages/flash_attn_2_cuda.cpython-311-x86_64-linux-gnu.so /opt/conda/lib/python3.11/site-packages
+
+# Copy build artifacts from custom kernels builder
+COPY --from=custom-kernels-builder /usr/src/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
+# Copy build artifacts from exllama kernels builder
+COPY --from=exllama-kernels-builder /usr/src/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
+# Copy build artifacts from exllamav2 kernels builder
+COPY --from=exllamav2-kernels-builder /usr/src/exllamav2/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
+# Copy build artifacts from awq kernels builder
+COPY --from=awq-kernels-builder /usr/src/llm-awq/awq/kernels/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
+# Copy build artifacts from eetq kernels builder
+COPY --from=eetq-kernels-builder /usr/src/eetq/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
+# Copy build artifacts from lorax punica kernels builder
+COPY --from=lorax-punica-builder /usr/src/lorax-punica/server/punica_kernels/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
+# Copy build artifacts from vllm builder
+COPY --from=vllm-builder /usr/src/vllm/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
+# Copy build artifacts from mamba builder
+COPY --from=mamba-builder /usr/src/mamba/build/lib.linux-x86_64-cpython-311/ /opt/conda/lib/python3.11/site-packages
+COPY --from=mamba-builder /usr/src/causal-conv1d/build/lib.linux-x86_64-cpython-311/ /opt/conda/lib/python3.11/site-packages
+COPY --from=flashinfer-builder /opt/conda/lib/python3.11/site-packages/flashinfer/ /opt/conda/lib/python3.11/site-packages/flashinfer/
+
+# Install flash-attention dependencies
+RUN pip install einops --no-cache-dir
+
+# Install server
+COPY --from=tgi /tgi/proto proto
+COPY --from=tgi /tgi/server server
+COPY --from=tgi /tgi/server/Makefile server/Makefile
+RUN cd server && \
+    make gen-server && \
+    pip install -r requirements_cuda.txt && \
+    pip install ".[bnb, accelerate, marlin, moe, quantize, peft, outlines]" --no-cache-dir && \
+    pip install nvidia-nccl-cu12==2.22.3
+
+ENV LD_PRELOAD=/opt/conda/lib/python3.11/site-packages/nvidia/nccl/lib/libnccl.so.2
+# Required to find libpython within the rust binaries
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/conda/lib/"
+# This is needed because exl2 tries to load flash-attn
+# And fails with our builds.
+ENV EXLLAMA_NO_FLASH_ATTN=1
+
+# Deps before the binaries
+# The binaries change on every build given we burn the SHA into them
+# The deps change less often.
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    build-essential \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install benchmarker
+COPY --from=builder /usr/src/target/release-opt/text-generation-benchmark /usr/local/bin/text-generation-benchmark
+# Install router
+COPY --from=builder /usr/src/target/release-opt/text-generation-router /usr/local/bin/text-generation-router
+# Install launcher
+COPY --from=builder /usr/src/target/release-opt/text-generation-launcher /usr/local/bin/text-generation-launcher
+
+# Final image
+FROM base
+
+# Install Google CLI single command
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+    | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+    | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
+    apt-get update -y && \
+    apt-get install google-cloud-sdk -y
+
+# COPY custom entrypoint for Google
+COPY --chmod=775 containers/tgi/gpu/2.4.0/entrypoint.sh entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
