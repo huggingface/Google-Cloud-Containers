@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
+FROM ubuntu:22.04
 SHELL ["/bin/bash", "-c"]
 
 LABEL maintainer="Hugging Face"
@@ -40,7 +40,7 @@ RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     rm get-pip.py
 
 # Hugging Face Inference Toolkit
-ARG HF_INFERENCE_TOOLKIT_VERSION=0.5.1
+ARG HF_INFERENCE_TOOLKIT_VERSION=0.5.2
 ARG HF_INFERENCE_TOOLKIT_URL=git+https://github.com/huggingface/huggingface-inference-toolkit.git@${HF_INFERENCE_TOOLKIT_VERSION}
 RUN pip install --upgrade "huggingface-inference-toolkit[torch,diffusers,st,google] @ ${HF_INFERENCE_TOOLKIT_URL}" --no-cache-dir
 
@@ -57,5 +57,5 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     rm -rf /var/lib/{apt,dpkg,cache,log}
 
 # Copy entrypoint and change permissions
-COPY --chmod=0755 containers/pytorch/inference/gpu/2.3.1/transformers/4.46.0/py311/entrypoint.sh entrypoint.sh
+COPY --chmod=0755 containers/pytorch/inference/cpu/2.3.1/transformers/4.46.1/py311/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["bash", "-c", "./entrypoint.sh"]
