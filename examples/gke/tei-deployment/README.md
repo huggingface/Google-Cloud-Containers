@@ -105,11 +105,12 @@ The Hugging Face DLC for TEI will be deployed via `kubectl`, from the configurat
 - (optional) [`ingress.yaml`](./cpu-config/ingress.yaml): contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
-kubectl apply -f cpu-config/
+git clone https://github.com/huggingface/Google-Cloud-Containers
+kubectl apply -f Google-Cloud-Containers/examples/gke/tei-deployment/cpu-config
 ```
 
 > [!NOTE]
-> As already mentioned, for this example you will be deploying the container in a CPU node, but the configuration to deploy TEI in a GPU node is also available in the [`gpu-config`](./gpu-config/) directory, so if you want to deploy TEI in a GPU node, please run `kubectl apply -f gpu-config/` instead of `kubectl apply -f cpu-config/`.
+> As already mentioned, for this example you will be deploying the container in a CPU node, but the configuration to deploy TEI in a GPU node is also available in the [`gpu-config`](./gpu-config/) directory, so if you want to deploy TEI in a GPU node, please run `kubectl apply -f Google-Cloud-Containers/examples/gke/tei-deployment/gpu-config` instead of `kubectl apply -f Google-Cloud-Containers/examples/gke/tei-deployment/cpu-config`.
 
 ![GKE Deployment in the GCP Console](./imgs/gke-deployment.png)
 

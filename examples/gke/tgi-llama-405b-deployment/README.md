@@ -148,7 +148,8 @@ The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configurat
 - (optional) [`ingress.yaml`](./config/ingress.yaml): contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
-kubectl apply -f config/
+git clone https://github.com/huggingface/Google-Cloud-Containers
+kubectl apply -f Google-Cloud-Containers/examples/gke/tgi-llama-405b-deployment/config
 ```
 
 > [!NOTE]
