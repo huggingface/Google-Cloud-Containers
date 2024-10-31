@@ -143,7 +143,8 @@ The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configurat
 > Note that the selected LoRA adapters are not intended to be used on production environments, as the fine-tuned adapters have not been tested extensively.
 
 ```bash
-kubectl apply -f config/
+git clone https://github.com/huggingface/Google-Cloud-Containers
+kubectl apply -f Google-Cloud-Containers/examples/gke/tgi-multi-lora-deployment/config
 ```
 
 > [!NOTE]
