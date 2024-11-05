@@ -36,12 +36,11 @@ done
 
 # Check if necessary parameters are provided
 if [[ -z "$IMAGE" || -z "$PROJECT_ID" || -z "$LOCATION" || -z "$REPOSITORY" || -z "$DESTINATION" ]]; then
-    echo "Usage: $0 --image my-image --project-id gcs-project --location us-central1 --repository my-repo --destination my-destination-image"
+    echo "Usage: $0 --image my-image --project-id my-project --location us-central1 --repository my-repo --destination us-central1-docker.pkg.dev/my-project/my-repo/my-image"
     exit 1
 fi
 
 # Authenticate with GCP
-gcloud auth application-default login
 gcloud config set project $PROJECT_ID
 
 # Enable the Artifact Registry API
@@ -68,7 +67,7 @@ else
 fi
 
 # Configure Docker to use the Artifact Registry repository just created
-gcloud auth configure-docker $LOCATION-docker.pkg.dev
+gcloud auth configure-docker $LOCATION-docker.pkg.dev --quiet
 
 # Finally, we tag our image with the target / destination name, and then we push it to the Artifact Registry repository
 echo "Pushing image $IMAGE to $DESTINATION..."

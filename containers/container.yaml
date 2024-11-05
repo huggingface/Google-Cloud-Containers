@@ -1,41 +1,24 @@
-# Container Config yaml defintion
-
-pytorch: 
+pytorch:
   - type: training
     accelerator: gpu
-    framework: 1.9.0
-    transformers: 4.35.0
-    python: 3.10.0
-  - type: training
-    accelerator: tpu
-    framework: 1.9.0
-    transformers: 4.41.1
-    python: 3.10.0
+    framework: 2.3.0
+    transformers: 4.42.3
+    python: 3.10
+  - type: inference
+    accelerator: cpu
+    framework: 2.2.2
+    transformers: 4.44.0
+    python: 3.11
   - type: inference
     accelerator: gpu
-    framework: 1.9.0
-    transformers: 4.35.0
-    python: 3.10.0
-
-jax: 
-  - type: training
-    accelerator: gpu
-    framework: 1.9.0
-    transformers: 4.35.0
-    python: 3.10.0
-  - type: training
-    accelerator: tpu
-    framework: 1.9.0
-    transformers: 4.35.0
-    python: 3.10.0
-  - type: inference
-    accelerator: gpu
-    framework: 1.9.0
-    transformers: 4.35.0
-    python: 3.10.0
-
-tgi: 
+    framework: 2.2.2
+    transformers: 4.44.0
+    python: 3.11
+tgi:
   - accelerator: gpu
-    framework: 1.3.4
-  - accelerator: tpu
-    framework: 1.3.4
+    framework: 2.2.0
+tei:
+  - accelerator: cpu
+    framework: 1.4.0
+  - accelerator: gpu
+    framework: 1.4.0

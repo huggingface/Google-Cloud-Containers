@@ -1,153 +1,115 @@
-# Text-Generation-Inference
+# Text Generation Inference (TGI) Containers
 
-[Text-Generation-Inference](https://github.com/huggingface/text-generation-inference) A Rust, Python and gRPC server for text generation inference. Used in production at Hugging Face to power Hugging Chat, the Inference API and Inference Endpoint.
+[Text Generation Inference](https://github.com/huggingface/text-generation-inference) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation, that comes with a Rust, Python and gRPC server for text generation inference, used in production at Hugging Face to power Hugging Chat, the Inference API and Inference Endpoints.
+
+## Published Containers
+
+To check which of the available Hugging Face DLCs are published, you can either check the [Google Cloud Deep Learning Containers Documentation for TGI](https://cloud.google.com/deep-learning-containers/docs/choosing-container#text-generation-inference), the [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or use the `gcloud` command to list the available containers with the tag `huggingface-text-generation-inference` as follows:
+
+```bash
+gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-text-generation-inference"
+```
 
 ## Getting Started
 
-Below are the instructions to build and test the Text-generation-Inference container.
+Below you will find the instructions on how to run and test the TGI containers available within this repository. Note that before proceeding you need to first ensure that you have Docker installed either on your local or remote instance, if not, please follow the instructions on how to install Docker [here](https://docs.docker.com/get-docker/).
 
-Build the container with the following command:
+To run the Docker container in GPUs you need to ensure that your hardware is supported (NVIDIA drivers on your device need to be compatible with CUDA version 12.2 or higher) and also install the NVIDIA Container Toolkit.
+
+To find the supported models and hardware before running the TGI DLC, feel free to check [TGI Documentation](https://huggingface.co/docs/text-generation-inference/supported_models).
+
+### Run
+
+To run this DLC, you need to have GPU accelerators available within the instance that you want to run TGI, not only because those are required, but also to enable the best performance due to the optimized inference CUDA kernels.
+
+Besides that, you also need to define the model to deploy, as well as the generation configuration. For the model selection, you can pick any model from the Hugging Face Hub that contains the tag `text-generation-inference` which means that it's supported by TGI; to explore all the available models within the Hub, please check [here](https://huggingface.co/models?other=text-generation-inference&sort=trending). Then, to select the best configuration for that model you can either keep the default values defined within TGI, or just select the recommended ones based on our instance specification via the Hugging Face Recommender API for TGI as follows:
 
 ```bash
-docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.2.0 -f containers/tgi/gpu/2.2.0/Dockerfile .
+curl -G https://huggingface.co/api/integrations/tgi/v1/provider/gcp/recommend \
+    -d "model_id=google/gemma-7b-it" \
+    -d "gpu_memory=24" \
+    -d "num_gpus=1"
 ```
 
-Alternatively, feel free to use the following command to dump the build logs into a file:
+Which returns the following output containing the optimal configuration for deploying / serving that model via TGI:
 
-```bash
-docker build --progress=plain -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.2.0 -f containers/tgi/gpu/2.2.0/Dockerfile . > build.log 2>&1
+```json
+{
+    "model_id": "google/gemma-7b-it",
+    "instance": "g2-standard-4",
+    "configuration": {
+    "model_id": "google/gemma-7b-it",
+    "max_batch_prefill_tokens": 4096,
+    "max_input_length": 4000,
+    "max_total_tokens": 4096,
+    "num_shard": 1,
+    "quantize": null,
+    "estimated_memory_in_gigabytes": 22.77
+}
 ```
 
-### Llama 3.1 8B
-
-Test the container on a GPU instance (g2) as follows:
+Then you are ready to run the container as follows:
 
 ```bash
-model=meta-llama/Meta-Llama-3.1-8B-Instruct
-num_shard=4
-max_input_length=1562
-max_total_tokens=2048
-
 docker run --gpus all -ti --shm-size 1g -p 8080:8080 \
-  -e MODEL_ID=$model \
-  -e NUM_SHARD=$num_shard \
-  -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
-  -e MAX_INPUT_LENGTH=$max_input_length \
-  -e MAX_TOTAL_TOKENS=$max_total_tokens \
-  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.2.0
+    -e MODEL_ID=google/gemma-7b-it \
+    -e NUM_SHARD=1 \
+    -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
+    -e MAX_INPUT_LENGTH=4000 \
+    -e MAX_TOTAL_TOKENS=4096 \
+    us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311
 ```
 
-Send request:
+### Test
+
+Once the Docker container is running, as it has been deployed with `text-generation-launcher`, the API will expose the following endpoints listed within the [TGI OpenAPI Specification](https://huggingface.github.io/text-generation-inference/).
+
+In this case, you can test the container by sending a request to the `/v1/chat/completions` endpoint (that matches OpenAI specification and so on is fully compatible with OpenAI clients) as follows:
 
 ```bash
 curl 0.0.0.0:8080/v1/chat/completions \
     -X POST \
+    -H 'Content-Type: application/json' \
     -d '{
-  "model": "tgi",
-  "messages": [
-    {
-      "role": "user",
-      "content": "What is deep learning?"
-    }
-  ],
-  "stream": true,
-  "max_tokens": 128
-}' \
-    -H 'Content-Type: application/json'
+        "model": "tgi",
+        "messages": [
+            {
+                "role": "user",
+                "content": "What is Deep Learning?"
+            }
+        ],
+        "stream": true,
+        "max_tokens": 128
+    }'
 ```
 
-### Gemma 2 9b test
+Which will start streaming the completion tokens for the given messages until the stop sequences are generated.
 
-Test the container on a GPU instance (g2) as follows:
-
-```bash
-model=google/gemma-2-9b-it
-num_shard=4
-max_input_length=1562
-max_total_tokens=2048
-
-docker run --gpus all -ti --shm-size 1g -p 8080:8080 \
-  -e MODEL_ID=$model \
-  -e NUM_SHARD=$num_shard \
-  -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
-  -e MAX_INPUT_LENGTH=$max_input_length \
-  -e MAX_TOTAL_TOKENS=$max_total_tokens \
-  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.2.0
-```
-
-Send request:
+Alternatively, you can also use the `/generate` endpoint instead, which already expects the inputs to be formatted according to the tokenizer requirements, which is more convenient when working with base models without a pre-defined chat template or whenever you want to use a custom chat template instead, and can be used as follows:
 
 ```bash
-curl 0.0.0.0:8080/v1/chat/completions \
+curl 0.0.0.0:8080/generate \
     -X POST \
+    -H 'Content-Type: application/json' \
     -d '{
-  "model": "tgi",
-  "messages": [
-    {
-      "role": "user",
-      "content": "What is deep learning?"
-    }
-  ],
-  "stream": true,
-  "max_tokens": 128
-}' \
-    -H 'Content-Type: application/json'
+        "inputs": "What is Deep Learning?",
+        "parameters": {
+            "temperature": 0.2,
+            "top_p": 0.95,
+            "max_new_tokens": 256
+        }
+    }'
 ```
 
-### Mistral 7B test
+## Optional
 
-Test the container on a GPU instance (g2) as follows:
+### Build
+
+> [!WARNING]
+> Building the containers is not recommended since those are already built by Hugging Face and Google Cloud teams and provided openly, so the recommended approach is to use the pre-built containers available in [Google Cloud's Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) instead.
+
+In order to build TGI Docker container, you will need an instance with at least 4 NVIDIA GPUs available with at least 24 GiB of VRAM each, since TGI needs to build and compile the kernels required for the optimized inference. Also note that the build process may take ~30 minutes to complete, depending on the instance's specifications.
 
 ```bash
-model=HuggingFaceH4/zephyr-7b-beta
-num_shard=1
-max_input_length=1562
-max_total_tokens=2048
-
-docker run --gpus all -ti -p 8080:8080 \
-  -e MODEL_ID=$model \
-  -e NUM_SHARD=$num_shard \
-  -e MAX_INPUT_LENGTH=$max_input_length \
-  -e MAX_TOTAL_TOKENS=$max_total_tokens \
-  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.2.0.2  
+docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311 -f containers/tgi/gpu/2.3.1/Dockerfile .
 ```
-
-Send request:
-
-```bash
-curl 127.0.0.1:8080/generate \
-    -X POST \
-    -d '{"inputs":"[INST] What is 10+10? [\/INST]","parameters":{"temperature":0.2, "top_p": 0.95, "max_new_tokens": 256}}' \
-    -H 'Content-Type: application/json'
-```
-
-### Gemma Test
-
-```bash
-model=google/gemma-7b
-num_shard=1
-max_input_length=512
-max_total_tokens=1024
-max_batch_prefill_tokens=1512
-token=YOUR_TOKEN
-
-docker run --gpus all -ti -p 8080:80 \
-  -e MODEL_ID=$model \
-  -e NUM_SHARD=$num_shard \
-  -e MAX_INPUT_LENGTH=$max_input_length \
-  -e MAX_TOTAL_TOKENS=$max_total_tokens \
-  -e MAX_BATCH_PREFILL_TOKENS=$max_batch_prefill_tokens \
-  -e HUGGING_FACE_HUB_TOKEN=$token \
-  us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-gpu.1.4.2
-```
-
-Send request:
-
-```bash
-curl 127.0.0.1:8080/generate \
-    -X POST \
-    -d '{"inputs":"Deep Learning is a","parameters":{"temperature":1.0, "top_p": 0.95, "max_new_tokens": 256}}' \
-    -H 'Content-Type: application/json'
-```
-
-For a Vertex AI example checkout [Deploy Gemma on Vertex AI](../../examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai.ipynb) notebook.
