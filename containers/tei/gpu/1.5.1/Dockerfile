@@ -69,7 +69,7 @@ COPY --from=tei /tei/Cargo.lock ./
 
 RUN CUDA_COMPUTE_CAP=80 cargo build --release --bin text-embeddings-router -F candle-cuda -F google && sccache -s
 
-FROM builder as builder-90
+FROM builder AS builder-90
 
 RUN CUDA_COMPUTE_CAP=90 cargo chef cook --release --features google --features candle-cuda --recipe-path recipe.json && sccache -s
 

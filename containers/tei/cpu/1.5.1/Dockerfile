@@ -78,7 +78,7 @@ RUN apt-get update -y && \
 # COPY custom entrypoint for Google
 COPY --chmod=775 containers/tei/cpu/1.5.1/entrypoint.sh entrypoint.sh
 
-FROM base as grpc
+FROM base AS grpc
 
 COPY --from=grpc-builder /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router
 
