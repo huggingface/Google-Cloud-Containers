@@ -28,7 +28,7 @@ fi
 ldconfig 2>/dev/null || echo "unable to refresh ld cache, not a big deal in most cases"
 
 # Below is the original `cuda-all-entrypoint.sh` script.
-# Reference: https://github.com/huggingface/text-embeddings-inference/blob/v1.4.0/cuda-all-entrypoint.sh
+# Reference: https://github.com/huggingface/text-embeddings-inference/blob/v1.5.1/cuda-all-entrypoint.sh
 if ! command -v nvidia-smi &>/dev/null; then
     echo "Error: 'nvidia-smi' command not found."
     exit 1
