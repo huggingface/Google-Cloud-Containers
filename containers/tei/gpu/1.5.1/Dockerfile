@@ -2,7 +2,7 @@
 FROM alpine AS tei
 
 RUN mkdir -p /tei
-ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.5.0.tar.gz /tei/sources.tar.gz
+ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.5.1.tar.gz /tei/sources.tar.gz
 RUN tar -C /tei -xf /tei/sources.tar.gz --strip-components=1
 
 # Build cargo components (adapted from TEI original Dockerfile)
@@ -35,19 +35,9 @@ COPY --from=tei /tei/router router
 COPY --from=tei /tei/Cargo.toml ./
 COPY --from=tei /tei/Cargo.lock ./
 
-RUN cargo chef prepare  --recipe-path recipe.json
+RUN cargo chef prepare --recipe-path recipe.json
 
 FROM base-builder AS builder
-
-# sccache specific variables
-ARG ACTIONS_CACHE_URL
-ARG ACTIONS_RUNTIME_TOKEN
-ARG SCCACHE_GHA_ENABLED
-
-# Limit parallelism
-ARG RAYON_NUM_THREADS=4
-ARG CARGO_BUILD_JOBS
-ARG CARGO_BUILD_INCREMENTAL
 
 WORKDIR /usr/src
 
@@ -65,11 +55,11 @@ COPY --from=tei /tei/router router
 COPY --from=tei /tei/Cargo.toml ./
 COPY --from=tei /tei/Cargo.lock ./
 
-RUN CUDA_COMPUTE_CAP=75 cargo build --release --bin text-embeddings-router -F candle-cuda -F google  && sccache -s
+RUN CUDA_COMPUTE_CAP=75 cargo build --release --bin text-embeddings-router -F candle-cuda-turing -F google && sccache -s
 
 FROM builder AS builder-80
 
-RUN CUDA_COMPUTE_CAP=80 cargo chef cook --release --features google --features candle-cuda-turing --recipe-path recipe.json && sccache -s
+RUN CUDA_COMPUTE_CAP=80 cargo chef cook --release --features google --features candle-cuda --recipe-path recipe.json && sccache -s
 
 COPY --from=tei /tei/backends backends
 COPY --from=tei /tei/core core
@@ -77,11 +67,11 @@ COPY --from=tei /tei/router router
 COPY --from=tei /tei/Cargo.toml ./
 COPY --from=tei /tei/Cargo.lock ./
 
-RUN CUDA_COMPUTE_CAP=80 cargo build --release --bin text-embeddings-router -F candle-cuda -F google  && sccache -s
+RUN CUDA_COMPUTE_CAP=80 cargo build --release --bin text-embeddings-router -F candle-cuda -F google && sccache -s
 
 FROM builder as builder-90
 
-RUN CUDA_COMPUTE_CAP=90 cargo chef cook --release --features google --features candle-cuda-turing --recipe-path recipe.json && sccache -s
+RUN CUDA_COMPUTE_CAP=90 cargo chef cook --release --features google --features candle-cuda --recipe-path recipe.json && sccache -s
 
 COPY --from=tei /tei/backends backends
 COPY --from=tei /tei/core core
@@ -89,15 +79,19 @@ COPY --from=tei /tei/router router
 COPY --from=tei /tei/Cargo.toml ./
 COPY --from=tei /tei/Cargo.lock ./
 
-RUN CUDA_COMPUTE_CAP=90 cargo build --release --bin text-embeddings-router -F candle-cuda -F google  && sccache -s
+RUN CUDA_COMPUTE_CAP=90 cargo build --release --bin text-embeddings-router -F candle-cuda -F google && sccache -s
 
 FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04 AS base
 
-ARG DEFAULT_USE_FLASH_ATTENTION=True
-
 ENV HUGGINGFACE_HUB_CACHE=/tmp \
     PORT=8080 \
-    USE_FLASH_ATTENTION=$DEFAULT_USE_FLASH_ATTENTION
+    USE_FLASH_ATTENTION=True
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    ca-certificates \
+    libssl-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder-75 /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router-75
 COPY --from=builder-80 /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router-80
@@ -114,6 +108,6 @@ RUN apt-get update -y && \
     apt-get install google-cloud-sdk -y
 
 # COPY custom entrypoint for Google
-COPY --chmod=775 containers/tei/gpu/1.5.0/entrypoint.sh entrypoint.sh
+COPY --chmod=775 containers/tei/gpu/1.5.1/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["--json-output"]

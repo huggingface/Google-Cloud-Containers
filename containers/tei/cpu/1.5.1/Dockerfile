@@ -2,7 +2,7 @@
 FROM alpine AS tei
 
 RUN mkdir -p /tei
-ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.5.0.tar.gz /tei/sources.tar.gz
+ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.5.1.tar.gz /tei/sources.tar.gz
 RUN tar -C /tei -xf /tei/sources.tar.gz --strip-components=1
 
 # Build cargo components (adapted from TEI original Dockerfile)
@@ -24,14 +24,9 @@ COPY --from=tei /tei/router router
 COPY --from=tei /tei/Cargo.toml ./
 COPY --from=tei /tei/Cargo.lock ./
 
-RUN cargo chef prepare  --recipe-path recipe.json
+RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
-
-# sccache specific variables
-ARG ACTIONS_CACHE_URL
-ARG ACTIONS_RUNTIME_TOKEN
-ARG SCCACHE_GHA_ENABLED
 
 COPY --from=planner /usr/src/recipe.json recipe.json
 
@@ -81,7 +76,7 @@ RUN apt-get update -y && \
     apt-get install google-cloud-sdk -y
 
 # COPY custom entrypoint for Google
-COPY --chmod=775 containers/tei/cpu/1.5.0/entrypoint.sh entrypoint.sh
+COPY --chmod=775 containers/tei/cpu/1.5.1/entrypoint.sh entrypoint.sh
 
 FROM base as grpc
 

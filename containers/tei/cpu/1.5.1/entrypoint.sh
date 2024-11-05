@@ -27,4 +27,4 @@ fi
 
 ldconfig 2>/dev/null || echo "unable to refresh ld cache, not a big deal in most cases"
 
-text-embeddings-router $@
+exec text-embeddings-router $@
