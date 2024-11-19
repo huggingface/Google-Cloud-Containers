@@ -31,6 +31,9 @@ RUN apt-get update && \
     && apt-get clean autoremove --yes \
     && rm -rf /var/lib/{apt,dpkg,cache,log}
 
+# Prevent `huggingface_hub>0.26.0` from being installed later on
+RUN pip install "huggingface_hub[hf_transfer]<0.26.0"
+
 # Hugging Face Inference Toolkit
 ARG HF_INFERENCE_TOOLKIT_VERSION=0.4.1
 ARG HF_INFERENCE_TOOLKIT_URL=git+https://github.com/huggingface/huggingface-inference-toolkit.git@${HF_INFERENCE_TOOLKIT_VERSION}
