@@ -22,6 +22,7 @@ Optionally, to ease the usage of the commands within this tutorial, you need to 
 export PROJECT_ID=your-project-id
 export LOCATION=your-location
 export CLUSTER_NAME=your-cluster-name
+export BUCKET_NAME=your-bucket-name
 ```
 
 Then you need to login into your GCP account and set the project ID to the one you want to use for the deployment of the GKE Cluster.
@@ -86,6 +87,20 @@ Once the GKE Cluster is created, you can get the credentials to access it via `k
 
 ```bash
 gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
+```
+
+## Optional: Create bucket and upload model from Hub in GCS
+
+> Unless you already have a GCS Bucket, please follow the instructions below in order to create a new bucket where the generated fine-tuning artifacts will be uploaded to.
+
+To create the bucket on Google Cloud Storage (GCS), you first need to ensure that the name is unique for the new bucket or if a bucket with the same name already exists.
+
+```bash
+gcloud components install gsutil
+
+if [ -z \"$(gsutil ls | grep gs://$BUCKET_NAME)\" ]; then
+    gcloud storage buckets create gs://$BUCKET_NAME --project=$PROJECT_ID --location=$LOCATION --default-storage-class=STANDARD --uniform-bucket-level-access
+fi
 ```
 
 ## Configure IAM for GCS
