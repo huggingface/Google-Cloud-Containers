@@ -9,8 +9,8 @@ spec:
       name: trl
       labels:
         app: trl
-        hf.co/model: mistralai--Mistral-7B-v0.3
-        hf.co/dataset: timdettmers--openassistant-guanaco
+        hf.co/model: google--gemma-2-2b
+        hf.co/dataset: alvarobartt--Magicoder-Gemma2
       annotations:
         gke-gcsfuse/volumes: "true"
         gke-gcsfuse/ephemeral-storage-request: 200Gi
@@ -19,8 +19,8 @@ spec:
         cloud.google.com/gke-accelerator: nvidia-l4
         cloud.google.com/compute-class: Accelerator
       containers:
-        - name: trl-container
-          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310:latest
+        - name: trl
+          image: "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310"
           command:
             - "/bin/bash"
             - "-c"
@@ -28,34 +28,32 @@ spec:
             - "--"
           args:
             # MODEL
-            - "--model_name_or_path=mistralai/Mistral-7B-v0.3"
+            - "--model_name_or_path=google/gemma-2-2b"
             - "--torch_dtype=bfloat16"
-            - "--attn_implementation=flash_attention_2"
+            - "--attn_implementation=eager"
             # DATASET
-            - "--dataset_name=timdettmers/openassistant-guanaco"
+            - "--dataset_name=alvarobartt/Magicoder-Gemma2"
             - "--dataset_text_field=text"
             # PEFT
             - "--use_peft"
-            - "--lora_r=16"
-            - "--lora_alpha=32"
-            - "--lora_dropout=0.1"
+            - "--lora_r=8"
+            - "--lora_alpha=16"
+            - "--lora_dropout=0.01"
             - "--lora_target_modules=all-linear"
             # TRAINER
             - "--bf16"
             - "--max_seq_length=1024"
-            - "--per_device_train_batch_size=2"
-            - "--gradient_accumulation_steps=8"
             - "--gradient_checkpointing"
+            - "--gradient_accumulation_steps=2"
+            - "--per_device_train_batch_size=8"
             - "--learning_rate=0.0002"
             - "--lr_scheduler_type=cosine"
             - "--optim=adamw_bnb_8bit"
             - "--num_train_epochs=3"
             - "--logging_steps=10"
-            - "--do_eval"
-            - "--eval_steps=100"
             - "--report_to=none"
             - "--save_strategy=epoch"
-            - "--output_dir=/data/Mistral-7B-v0.3-SFT-LoRA"
+            - "--output_dir=/data/gemma-2-2b-it-SFT-LoRA"
             - "--overwrite_output_dir"
             - "--seed=42"
             - "--log_level=info"
