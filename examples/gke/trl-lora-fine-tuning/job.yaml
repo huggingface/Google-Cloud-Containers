@@ -10,7 +10,7 @@ spec:
       labels:
         app: trl
         hf.co/model: google--gemma-2-2b
-        hf.co/dataset: alvarobartt--Magicoder-Gemma2
+        hf.co/dataset: google-cloud-partnership--Magicoder-Gemma2
       annotations:
         gke-gcsfuse/volumes: "true"
         gke-gcsfuse/ephemeral-storage-request: 200Gi
@@ -32,7 +32,7 @@ spec:
             - "--torch_dtype=bfloat16"
             - "--attn_implementation=eager"
             # DATASET
-            - "--dataset_name=alvarobartt/Magicoder-Gemma2"
+            - "--dataset_name=google-cloud-partnership/Magicoder-Gemma2"
             - "--dataset_text_field=text"
             # PEFT
             - "--use_peft"
