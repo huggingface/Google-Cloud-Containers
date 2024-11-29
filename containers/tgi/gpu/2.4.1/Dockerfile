@@ -1,7 +1,7 @@
 # Fetch and extract the TGI sources
 FROM alpine AS tgi
 RUN mkdir -p /tgi
-ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v2.4.0.tar.gz /tgi/sources.tar.gz
+ADD https://github.com/huggingface/text-generation-inference/archive/refs/tags/v2.4.1.tar.gz /tgi/sources.tar.gz
 RUN tar -C /tgi -xf /tgi/sources.tar.gz --strip-components=1
 
 # Rust builder
@@ -156,14 +156,6 @@ COPY --from=tgi /tgi/server/custom_kernels/ .
 # Build specific version of transformers
 RUN python setup.py build
 
-# Build vllm CUDA kernels
-FROM kernel-builder AS vllm-builder
-WORKDIR /usr/src
-ENV TORCH_CUDA_ARCH_LIST="7.0 7.5 8.0 8.6 8.9 9.0+PTX"
-COPY --from=tgi /tgi/server/Makefile-vllm Makefile
-# Build specific version of vllm
-RUN make build-vllm-cuda
-
 # Build mamba kernels
 FROM kernel-builder AS mamba-builder
 WORKDIR /usr/src
@@ -221,8 +213,6 @@ COPY --from=awq-kernels-builder /usr/src/llm-awq/awq/kernels/build/lib.linux-x86
 COPY --from=eetq-kernels-builder /usr/src/eetq/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
 # Copy build artifacts from lorax punica kernels builder
 COPY --from=lorax-punica-builder /usr/src/lorax-punica/server/punica_kernels/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
-# Copy build artifacts from vllm builder
-COPY --from=vllm-builder /usr/src/vllm/build/lib.linux-x86_64-cpython-311 /opt/conda/lib/python3.11/site-packages
 # Copy build artifacts from mamba builder
 COPY --from=mamba-builder /usr/src/mamba/build/lib.linux-x86_64-cpython-311/ /opt/conda/lib/python3.11/site-packages
 COPY --from=mamba-builder /usr/src/causal-conv1d/build/lib.linux-x86_64-cpython-311/ /opt/conda/lib/python3.11/site-packages
@@ -275,5 +265,5 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     apt-get install google-cloud-sdk -y
 
 # COPY custom entrypoint for Google
-COPY --chmod=775 containers/tgi/gpu/2.4.0/entrypoint.sh entrypoint.sh
+COPY --chmod=775 containers/tgi/gpu/2.4.1/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
