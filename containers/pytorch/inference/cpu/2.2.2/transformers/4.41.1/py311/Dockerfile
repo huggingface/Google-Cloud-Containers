@@ -39,6 +39,9 @@ ARG HF_INFERENCE_TOOLKIT_VERSION=0.4.1
 ARG HF_INFERENCE_TOOLKIT_URL=git+https://github.com/huggingface/huggingface-inference-toolkit.git@${HF_INFERENCE_TOOLKIT_VERSION}
 RUN pip install "${HF_INFERENCE_TOOLKIT_URL}#egg=huggingface-inference-toolkit[torch,diffusers,st]"
 
+# Install google-cloud-storage required to download artifacts from Google Cloud Storage buckets
+RUN pip install --upgrade google-cloud-storage
+
 # copy entrypoint and change permissions
 COPY --chmod=0755 containers/pytorch/inference/cpu/2.2.2/transformers/4.41.1/py311/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["bash", "-c", "./entrypoint.sh"]
