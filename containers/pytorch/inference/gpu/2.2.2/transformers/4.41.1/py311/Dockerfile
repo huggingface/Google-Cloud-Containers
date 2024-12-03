@@ -34,8 +34,8 @@ RUN apt-get update && \
 # Prevent `huggingface_hub>0.26.0` from being installed later on
 RUN pip install "huggingface_hub[hf_transfer]<0.26.0"
 
-# Hugging Face Inference Toolkit
-ARG HF_INFERENCE_TOOLKIT_VERSION=0.4.1
+# Hugging Face Inference Toolkit (version 0.4.1 + path fix)
+ARG HF_INFERENCE_TOOLKIT_VERSION=58b760fe3ec4cbddf064ac62c7a3f745af136d5f
 ARG HF_INFERENCE_TOOLKIT_URL=git+https://github.com/huggingface/huggingface-inference-toolkit.git@${HF_INFERENCE_TOOLKIT_VERSION}
 RUN pip install "${HF_INFERENCE_TOOLKIT_URL}#egg=huggingface-inference-toolkit[torch,diffusers,st]"
 
