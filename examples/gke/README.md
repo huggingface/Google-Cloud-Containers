@@ -4,10 +4,10 @@ This directory contains usage examples of the Hugging Face Deep Learning Contain
 
 ## Training Examples
 
-| Example                                        | Title                                                                       |
-| ---------------------------------------------- | --------------------------------------------------------------------------- |
-| [trl-full-fine-tuning](./trl-full-fine-tuning) | Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE               |
-| [trl-lora-fine-tuning](./trl-lora-fine-tuning) | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT + LoRA on GKE |
+| Example                                        | Title                                                                 |
+| ---------------------------------------------- | --------------------------------------------------------------------- |
+| [trl-full-fine-tuning](./trl-full-fine-tuning) | Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE         |
+| [trl-lora-fine-tuning](./trl-lora-fine-tuning) | Fine-tune Gemma2 2B with PyTorch Training DLC using SFT + LoRA on GKE |
 
 ## Inference Examples
 
