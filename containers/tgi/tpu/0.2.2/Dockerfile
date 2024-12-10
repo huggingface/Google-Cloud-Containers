@@ -134,21 +134,14 @@ ARG SAFETENSORS_VERSION='0.4.5'
 
 ARG ENABLE_GCP_INTEGRATION
 
-ENV HF_HOME=/data
-ENV PORT=80
 ENV HF_HUB_ENABLE_HF_TRANSFER=1
 ENV VERSION=${VERSION}
 
-# Override defaults if ENABLE_GCP_INTEGRATION is set
+ENV PORT=${ENABLE_GCP_INTEGRATION:+8080}
+ENV PORT=${PORT:-80}
+
 ENV HF_HOME=${ENABLE_GCP_INTEGRATION:+/tmp}
-ENV PORT=${ENABLE_GCP_INTEGRATION:+8080}${ENABLE_GCP_INTEGRATION:-80}
-
-# Check if PORT is either 80 or 8080
-RUN echo "PORT evaluates to: $(eval echo ${PORT})" && \
-    if [ "${PORT}" != "80" ] && [ "${PORT}" != "8080" ]; then \
-        echo "Error: PORT must be either 80 or 8080" && exit 1; \
-    fi
-
+ENV HF_HOME=${HF_HOME:-/data}
 
 # Install requirements for TGI, that uses python3.11
 RUN python3.11 -m pip install transformers==${TRANSFORMERS_VERSION}
@@ -200,10 +193,3 @@ RUN if [ -n "$ENABLE_GCP_INTEGRATION" ]; then \
 # Custom entrypoint for Google
 COPY --chmod=775 containers/tgi/tpu/${VERSION}/entrypoint.sh* entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
-
-# TPU compatible image
-FROM tpu_base
-
-ENTRYPOINT ["text-generation-launcher"]
-# This is commented out in the original TGI Dockerfile
-# CMD ["--json-output"]

@@ -112,10 +112,8 @@ The TGI containers come with two different variants depending on the accelerator
 - **TPU**: To build the TGI container for Google Cloud TPUs, an instance with at least one TPU available is required. The build process may have specific requirements for TPU-compatible libraries.
 
   ```bash
-  docker build --ulimit nofile=100000:100000 -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.2.2.py310 --target google-cloud-containers --build-arg ENABLE_GCP_INTEGRATION=1 -f containers/tgi/tpu/0.2.2/Dockerfile .
+  docker build --ulimit nofile=100000:100000 -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.2.2.py310 -f containers/tgi/tpu/0.2.2/Dockerfile .
   ```
-
-    docker build --ulimit nofile=100000:100000 -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.2.2.py310 -f containers/tgi/tpu/0.2.2/Dockerfile .
 
   to run the TGI server
 
