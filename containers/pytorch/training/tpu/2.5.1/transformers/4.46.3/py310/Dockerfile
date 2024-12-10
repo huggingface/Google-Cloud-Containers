@@ -6,7 +6,7 @@ LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
-ARG OPTIMUM_TPU='0.2.1'
+ARG OPTIMUM_TPU='0.2.2'
 ARG TRANSFORMERS='4.46.3'
 ARG PEFT='0.13.2'
 ARG TRL='0.12.1'

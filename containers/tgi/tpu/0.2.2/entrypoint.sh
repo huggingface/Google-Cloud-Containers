@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo "STARTED THE GCP CONTAINER"
+
+# This is required by GKE, see
+# https://cloud.google.com/kubernetes-engine/docs/how-to/tpus#privileged-mode
+ulimit -l 68719476736
+
 # Check if MODEL_ID starts with "gs://"
 if [[ $AIP_STORAGE_URI == gs://* ]]; then
     echo "AIP_STORAGE_URI set and starts with 'gs://', proceeding to download from GCS."
