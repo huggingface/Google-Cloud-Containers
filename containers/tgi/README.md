@@ -46,12 +46,13 @@ The TGI containers support two different accelerator types: GPU and TPU. Dependi
 - **TPU**: This example showcases how to deploy a TGI server on a TPU instance using the TGI container. Note that TPU support for TGI is currently experimental and may have limitations compared to GPU deployments.
 
   ```bash
-  docker run --rm --net host --privileged \
-      -p 8080:8080 \
-      -e MODEL_ID=google/gemma-2b \
+  docker run --rm -p 8080:8080 \
+      --shm-size 16G --ipc host --privileged \
+      -e MODEL_ID=google/gemma-7b-it \
       -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
-      -e MAX_INPUT_LENGTH=2048 \
-      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.2.4.0.py310
+      -e MAX_INPUT_LENGTH=4000 \
+      -e MAX_TOTAL_TOKENS=4096 \
+      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.2.2.py310
   ```
 
   > [!NOTE]
@@ -109,39 +110,8 @@ The TGI containers come with two different variants depending on the accelerator
   docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311 -f containers/tgi/gpu/2.3.1/Dockerfile .
   ```
 
-- **TPU**: To build the TGI container for Google Cloud TPUs, an instance with at least one TPU available is required. The build process may have specific requirements for TPU-compatible libraries.
+- **TPU**: To build the TGI container for Google Cloud TPUs, an instance with at least one TPU available is required.
 
   ```bash
-  docker build --ulimit nofile=100000:100000 -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.2.1.py310 -f containers/tgi/tpu/0.2.1/Dockerfile .
-  ```
-
-  to run the TGI server
-
-  ```bash
-    docker run --rm -p 8080:80 \
-        --shm-size 16G --ipc host --privileged  \
-        -e HF_TOKEN=${HF_TOKEN} \
-        -e SKIP_WARMUP=1 \
-        us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.2.1.py310 \
-        --model-id google/gemma-2b-it
-        --max-input-length 512 \
-        --max-total-tokens 1024 \
-        --max-batch-prefill-tokens 512 \
-        --max-batch-total-tokens 1024
-  ```
-google/gemma-2-2b-it
-  openai-community/gpt2
-
-  It can then be queried like this 
-
-  ```bash
-  curl 0.0.0.0:80/generate \
-    -X POST \
-    -H 'Content-Type: application/json' \
-    -d '{
-        "inputs": "What is Deep Learning?",
-        "parameters": {
-            "max_new_tokens": 20
-        }
-    }'
+  docker build --ulimit nofile=100000:100000 -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.2.2.py310 -f containers/tgi/tpu/0.2.2/Dockerfile .
   ```

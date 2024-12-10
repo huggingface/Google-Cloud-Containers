@@ -6,7 +6,7 @@ LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
-ARG OPTIMUM_TPU='0.2.1'
+ARG OPTIMUM_TPU='0.2.2'
 ARG TRANSFORMERS='4.46.3'
 ARG PEFT='0.13.2'
 ARG TRL='0.12.1'
@@ -34,6 +34,8 @@ RUN pip install git+https://github.com/huggingface/optimum-tpu.git@v${OPTIMUM_TP
 # Add example
 ADD https://raw.githubusercontent.com/huggingface/optimum-tpu/v${OPTIMUM_TPU}/examples/language-modeling/gemma_tuning.ipynb \
   /notebooks/gemma_tuning.ipynb
+ADD https://raw.githubusercontent.com/huggingface/optimum-tpu/refs/heads/llama_tuning_notebook/examples/language-modeling/llama_tuning.ipynb \
+  /notebooks/llama_tuning.ipynb
 
 # Install Google Cloud Dependencies
 RUN pip install --upgrade --no-cache-dir \
