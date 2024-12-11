@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo "STARTED THE GCP CONTAINER"
-
 # This is required by GKE, see
 # https://cloud.google.com/kubernetes-engine/docs/how-to/tpus#privileged-mode
 ulimit -l 68719476736

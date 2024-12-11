@@ -34,8 +34,6 @@ RUN pip install git+https://github.com/huggingface/optimum-tpu.git@v${OPTIMUM_TP
 # Add example
 ADD https://raw.githubusercontent.com/huggingface/optimum-tpu/v${OPTIMUM_TPU}/examples/language-modeling/gemma_tuning.ipynb \
   /notebooks/gemma_tuning.ipynb
-ADD https://raw.githubusercontent.com/huggingface/optimum-tpu/refs/heads/llama_tuning_notebook/examples/language-modeling/llama_tuning.ipynb \
-  /notebooks/llama_tuning.ipynb
 
 # Install Google Cloud Dependencies
 RUN pip install --upgrade --no-cache-dir \

@@ -18,54 +18,71 @@ Below you will find the instructions on how to run and test the TGI containers a
 
 The TGI containers support two different accelerator types: GPU and TPU. Depending on your infrastructure, you'll use different approaches to run the containers.
 
-- **GPU**: To run this DLC, you need to have GPU accelerators available within the instance that you want to run TGI, not only because those are required, but also to enable the best performance due to the optimized inference CUDA kernels.
+- **GPU**: To run this DLC, you need to have GPU accelerators available within the instance that you want to run TGI, not only because those are required, but also to enable the best performance due to the optimized inference CUDA kernels. Additionally, you need to ensure that your hardware is supported (NVIDIA drivers on your device need to be compatible with CUDA version 12.2 or higher) and also install the NVIDIA Container Toolkit.
 
-  To find the supported models and hardware before running the TGI DLC, feel free to check [TGI Documentation](https://huggingface.co/docs/text-generation-inference/supported_models).
+To find the supported models and hardware before running the TGI DLC, feel free to check [TGI Documentation](https://huggingface.co/docs/text-generation-inference/supported_models).
 
-  First, you can use the Hugging Face Recommender API to get the optimal configuration:
+Besides that, you also need to define the model to deploy, as well as the generation configuration. For the model selection, you can pick any model from the Hugging Face Hub that contains the tag `text-generation-inference` which means that it's supported by TGI; to explore all the available models within the Hub, please check [here](https://huggingface.co/models?other=text-generation-inference&sort=trending). Then, to select the best configuration for that model you can either keep the default values defined within TGI, or just select the recommended ones based on our instance specification via the Hugging Face Recommender API for TGI as follows:
 
-  ```bash
-  curl -G https://huggingface.co/api/integrations/tgi/v1/provider/gcp/recommend \
-      -d "model_id=google/gemma-7b-it" \
-      -d "gpu_memory=24" \
-      -d "num_gpus=1"
-  ```
+```bash
+curl -G https://huggingface.co/api/integrations/tgi/v1/provider/gcp/recommend \
+    -d "model_id=google/gemma-7b-it" \
+    -d "gpu_memory=24" \
+    -d "num_gpus=1"
+```
 
-  Then run the container:
+Which returns the following output containing the optimal configuration for deploying / serving that model via TGI:
 
-  ```bash
-  docker run --gpus all -ti --shm-size 1g -p 8080:8080 \
-      -e MODEL_ID=google/gemma-7b-it \
-      -e NUM_SHARD=1 \
-      -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
-      -e MAX_INPUT_LENGTH=4000 \
-      -e MAX_TOTAL_TOKENS=4096 \
-      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311
-  ```
+```json
+{
+    "model_id": "google/gemma-7b-it",
+    "instance": "g2-standard-4",
+    "configuration": {
+    "model_id": "google/gemma-7b-it",
+    "max_batch_prefill_tokens": 4096,
+    "max_input_length": 4000,
+    "max_total_tokens": 4096,
+    "num_shard": 1,
+    "quantize": null,
+    "estimated_memory_in_gigabytes": 22.77
+}
+```
 
-- **TPU**: This example showcases how to deploy a TGI server on a TPU instance using the TGI container. Note that TPU support for TGI is currently experimental and may have limitations compared to GPU deployments.
+Then you are ready to run the container as follows:
 
-  ```bash
-  docker run --rm -p 8080:8080 \
-      --shm-size 16G --ipc host --privileged \
-      -e MODEL_ID=google/gemma-7b-it \
-      -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
-      -e MAX_INPUT_LENGTH=4000 \
-      -e MAX_TOTAL_TOKENS=4096 \
-      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.2.2.py310
-  ```
+```bash
+docker run --gpus all -ti --shm-size 1g -p 8080:8080 \
+    -e MODEL_ID=google/gemma-7b-it \
+    -e NUM_SHARD=1 \
+    -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
+    -e MAX_INPUT_LENGTH=4000 \
+    -e MAX_TOTAL_TOKENS=4096 \
+    us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311
+```
 
-  > [!NOTE]
-  > TPU support for Text Generation Inference is still evolving. Check the [Hugging Face TPU documentation](https://huggingface.co/docs/optimum-tpu/) for the most up-to-date information on TPU model serving.
+- **TPU**: This example showcases how to deploy a TGI server on a TPU instance using the TGI container. Note that TPU support for TGI is currently experimental and may have limitations compared to GPU deployments.us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311
+
+
+```bash
+docker run --rm -p 8080:8080 \
+    --shm-size 16G --ipc host --privileged \
+    -e MODEL_ID=google/gemma-7b-it \
+    -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
+    -e MAX_INPUT_LENGTH=4000 \
+    -e MAX_TOTAL_TOKENS=4096 \
+    us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311
+```
+
+> [!NOTE]
+> Check the [Hugging Face Optimum TPU documentation](https://huggingface.co/docs/optimum-tpu/) for more information on TPU model serving.
 
 ### Test
 
-Once the Docker container is running, you can test it by sending requests to the available endpoints.
+Once the Docker container is running, as it has been deployed with `text-generation-launcher`, the API will expose the following endpoints listed within the [TGI OpenAPI Specification](https://huggingface.github.io/text-generation-inference/).
 
-For the GPU/TPU container running on localhost, you can use the following curl commands:
+In this case, you can test the container by sending a request to the `/v1/chat/completions` endpoint (that matches OpenAI specification and so on is fully compatible with OpenAI clients) as follows:
 
 ```bash
-# Chat Completions Endpoint
 curl 0.0.0.0:8080/v1/chat/completions \
     -X POST \
     -H 'Content-Type: application/json' \
@@ -80,8 +97,13 @@ curl 0.0.0.0:8080/v1/chat/completions \
         "stream": true,
         "max_tokens": 128
     }'
+```
 
-# Generate Endpoint
+Which will start streaming the completion tokens for the given messages until the stop sequences are generated.
+
+Alternatively, you can also use the `/generate` endpoint instead, which already expects the inputs to be formatted according to the tokenizer requirements, which is more convenient when working with base models without a pre-defined chat template or whenever you want to use a custom chat template instead, and can be used as follows:
+
+```bash
 curl 0.0.0.0:8080/generate \
     -X POST \
     -H 'Content-Type: application/json' \
