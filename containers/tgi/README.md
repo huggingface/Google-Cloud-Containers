@@ -132,7 +132,7 @@ The TGI containers come with two different variants depending on the accelerator
   docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311 -f containers/tgi/gpu/2.3.1/Dockerfile .
   ```
 
-- **TPU**: To build the TGI container for Google Cloud TPUs, an instance with at least one TPU available is required.
+- **TPU**: To build the TGI container for Google Cloud TPUs, no TPU is required. You can build it using this command:
 
   ```bash
   docker build --ulimit nofile=100000:100000 -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.2.2.py310 -f containers/tgi/tpu/0.2.2/Dockerfile .

@@ -79,7 +79,7 @@ The PyTorch Training containers come with two different containers depending on 
   docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310 -f containers/pytorch/training/gpu/2.3.0/transformers/4.42.3/py310/Dockerfile .
   ```
 
-- **TPU**: To build the PyTorch Training container for Google Cloud TPUs, an instance with at least one TPU available is required to install `optimum-tpu` which is a Python library with Google TPU optimizations for `transformers` models, making its integration seamless.
+- **TPU**: To build the PyTorch Training container for Google Cloud TPUs, no TPU is required. You can build it using this command:
 
   ```bash
   docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-tpu.2.5.1.transformers.4.46.3.py310 -f containers/pytorch/training/tpu/2.5.1/transformers/4.46.3/py310/Dockerfile .

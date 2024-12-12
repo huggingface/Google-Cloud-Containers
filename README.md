@@ -49,7 +49,6 @@ The [`examples`](./examples) directory contains examples for using the container
 | Vertex AI | [examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai](./examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai) | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT on Vertex AI  |
 | GKE       | [examples/gke/trl-full-fine-tuning](./examples/gke/trl-full-fine-tuning)                                                                   | Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE               |
 | GKE       | [examples/gke/trl-lora-fine-tuning](./examples/gke/trl-lora-fine-tuning)                                                                   | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT + LoRA on GKE |
-| TPU       | [gemma-tuning](https://github.com/huggingface/optimum-tpu/blob/main/examples/language-modeling/gemma_tuning.ipynb)                    | Fine-tune Gemma 2B with PyTorch Training DLC using LoRA                     |
 
 ### Inference Examples
 
