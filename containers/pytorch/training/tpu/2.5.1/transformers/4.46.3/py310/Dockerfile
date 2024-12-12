@@ -35,7 +35,15 @@ RUN pip install git+https://github.com/huggingface/optimum-tpu.git@v${OPTIMUM_TP
 ADD https://raw.githubusercontent.com/huggingface/optimum-tpu/v${OPTIMUM_TPU}/examples/language-modeling/gemma_tuning.ipynb \
   /notebooks/gemma_tuning.ipynb
 
-# Install Google Cloud Dependencies
+# Install Google CLI single command
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+    | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+    | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
+    apt-get update -y && \
+    apt-get install google-cloud-sdk -y
+
+# Install Google Cloud Python dependencies
 RUN pip install --upgrade --no-cache-dir \
   google-cloud-storage \
   google-cloud-bigquery \
