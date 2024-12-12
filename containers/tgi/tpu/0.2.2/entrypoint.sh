@@ -30,10 +30,12 @@ if [[ $AIP_STORAGE_URI == gs://* ]]; then
 fi
 
 if [[ -z "${MAX_BATCH_SIZE}" ]]; then
+  # Default to a batch size of 4 if no value is provided
   export MAX_BATCH_SIZE="4"
 fi
 
-if [[ ! -z "${QUANTIZATION}" ]]; then
+if [[ -n "${QUANTIZATION}" ]]; then
+  # If quantization is set, we use jetstream_int8 (this is the only option supported by optimum-tpu at the moment)
   QUANTIZATION="jetstream_int8"
   export QUANTIZATION="${QUANTIZATION}"
 fi

@@ -70,7 +70,7 @@ docker run --rm -p 8080:8080 \
     -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
     -e MAX_INPUT_LENGTH=4000 \
     -e MAX_TOTAL_TOKENS=4096 \
-    us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311
+    us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.2.2.py310
 ```
 
 > [!NOTE]
