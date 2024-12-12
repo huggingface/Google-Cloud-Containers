@@ -223,7 +223,6 @@ RUN pip install einops --no-cache-dir
 # Install server
 COPY --from=tgi /tgi/proto proto
 COPY --from=tgi /tgi/server server
-COPY --from=tgi /tgi/ server/Makefile server/Makefile
 RUN cd server && \
     make gen-server && \
     pip install -r requirements_cuda.txt && \
