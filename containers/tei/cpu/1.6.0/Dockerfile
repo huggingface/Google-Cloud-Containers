@@ -1,3 +1,11 @@
+# Fetch and extract the TGI sources
+FROM alpine AS tei
+
+RUN mkdir -p /tei
+ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.6.0.tar.gz /tei/sources.tar.gz
+RUN tar -C /tei -xf /tei/sources.tar.gz --strip-components=1
+
+# Build cargo components (adapted from TEI original Dockerfile)
 FROM lukemathwalker/cargo-chef:latest-rust-1.75-bookworm AS chef
 WORKDIR /usr/src
 
@@ -10,18 +18,15 @@ RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v$SCCACHE/sc
 
 FROM chef AS planner
 
-COPY backends backends
-COPY core core
-COPY router router
-COPY Cargo.toml ./
-COPY Cargo.lock ./
+COPY --from=tei /tei/backends backends
+COPY --from=tei /tei/core core
+COPY --from=tei /tei/router router
+COPY --from=tei /tei/Cargo.toml Cargo.toml
+COPY --from=tei /tei/Cargo.lock Cargo.lock
 
-RUN cargo chef prepare  --recipe-path recipe.json
+RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
-
-ARG GIT_SHA
-ARG DOCKER_LABEL
 
 # sccache specific variables
 ARG ACTIONS_CACHE_URL
@@ -29,9 +34,9 @@ ARG ACTIONS_RUNTIME_TOKEN
 ARG SCCACHE_GHA_ENABLED
 
 RUN wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-| gpg --dearmor | tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && \
-  echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | \
-  tee /etc/apt/sources.list.d/oneAPI.list
+    | gpg --dearmor | tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && \
+    echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | \
+    tee /etc/apt/sources.list.d/oneAPI.list
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     intel-oneapi-mkl-devel=2024.0.0-49656 \
@@ -43,17 +48,17 @@ RUN echo "int mkl_serv_intel_cpu_true() {return 1;}" > fakeintel.c && \
 
 COPY --from=planner /usr/src/recipe.json recipe.json
 
-RUN cargo chef cook --release --features ort --features candle --features mkl-dynamic --no-default-features --recipe-path recipe.json && sccache -s
+RUN cargo chef cook --release --features ort --features candle --features mkl-dynamic --features google --no-default-features --recipe-path recipe.json && sccache -s
 
-COPY backends backends
-COPY core core
-COPY router router
-COPY Cargo.toml ./
-COPY Cargo.lock ./
+COPY --from=tei /tei/backends backends
+COPY --from=tei /tei/core core
+COPY --from=tei /tei/router router
+COPY --from=tei /tei/Cargo.toml Cargo.toml
+COPY --from=tei /tei/Cargo.lock Cargo.lock
 
 FROM builder AS http-builder
 
-RUN cargo build --release --bin text-embeddings-router -F ort -F candle -F mkl-dynamic -F http --no-default-features && sccache -s
+RUN cargo build --release --bin text-embeddings-router -F ort -F candle -F mkl-dynamic -F http -F google --no-default-features && sccache -s
 
 FROM builder AS grpc-builder
 
@@ -63,16 +68,16 @@ RUN PROTOC_ZIP=protoc-21.12-linux-x86_64.zip && \
     unzip -o $PROTOC_ZIP -d /usr/local 'include/*' && \
     rm -f $PROTOC_ZIP
 
-COPY proto proto
+COPY --from=tei /tei/proto proto
 
-RUN cargo build --release --bin text-embeddings-router -F grpc -F ort -F candle -F mkl-dynamic --no-default-features && sccache -s
+RUN cargo build --release --bin text-embeddings-router -F grpc -F ort -F candle -F mkl-dynamic -F google --no-default-features && sccache -s
 
 FROM debian:bookworm-slim AS base
 
-ENV HUGGINGFACE_HUB_CACHE=/data \
-    PORT=80 \
+ENV HUGGINGFACE_HUB_CACHE=/tmp \
+    PORT=8080 \
     MKL_ENABLE_INSTRUCTIONS=AVX512_E4 \
-    RAYON_NUM_THREADS=8 \
+    RAYON_NUM_THREADS=4 \
     LD_PRELOAD=/usr/local/libfakeintel.so \
     LD_LIBRARY_PATH=/usr/local/lib
 
@@ -95,25 +100,29 @@ COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/intel64/libmkl_avx2.so.2 /u
 COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/intel64/libmkl_avx512.so.2 /usr/local/lib/libmkl_avx512.so.2
 COPY --from=builder /usr/src/libfakeintel.so /usr/local/libfakeintel.so
 
-FROM base AS grpc
+# Install Google CLI single command
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-transport-https ca-certificates gnupg curl && \
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+    | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+    | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
+    apt-get update -y && \
+    apt-get install google-cloud-sdk -y
+
+# COPY custom entrypoint for Google
+COPY --chmod=775 containers/tei/cpu/1.6.0/entrypoint.sh entrypoint.sh
+
+FROM base as grpc
 
 COPY --from=grpc-builder /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router
 
-ENTRYPOINT ["text-embeddings-router"]
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["--json-output"]
 
 FROM base AS http
 
 COPY --from=http-builder /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router
 
-# Amazon SageMaker compatible image
-FROM http AS sagemaker
-COPY --chmod=775 sagemaker-entrypoint.sh entrypoint.sh
-
 ENTRYPOINT ["./entrypoint.sh"]
-
-# Default image
-FROM http
-
-ENTRYPOINT ["text-embeddings-router"]
 CMD ["--json-output"]
