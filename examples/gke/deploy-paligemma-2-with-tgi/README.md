@@ -197,7 +197,7 @@ spec:
           emptyDir: {}
       nodeSelector:
         cloud.google.com/gke-accelerator: nvidia-l4
----
+# ---
 apiVersion: v1
 kind: Service
 metadata:
