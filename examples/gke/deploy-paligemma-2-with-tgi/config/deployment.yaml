@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tgi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tgi
+  template:
+    metadata:
+      labels:
+        app: tgi
+        hf.co/model: google--paligemma2-3b-pt-224
+        hf.co/task: text-generation
+    spec:
+      containers:
+        - name: tgi
+          image: "us-central1-docker.pkg.dev/gcp-partnership-412108/deep-learning-images/huggingface-text-generation-inference-gpu.3.0.1"
+          # image: "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.3-0.ubuntu2204.py311"
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+            limits:
+              nvidia.com/gpu: 1
+          env:
+            - name: MODEL_ID
+              value: google/paligemma2-3b-pt-224
+            - name: NUM_SHARD
+              value: "1"
+            - name: PORT
+              value: "8080"
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_token
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /tmp
+              name: tmp
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+        - name: tmp
+          emptyDir: {}
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
