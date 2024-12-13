@@ -141,21 +141,119 @@ More information on how to set Kubernetes secrets in a GKE Cluster at <https://c
 
 ## Deploy TGI on GKE
 
-Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TGI, serving the [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224) model from the Hugging Face Hub.
+Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TGI, serving the [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224) model from the Hugging Face Hub. To explore all the models from the Hugging Face Hub that can be served with TGI, you can explore [the models tagged with `text-generation-inference` in the Hub](https://huggingface.co/models?other=text-generation-inference).
 
-> [!NOTE]
-> To explore all the models that can be served via TGI, you can explore the models tagged with `text-generation-inference` in the Hub at <https://huggingface.co/models?other=text-generation-inference>.
+PaliGemma2 will be deployed from the following Kubernetes Deployment Manifest (including the Service):
 
-The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the [`config/`](./config/) directory:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tgi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tgi
+  template:
+    metadata:
+      labels:
+        app: tgi
+        hf.co/model: google--paligemma2-3b-pt-224
+        hf.co/task: text-generation
+    spec:
+      containers:
+        - name: tgi
+          image: "us-central1-docker.pkg.dev/gcp-partnership-412108/deep-learning-images/huggingface-text-generation-inference-gpu.3.0.1"
+          # image: "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.3-0.ubuntu2204.py311"
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+            limits:
+              nvidia.com/gpu: 1
+          env:
+            - name: MODEL_ID
+              value: "google/paligemma2-3b-pt-224"
+            - name: NUM_SHARD
+              value: "1"
+            - name: PORT
+              value: "8080"
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_token
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /tmp
+              name: tmp
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+        - name: tmp
+          emptyDir: {}
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tgi
+spec:
+  selector:
+    app: tgi
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+```
 
-- [`deployment.yaml`](./config/deployment.yaml): contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224).
-- [`service.yaml`](./config/service.yaml): contains the service details of the pod, exposing the port 8080 for the TGI service.
-- (optional) [`ingress.yaml`](./config/ingress.yaml): contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+You can either deploy by copying the content above into a file named `deployment.yaml` and then deploy it with the following command:
 
 ```bash
-git clone https://github.com/huggingface/Google-Cloud-Containers
-kubectl apply -f Google-Cloud-Containers/examples/gke/deploy-paligemma-2/config
+kubectl apply -f deployment.yaml
 ```
+
+If you also want to deploy the Ingress to e.g. expose a public IP to access the Service, then you should then copy the following content into a file named `ingress.yaml`:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tgi
+  # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tgi
+                port:
+                  number: 8080
+```
+
+And, then deploy it with the following command too:
+
+```bash
+kubectl apply -f ingress.yaml
+```
+
+> [!NOTE]
+> Alternatively, you can just clone [the `huggingface/Google-Cloud-Containers` repository from GitHub](https://github.com/huggingface/Google-Cloud-Containers) and the apply the configuration including all the Kubernetes Manifests mentioned above as it follows:
+>
+> ```bash
+> git clone https://github.com/huggingface/Google-Cloud-Containers
+> kubectl apply -f Google-Cloud-Containers/examples/gke/deploy-paligemma-2-with-tgi/config
+> ```
 
 ![GKE Deployment in the Google Cloud Console](./imgs/gke-deployment.png)
 
@@ -193,7 +291,14 @@ To run the inference over the deployed TGI service, you can either:
 To send a POST request to the TGI service using `cURL`, you can run the following command:
 
 ```bash
+curl http://localhost:8080/generate \
+    -d '{"inputs":"![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png)caption en\n","parameters":{"max_new_tokens":128}}' \
+    -H 'Content-Type: application/json'
 ```
+
+| Image                                                                                                      | Input      | Output                        |
+|------------------------------------------------------------------------------------------------------------|------------|-------------------------------|
+| ![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png) | caption en | image of a man in a spacesuit |
 
 ## Delete GKE Cluster
 
