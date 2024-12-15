@@ -103,7 +103,7 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 >     --location=$LOCATION
 > ```
 >
-> Additionally, note that you can also use the "RAPID" channel instead of the "STABLE" if you require any Kubernetes feature not shipped yet within the latest Kubernetes version released on the "STABLE" channel, even though using the "STABLE" channel is recommended. For more information please visit <https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version>.
+> Additionally, note that you can also use the "RAPID" channel instead of the "STABLE" if you require any Kubernetes feature not shipped yet within the latest Kubernetes version released on the "STABLE" channel, even though using the "STABLE" channel is recommended. For more information please visit the [GKE Documentation - Specifying cluster version](https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version).
 
 ![GKE Cluster in the Google Cloud Console](./imgs/gke-cluster.png)
 
@@ -137,7 +137,7 @@ kubectl create secret generic hf-secret \
 
 ![GKE Secret in the Google Cloud Console](./imgs/gke-secrets.png)
 
-More information on how to set Kubernetes secrets in a GKE Cluster at <https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component>.
+More information on how to set Kubernetes secrets in a GKE Cluster check the [GKE Documentation - Specifying cluster version](https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component).
 
 ## Deploy TGI on GKE
 
@@ -218,7 +218,7 @@ You can either deploy by copying the content above into a file named `deployment
 kubectl apply -f deployment.yaml
 ```
 
-If you also want to deploy the Ingress to e.g. expose a public IP to access the Service, then you should then copy the following content into a file named `ingress.yaml`:
+Optionally, if you also want to deploy the Ingress to e.g. expose a public IP to access the Service, then you should then copy the following content into a file named `ingress.yaml`:
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -241,14 +241,14 @@ spec:
                   number: 8080
 ```
 
-And, then deploy it with the following command too:
+And, then deploy it with the following command:
 
 ```bash
 kubectl apply -f ingress.yaml
 ```
 
 > [!NOTE]
-> Alternatively, you can just clone [the `huggingface/Google-Cloud-Containers` repository from GitHub](https://github.com/huggingface/Google-Cloud-Containers) and the apply the configuration including all the Kubernetes Manifests mentioned above as it follows:
+> Alternatively, you can just clone the [`huggingface/Google-Cloud-Containers`](https://github.com/huggingface/Google-Cloud-Containers) repository from GitHub and the apply the configuration including all the Kubernetes Manifests mentioned above as it follows:
 >
 > ```bash
 > git clone https://github.com/huggingface/Google-Cloud-Containers
@@ -295,15 +295,19 @@ If you've configured the ingress (as defined in the [`ingress.yaml`](./config/in
 kubectl get ingress tgi -o jsonpath='{.status.loadBalancer.ingress.ip}'
 ```
 
-## Inference with TGI on GKE
+---
 
-First of all, you need to make sure that the service is healthy and reachable via either `localhost` or the ingress IP (depending on how you exposed the service as of the step above), with the following `curl` command:
+Finally, to make sure that the service is healthy and reachable via either `localhost` or the ingress IP (depending on how you exposed the service as of the step above), you can send the following `curl` command:
 
 ```bash
 curl http://localhost:8080/health
 ```
 
-Then before sending the `curl` request for inference, you need to note that the PaliGemma variant that you are serving is [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224) i.e. the pre-trained variant, meaning that's not particularly usable out of the box for any task, but just to transfer well to other tasks after the fine-tuning; anyway, it's pre-trained on a set of given tasks following the previous [PaLI: A Jointly-Scaled Multilingual Language-Image Model](https://arxiv.org/abs/2209.06794) works, which are the following and, so on, the supported prompt formats that will work out of the box via the `/generate` endpoint:
+And that's it, TGI is now reachable and healthy on GKE!
+
+## Inference with TGI on GKE
+
+Before sending the `curl` request for inference, you need to note that the PaliGemma variant that you are serving is [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224) i.e. the pre-trained variant, meaning that's not particularly usable out of the box for any task, but just to transfer well to other tasks after the fine-tuning; anyway, it's pre-trained on a set of given tasks following the previous [PaLI: A Jointly-Scaled Multilingual Language-Image Model](https://arxiv.org/abs/2209.06794) works, which are the following and, so on, the supported prompt formats that will work out of the box via the `/generate` endpoint:
 
 - `caption {lang}`: Simple captioning objective on datasets like WebLI and CC3M-35L
 - `ocr`: Transcription of text on the image using a public OCR system
@@ -313,7 +317,14 @@ Then before sending the `curl` request for inference, you need to note that the 
 - `segment {thing} ; {thing} ; ...`: Multi-object instance segmentation on generated open-world data
 - `caption <ymin><xmin><ymax><xmax>`: Grounded captioning of content within a specified box
 
-The PaliGemma and PaliGemma2 papers use the `\n` i.e. the line-break, as the separator token from the image(s) + suffix (input) and the prefix (output); which is automatically included within the `PaliGemmaProcessor` in Transformers, but needs to be manually provided to the `/generate` endpoint on TGI. Besides that, the images should be provided following the Markdown formatting for image rendering i.e. `![](<image_url>)`, and the image needs to be publicly accessible; or provided as its base64 encoding if not hosted within a publicly accessible URL. This means that the prompt formatting expected on the `/generate` method is either e.g. `![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png)caption en\n` if the image is provided via URL, or `![](data:image/png;base64,...)caption en\n` if the image is provided as its base64 encoding.
+The PaliGemma and PaliGemma2 papers use the `\n` i.e. the line-break, as the separator token from the image(s) + suffix (input) and the prefix (output); which is automatically included within the `PaliGemmaProcessor` in Transformers, but needs to be manually provided to the `/generate` endpoint on TGI.
+
+Besides that, the images should be provided following the Markdown formatting for image rendering i.e. `![](<image_url>)`, and the image needs to be publicly accessible; or provided as its base64 encoding if not hosted within a publicly accessible URL.
+
+This means that the prompt formatting expected on the `/generate` method is either:
+
+- `![](<URL>)<PROMPT>\n` if the image is provided via URL.
+- `![](data:image/png;base64,<ENCODING>)<PROMPT>\n` if the image is provided as its base64 encoding.
 
 Read more information about the technical details and implementation of PaliGemma on the papers / technical reports released by Google:
 
