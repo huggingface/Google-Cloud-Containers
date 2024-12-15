@@ -295,8 +295,6 @@ If you've configured the ingress (as defined in the [`ingress.yaml`](./config/in
 kubectl get ingress tgi -o jsonpath='{.status.loadBalancer.ingress.ip}'
 ```
 
----
-
 Finally, to make sure that the service is healthy and reachable via either `localhost` or the ingress IP (depending on how you exposed the service as of the step above), you can send the following `curl` command:
 
 ```bash
