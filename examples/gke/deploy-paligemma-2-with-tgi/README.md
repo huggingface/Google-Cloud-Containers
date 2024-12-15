@@ -197,7 +197,7 @@ spec:
           emptyDir: {}
       nodeSelector:
         cloud.google.com/gke-accelerator: nvidia-l4
-# ---
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -258,33 +258,70 @@ kubectl apply -f ingress.yaml
 ![GKE Deployment in the Google Cloud Console](./imgs/gke-deployment.png)
 
 > [!NOTE]
-> The Kubernetes deployment may take a few minutes to be ready, so you can check the status of the deployment with the following command:
+> The Kubernetes deployment may take a few minutes to be ready, so you can check the status of the pod/s being deployed on the default namespace with the following command:
 >
 > ```bash
 > kubectl get pods
 > ```
 >
-> Alternatively, you can just wait for the deployment to be ready with the following command:
+> Alternatively, you can just wait (700 seconds) for the deployment to be ready with the following command:
 >
 > ```bash
 > kubectl wait --for=condition=Available --timeout=700s deployment/tgi
 > ```
 
+## Accessing TGI on GKE
+
+To access the deployed TGI service, you have two options:
+
+1. Port-forwarding the service
+2. Using the ingress (if configured)
+
+### Port-forwarding
+
+You can port-forward the deployed TGI service to port 8080 on your local machine using the following command:
+
+```bash
+kubectl port-forward service/tgi 8080:8080
+```
+
+This allows you to access the service via `localhost:8080`.
+
+### Accessing via Ingress
+
+If you've configured the ingress (as defined in the [`ingress.yaml`](./config/ingress.yaml) file), you can access the service using the external IP of the ingress. Retrieve the external IP with this command:
+
+```bash
+kubectl get ingress tgi -o jsonpath='{.status.loadBalancer.ingress.ip}'
+```
+
 ## Inference with TGI on GKE
 
-To run the inference over the deployed TGI service, you can either:
+First of all, you need to make sure that the service is healthy and reachable via either `localhost` or the ingress IP (depending on how you exposed the service as of the step above), with the following `curl` command:
 
-- Port-forwarding the deployed TGI service to the port 8080, so as to access via `localhost` with the command:
+```bash
+curl http://localhost:8080/health
+```
 
-  ```bash
-  kubectl port-forward service/tgi 8080:8080
-  ```
+Then before sending the `curl` request for inference, you need to note that the PaliGemma variant that you are serving is [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224) i.e. the pre-trained variant, meaning that's not particularly usable out of the box for any task, but just to transfer well to other tasks after the fine-tuning; anyway, it's pre-trained on a set of given tasks following the previous [PaLI: A Jointly-Scaled Multilingual Language-Image Model](https://arxiv.org/abs/2209.06794) works, which are the following and, so on, the supported prompt formats that will work out of the box via the `/generate` endpoint:
 
-- Accessing the TGI service via the external IP of the ingress, which is the default scenario here since you have defined the ingress configuration in the [`ingress.yaml`](./config/ingress.yaml) file (but it can be skipped in favour of the port-forwarding), that can be retrieved with the following command:
+- `caption {lang}`: Simple captioning objective on datasets like WebLI and CC3M-35L
+- `ocr`: Transcription of text on the image using a public OCR system
+- `answer en {question}`: Generated VQA on CC3M-35L and object-centric questions on OpenImages
+- `question {lang} {English answer}`: Generated VQG on CC3M-35L in 35 languages for given English answers
+- `detect {thing} ; {thing} ; ...`: Multi-object detection on generated open-world data
+- `segment {thing} ; {thing} ; ...`: Multi-object instance segmentation on generated open-world data
+- `caption <ymin><xmin><ymax><xmax>`: Grounded captioning of content within a specified box
 
-  ```bash
-  kubectl get ingress tgi -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
-  ```
+The PaliGemma and PaliGemma2 papers use the `\n` i.e. the line-break, as the separator token from the image(s) + suffix (input) and the prefix (output); which is automatically included within the `PaliGemmaProcessor` in Transformers, but needs to be manually provided to the `/generate` endpoint on TGI. Besides that, the images should be provided following the Markdown formatting for image rendering i.e. `![](<image_url>)`, and the image needs to be publicly accessible; or provided as its base64 encoding if not hosted within a publicly accessible URL. This means that the prompt formatting expected on the `/generate` method is either e.g. `![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png)caption en\n` if the image is provided via URL, or `![](data:image/png;base64,...)caption en\n` if the image is provided as its base64 encoding.
+
+Read more information about the technical details and implementation of PaliGemma on the papers / technical reports released by Google:
+
+- [PaliGemma: A versatile 3B VLM for transfer](https://arxiv.org/abs/2407.07726)
+- [PaliGemma 2: A Family of Versatile VLMs for Transfer](https://arxiv.org/abs/2412.03555)
+
+> [!NOTE]
+> Note that the `/v1/chat/completions` endpoint cannot be used, and will result in a "chat template error not found", as the model is pre-trained and not fine-tuned for e.g. chat conversations, and does not have a chat template defined that can be applied within the `v1/chat/completions` endpoint following the OpenAI OpenAPI specification.
 
 ### Via cURL
 
@@ -292,13 +329,53 @@ To send a POST request to the TGI service using `cURL`, you can run the followin
 
 ```bash
 curl http://localhost:8080/generate \
-    -d '{"inputs":"![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png)caption en\n","parameters":{"max_new_tokens":128}}' \
+    -d '{"inputs":"![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png)caption en\n","parameters":{"max_new_tokens":128,"seed":42}}' \
     -H 'Content-Type: application/json'
 ```
 
 | Image                                                                                                      | Input      | Output                        |
 |------------------------------------------------------------------------------------------------------------|------------|-------------------------------|
 | ![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png) | caption en | image of a man in a spacesuit |
+
+### Via Python
+
+You can install it via pip as `pip install --upgrade --quiet huggingface_hub`, and then run the following snippet to mimic the cURL command above i.e. sending requests to the Generate API:
+
+```python
+from huggingface_hub import InferenceClient
+
+client = InferenceClient("http://localhost:8080", api_key="-")
+
+generation = client.text_generation(
+    prompt="![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png)caption en\n",
+    max_new_tokens=128,
+    seed=42,
+)
+```
+
+Or, if you don't have a public URL with the image hosted, you can also send the base64 encoding of the image from the image file as it follows: 
+
+```python
+import base64
+from huggingface_hub import InferenceClient
+
+client = InferenceClient("http://localhost:8080", api_key="-")
+
+with open("/path/to/image.png", "rb") as f:
+    b64_image = base64.b64encode(f.read()).decode("utf-8")
+
+generation = client.text_generation(
+    prompt=f"![](data:image/png;base64,{b64_image})caption en\n",
+    max_new_tokens=128,
+    seed=42,
+)
+```
+
+Both producing the following output:
+
+```json
+{"generated_text": "image of a man in a spacesuit"}
+```
 
 ## Delete GKE Cluster
 
