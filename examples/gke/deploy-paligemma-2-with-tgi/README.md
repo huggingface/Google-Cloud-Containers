@@ -257,6 +257,8 @@ kubectl apply -f ingress.yaml
 
 ![GKE Deployment in the Google Cloud Console](./imgs/gke-deployment.png)
 
+![GKE Deployment Logs in the Google Cloud Console](./imgs/gke-deployment-logs.png)
+
 > [!NOTE]
 > The Kubernetes deployment may take a few minutes to be ready, so you can check the status of the pod/s being deployed on the default namespace with the following command:
 >
