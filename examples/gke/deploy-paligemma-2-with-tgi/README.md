@@ -317,14 +317,14 @@ Before sending the `curl` request for inference, you need to note that the PaliG
 - `segment {thing} ; {thing} ; ...`: Multi-object instance segmentation on generated open-world data
 - `caption <ymin><xmin><ymax><xmax>`: Grounded captioning of content within a specified box
 
-The PaliGemma and PaliGemma2 papers use the `\n` i.e. the line-break, as the separator token from the image(s) + suffix (input) and the prefix (output); which is automatically included within the `PaliGemmaProcessor` in Transformers, but needs to be manually provided to the `/generate` endpoint on TGI.
+The PaliGemma and PaliGemma2 papers use the BOS token after the images and before the prefix and then `\n` i.e. the line-break, as the separator token from suffix (input) and the prefix (output); which are both automatically included by the `transformers.PaliGemmaProcessor`, meaning that there's no need to provide those explicitly to the `/generate` endpoint in TGI.
 
 Besides that, the images should be provided following the Markdown formatting for image rendering i.e. `![](<image_url>)`, and the image needs to be publicly accessible; or provided as its base64 encoding if not hosted within a publicly accessible URL.
 
 This means that the prompt formatting expected on the `/generate` method is either:
 
-- `![](<URL>)<PROMPT>\n` if the image is provided via URL.
-- `![](data:image/png;base64,<ENCODING>)<PROMPT>\n` if the image is provided as its base64 encoding.
+- `![](<URL>)<PROMPT>` if the image is provided via URL.
+- `![](data:image/png;base64,<ENCODING>)<PROMPT>` if the image is provided as its base64 encoding.
 
 Read more information about the technical details and implementation of PaliGemma on the papers / technical reports released by Google:
 
@@ -340,7 +340,7 @@ To send a POST request to the TGI service using `cURL`, you can run the followin
 
 ```bash
 curl http://localhost:8080/generate \
-    -d '{"inputs":"![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png)caption en\n","parameters":{"max_new_tokens":128,"seed":42}}' \
+    -d '{"inputs":"![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png)caption en","parameters":{"max_new_tokens":128,"seed":42}}' \
     -H 'Content-Type: application/json'
 ```
 
@@ -358,7 +358,7 @@ from huggingface_hub import InferenceClient
 client = InferenceClient("http://localhost:8080", api_key="-")
 
 generation = client.text_generation(
-    prompt="![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png)caption en\n",
+    prompt="![](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/rabbit.png)caption en",
     max_new_tokens=128,
     seed=42,
 )
@@ -376,7 +376,7 @@ with open("/path/to/image.png", "rb") as f:
     b64_image = base64.b64encode(f.read()).decode("utf-8")
 
 generation = client.text_generation(
-    prompt=f"![](data:image/png;base64,{b64_image})caption en\n",
+    prompt=f"![](data:image/png;base64,{b64_image})caption en",
     max_new_tokens=128,
     seed=42,
 )
