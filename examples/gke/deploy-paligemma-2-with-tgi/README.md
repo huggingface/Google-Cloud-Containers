@@ -7,7 +7,7 @@ type: inference
 
 PaliGemma 2 is the latest multilingual vision-language model released by Google. It combines the SigLIP vision model with the Gemma 2 language model, enabling it to process both images and text inputs to generate text outputs for various tasks, including captioning, visual question answering, and object detection. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using Google Cloud infrastructure.
 
-This example showcases how to deploy Google PaliGemma 2 from the Hugging Face Hub on a GKE Cluster, running a purpose-built container to deploy LLMs and VLMs in a secure and managed environment with the Hugging Face DLC for TGI. Additionally, this example also presents different scenarios or use-cases where PaliGemma2 can be used.
+This example showcases how to deploy Google PaliGemma 2 from the Hugging Face Hub on a GKE Cluster, running a purpose-built container to deploy LLMs and VLMs in a secure and managed environment with the Hugging Face DLC for TGI. Additionally, this example also presents different scenarios or use-cases where PaliGemma 2 can be used.
 
 ## Setup / Configuration
 
@@ -60,7 +60,7 @@ gcloud services enable containerfilesystem.googleapis.com
 
 [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224) is a gated model, as well as the [rest of the official PaliGemma 2 models](https://huggingface.co/collections/google/paligemma-2-release-67500e1e1dbfdd4dee27ba48). In order to use any of them and being able to download the weights, you first need to accept their gating / license in one of the model cards.
 
-![PaliGemma2 Gating on the Hugging Face Hub](./imgs/model-gating.png)
+![PaliGemma 2 Gating on the Hugging Face Hub](./imgs/model-gating.png)
 
 Once you have been granted access to the PaliGemma 2 models on the Hub, you need to generate either a fine-grained or a read-access token. A fine-grained token allows you to scope permissions to the  desired models, such [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224), so you can download the weights, and is the recommended option. A read-access token would allow access to all the models your account has access to. To generate access tokens for the Hugging Face Hub you can follow the instructions at [Hugging Face Hub Documentation - User access tokens](https://huggingface.co/docs/hub/en/security-tokens).
 
@@ -143,7 +143,7 @@ More information on how to set Kubernetes secrets in a GKE Cluster check the [GK
 
 Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TGI, serving the [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224) model from the Hugging Face Hub. To explore all the models from the Hugging Face Hub that can be served with TGI, you can explore [the models tagged with `text-generation-inference` in the Hub](https://huggingface.co/models?other=text-generation-inference).
 
-PaliGemma2 will be deployed from the following Kubernetes Deployment Manifest (including the Service):
+PaliGemma 2 will be deployed from the following Kubernetes Deployment Manifest (including the Service):
 
 ```yaml
 apiVersion: apps/v1
