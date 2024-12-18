@@ -1,4 +1,5 @@
 FROM nvidia/cuda:12.1.1-devel-ubuntu22.04
+SHELL ["/bin/bash", "-c"]
 
 LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -20,64 +21,76 @@ ARG SENTENCE_TRANSFORMERS="3.3.1"
 ARG DEEPSPEED="0.16.1"
 ARG MAX_JOBS=4
 
-RUN apt-get update && \
+RUN apt-get update -y && \
     apt-get install software-properties-common -y && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt-get -y upgrade --only-upgrade systemd openssl cryptsetup && \
     apt-get install -y \
-    build-essential \
-    bzip2 \
-    curl \
-    git \
-    git-lfs \
-    tar \
-    gcc \
-    g++ \
-    cmake \
-    libprotobuf-dev \
-    libaio-dev \
-    protobuf-compiler \
-    python3.11 \
-    python3.11-dev \
-    libsndfile1-dev \
-    ffmpeg && \
+        build-essential \
+        bzip2 \
+        curl \
+        git \
+        git-lfs \
+        tar \
+        gcc \
+        g++ \
+        cmake \
+        gnupg \
+        libprotobuf-dev \
+        libaio-dev \
+        protobuf-compiler \
+        python3.11 \
+        python3.11-dev \
+        libsndfile1-dev \
+        ffmpeg && \
     apt-get clean autoremove --yes && \
-    rm -rf /var/lib/{apt,dpkg,cache,log}
+    rm -rf /var/lib/apt/lists/*
 
 # Set Python 3.11 as the default python version
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
     ln -sf /usr/bin/python3.11 /usr/bin/python
 
-# Install pip from source
+# Install pip from source and upgrade it
 RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py && \
-    rm get-pip.py
+    rm get-pip.py && \
+    pip install --upgrade pip
 
-# Update pip
-RUN pip install --upgrade pip
+# Download the latest installer
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
-# Install latest release PyTorch (PyTorch must be installed before any DeepSpeed c++/cuda ops.)
-RUN pip install --no-cache-dir -U torch==${PYTORCH} torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/${CUDA}
+# Run the installer then remove it
+RUN sh /uv-installer.sh && rm /uv-installer.sh
 
-# Upgrade FlashAttnV2
+# Ensure the installed binary is on the `PATH`, and use system's Python as default
+ENV PATH="/root/.local/bin/:$PATH" \
+    UV_SYSTEM_PYTHON=1
+
+# Set alias
+RUN printf '#!/bin/bash\nuv pip "$@"' > /usr/local/bin/pip && chmod +x /usr/local/bin/pip
+
+# Install latest release PyTorch (PyTorch must be installed before any DeepSpeed C++/CUDA ops.)
+RUN pip install --no-cache-dir --upgrade --index-url https://download.pytorch.org/whl/${CUDA} "torch==${PYTORCH}" torchvision torchaudio
+
+# Install and upgrade Flash Attention 2
 RUN pip install --no-cache-dir packaging ninja
-RUN MAX_JOBS=${MAX_JOBS} pip install flash-attn==${FLASH_ATTN} --no-build-isolation
+RUN MAX_JOBS=${MAX_JOBS} pip install --no-build-isolation flash-attn==${FLASH_ATTN}
 
 # Install Hugging Face Libraries
 RUN pip install --upgrade --no-cache-dir \
-    transformers[sklearn,sentencepiece,vision]==${TRANSFORMERS} \
-    huggingface_hub[hf_transfer]==${HUGGINGFACE_HUB} \
-    diffusers==${DIFFUSERS} \
-    datasets==${DATASETS} \
-    accelerate==${ACCELERATE} \
-    evaluate==${EVALUATE} \
-    peft==${PEFT} \
-    trl==${TRL} \
-    sentence-transformers==${SENTENCE_TRANSFORMERS} \
-    deepspeed==${DEEPSPEED} \
-    bitsandbytes==${BITSANDBYTES} \
-    tensorboard \
-    jupyter notebook
+        "transformers[sklearn,sentencepiece,vision]==${TRANSFORMERS}" \
+        "huggingface_hub[hf_transfer]==${HUGGINGFACE_HUB}" \
+        "diffusers==${DIFFUSERS}" \
+        "datasets==${DATASETS}" \
+        "accelerate==${ACCELERATE}" \
+        "evaluate==${EVALUATE}" \
+        "peft==${PEFT}" \
+        "trl==${TRL}" \
+        "sentence-transformers==${SENTENCE_TRANSFORMERS}" \
+        "deepspeed==${DEEPSPEED}" \
+        "bitsandbytes==${BITSANDBYTES}" \
+        tensorboard \
+        jupyter notebook
 
 ENV HF_HUB_ENABLE_HF_TRANSFER="1"
 
@@ -95,6 +108,7 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
     | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
+    touch /var/lib/dpkg/status && \
     apt-get update -y && \
     apt-get install google-cloud-sdk -y && \
     apt-get clean autoremove --yes && \
