@@ -41,8 +41,8 @@ RUN apt-get update && \
     python3.11-dev \
     libsndfile1-dev \
     ffmpeg && \
-    && apt-get clean autoremove --yes \
-    && rm -rf /var/lib/{apt,dpkg,cache,log}
+    apt-get clean autoremove --yes && \
+    rm -rf /var/lib/{apt,dpkg,cache,log}
 
 # Set Python 3.11 as the default python version
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
