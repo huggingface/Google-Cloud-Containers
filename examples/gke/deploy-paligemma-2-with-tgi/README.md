@@ -1,20 +1,20 @@
 ---
-title: Deploy PaliGemma2 with TGI DLC on GKE
+title: Deploy PaliGemma 2 with TGI DLC on GKE
 type: inference
 ---
 
-# Deploy PaliGemma2 with TGI DLC on GKE
+# Deploy PaliGemma 2 with TGI DLC on GKE
 
-PaliGemma 2 is the latest multilingual vision-language model released by Google, that combines the Gemma2 language model with the SigLIP vision model, enabling it to process both images and text inputs to generate text outputs for various tasks including captioning, visual question answering, and object detection. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using Google Cloud infrastructure.
+PaliGemma 2 is the latest multilingual vision-language model released by Google. It combines the SigLIP vision model with the Gemma 2 language model, enabling it to process both images and text inputs to generate text outputs for various tasks, including captioning, visual question answering, and object detection. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using Google Cloud infrastructure.
 
-This example showcases how to deploy Google PaliGemma2 from the Hugging Face Hub on a GKE Cluster, running a purpose-built container to deploy LLMs and VLMs in a secure and managed environment with the Hugging Face DLC for TGI. Additionally, this example also presents different scenarios or use-cases where PaliGemma2 can be used.
+This example showcases how to deploy Google PaliGemma 2 from the Hugging Face Hub on a GKE Cluster, running a purpose-built container to deploy LLMs and VLMs in a secure and managed environment with the Hugging Face DLC for TGI. Additionally, this example also presents different scenarios or use-cases where PaliGemma2 can be used.
 
 ## Setup / Configuration
 
 > [!NOTE]
-> Some configuration steps such as the `gcloud`, `kubectl`, and `gke-cloud-auth-plugin` installation are not required if running the example within the Google Cloud Cloud Shell, as the spawned shell already comes with those dependencies installed; as well as logged in within the current account and project selected on Google Cloud. 
+> Some configuration steps such as the `gcloud`, `kubectl`, and `gke-cloud-auth-plugin` installation are not required if running the example within the Google Cloud Shell, as it already comes with those dependencies installed. It's also automatically logged in with the current account and project selected on Google Cloud. 
 
-Optionally, to avoid duplicating the following values within this example, for convenience you should set the following environment variable with your own Google Cloud values:
+Optionally, we recommend you set the following environment variables for convenience, and to avoid duplicating the values elsewhere in the example:
 
 ```bash
 export PROJECT_ID=your-project-id
@@ -24,7 +24,7 @@ export CLUSTER_NAME=your-cluster-name
 
 ### Requirements
 
-First, you need to install both `gcloud` and `kubectl` in your local machine, which are the command-line tools for Google Cloud and Kubernetes, respectively, to interact with the Google Cloud and the GKE Cluster.
+First, you need to install both `gcloud` and `kubectl` in your local machine, which are the command-line tools to interact with Google Cloud and Kubernetes, respectively.
 
 - To install `gcloud`, follow the instructions at [Cloud SDK Documentation - Install the gcloud CLI](https://cloud.google.com/sdk/docs/install).
 - To install `kubectl`, follow the instructions at [Kubernetes Documentation - Install Tools](https://kubernetes.io/docs/tasks/tools/#kubectl).
@@ -36,7 +36,7 @@ gcloud components install gke-gcloud-auth-plugin
 ```
 
 > [!NOTE]
-> Installing the `gke-gcloud-auth-plugin` does not need to be installed via `gcloud` specifically, to read more about the alternative installation methods, please visit the [GKE Documentation - Install kubectl and configure cluster access](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin).
+> There are other ways to install the `gke-gcloud-auth-plugin` that you can check in the [GKE Documentation - Install kubectl and configure cluster access](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin).
 
 ### Login and API enablement
 
@@ -56,13 +56,13 @@ gcloud services enable containerregistry.googleapis.com
 gcloud services enable containerfilesystem.googleapis.com
 ```
 
-### PaliGemma2 gating and Hugging Face access token
+### PaliGemma 2 gating and Hugging Face access token
 
-As [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224) is a gated model, as well as the rest of the PaliGemma2 released weights on the Hugging Face Hub (see them all in [the Google PaliGemma2 Collection on the Hub](https://huggingface.co/collections/google/paligemma-2-release-67500e1e1dbfdd4dee27ba48)), you need to first accept their gating / licensing in the model card, in order to be able to download the weights.
+[`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224) is a gated model, as well as the [rest of the official PaliGemma 2 models](https://huggingface.co/collections/google/paligemma-2-release-67500e1e1dbfdd4dee27ba48). In order to use any of them and being able to download the weights, you first need to accept their gating / license in one of the model cards.
 
 ![PaliGemma2 Gating on the Hugging Face Hub](./imgs/model-gating.png)
 
-Once you have been granted access to the PaliGemma2 model on the Hub, you should be able to generate either a fine-grained or a read-access token to be able to download [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224) model weights (or every model under the [`google`](https://huggingface.co/google) organization on the Hub), or to all the models your account has access to, respectively. To generate access tokens for the Hugging Face Hub you can follow the instructions at [Hugging Face Hub Documentation - User access tokens](https://huggingface.co/docs/hub/en/security-tokens).
+Once you have been granted access to the PaliGemma 2 models on the Hub, you need to generate either a fine-grained or a read-access token. A fine-grained token allows you to scope permissions to the  desired models, such [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224), so you can download the weights, and is the recommended option. A read-access token would allow access to all the models your account has access to. To generate access tokens for the Hugging Face Hub you can follow the instructions at [Hugging Face Hub Documentation - User access tokens](https://huggingface.co/docs/hub/en/security-tokens).
 
 After the access token is generated, the recommended way of setting it is via the Python CLI `huggingface-cli` that comes with the `huggingface_hub` Python SDK, that can be installed as follows:
 
@@ -317,14 +317,14 @@ Before sending the `curl` request for inference, you need to note that the PaliG
 - `segment {thing} ; {thing} ; ...`: Multi-object instance segmentation on generated open-world data
 - `caption <ymin><xmin><ymax><xmax>`: Grounded captioning of content within a specified box
 
-The PaliGemma and PaliGemma2 papers use the BOS token after the images and before the prefix and then `\n` i.e. the line-break, as the separator token from suffix (input) and the prefix (output); which are both automatically included by the `transformers.PaliGemmaProcessor`, meaning that there's no need to provide those explicitly to the `/generate` endpoint in TGI.
+The PaliGemma and PaliGemma 2 models require the BOS token after the images and before the prefix and then `\n` i.e. the line-break, as the separator token from suffix (input) and the prefix (output); which are both automatically included by the `transformers.PaliGemmaProcessor`, meaning that there's no need to provide those explicitly to the `/generate` endpoint in TGI.
 
-Besides that, the images should be provided following the Markdown formatting for image rendering i.e. `![](<image_url>)`, and the image needs to be publicly accessible; or provided as its base64 encoding if not hosted within a publicly accessible URL.
+The images should be provided following the Markdown syntax for image rendering i.e. `![](<image_url>)`, which requires the image URL to be publicly accessible. Alternatively, you can provide images in the request using base64 encoding of the image data.
 
 This means that the prompt formatting expected on the `/generate` method is either:
 
 - `![](<URL>)<PROMPT>` if the image is provided via URL.
-- `![](data:image/png;base64,<ENCODING>)<PROMPT>` if the image is provided as its base64 encoding.
+- `![](data:image/png;base64,<ENCODING>)<PROMPT>` if the image is provided using base64 encoding.
 
 Read more information about the technical details and implementation of PaliGemma on the papers / technical reports released by Google:
 
@@ -332,7 +332,7 @@ Read more information about the technical details and implementation of PaliGemm
 - [PaliGemma 2: A Family of Versatile VLMs for Transfer](https://arxiv.org/abs/2412.03555)
 
 > [!NOTE]
-> Note that the `/v1/chat/completions` endpoint cannot be used, and will result in a "chat template error not found", as the model is pre-trained and not fine-tuned for e.g. chat conversations, and does not have a chat template defined that can be applied within the `v1/chat/completions` endpoint following the OpenAI OpenAPI specification.
+> Note that the `/v1/chat/completions` endpoint cannot be used, and will result in a "chat template error not found", as the model is pre-trained and not fine-tuned for chat conversations, and does not have a chat template that can be applied within the `v1/chat/completions` endpoint following the OpenAI OpenAPI specification.
 
 ### Via cURL
 
