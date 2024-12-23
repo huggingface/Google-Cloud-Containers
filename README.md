@@ -31,8 +31,6 @@ The [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Contai
 | us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310  | [huggingface-pytorch-training-gpu.2.3.0.transformers.4.42.3.py310](./containers/pytorch/training/gpu/2.3.0/transformers/4.42.3/py310/Dockerfile)   | PyTorch   | Training  | GPU         |
 | us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311 | [huggingface-pytorch-inference-gpu.2.2.2.transformers.4.44.0.py311](./containers/pytorch/inference/gpu/2.2.2/transformers/4.44.0/py311/Dockerfile) | PyTorch   | Inference | GPU         |
 | us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311   | [huggingface-pytorch-inference-cpu.2.2.2.transformers.4.44.0.py311](./containers/pytorch/inference/cpu/2.2.2/transformers/4.44.0/py311/Dockerfile) | PyTorch   | Inference | CPU         |
-| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-tpu.0.2.2.py310   | [huggingface-text-generation-inference-tpu.0.2.2.py310](./containers/tgi/tpu/0.2.2/Dockerfile) | TGI     | Inference | TPU         |
-| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-tpu.2.5.1.transformers.4.46.3.py310   | [huggingface-pytorch-training-tpu.2.5.1.transformers.4.46.3.py310](./containers/tgi/tpu/0.2.2/Dockerfile) | PyTorch | Training  | TPU         |
 
 > [!NOTE]
 > The listing above only contains the latest version of each of the Hugging Face DLCs, the full listing of the available published containers in Google Cloud can be found either in the [Deep Learning Containers Documentation](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face), in the [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or via the `gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-"` command.
@@ -71,7 +69,7 @@ The [`examples`](./examples) directory contains examples for using the container
 | Cloud Run | [examples/cloud-run/deploy-gemma-2-on-cloud-run](./examples/cloud-run/deploy-gemma-2-on-cloud-run)                                   | Deploy Gemma2 9B with TGI DLC on Cloud Run                    |
 | Cloud Run | [examples/cloud-run/deploy-llama-3-1-on-cloud-run](./examples/cloud-run/deploy-llama-3-1-on-cloud-run)                               | Deploy Llama 3.1 8B with TGI DLC on Cloud Run                 |
 
-### Evaluation
+### Evaluation Examples
 
 | Service   | Example                                                                                                                  | Title                                        |
 | --------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
