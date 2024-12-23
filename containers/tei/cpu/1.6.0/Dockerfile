@@ -1,4 +1,4 @@
-# Fetch and extract the TGI sources
+# Fetch and extract the TEI sources
 FROM alpine AS tei
 
 RUN mkdir -p /tei
@@ -27,11 +27,6 @@ COPY --from=tei /tei/Cargo.lock Cargo.lock
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
-
-# sccache specific variables
-ARG ACTIONS_CACHE_URL
-ARG ACTIONS_RUNTIME_TOKEN
-ARG SCCACHE_GHA_ENABLED
 
 RUN wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
     | gpg --dearmor | tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && \
