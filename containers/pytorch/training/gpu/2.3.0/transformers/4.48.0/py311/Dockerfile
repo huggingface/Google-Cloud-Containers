@@ -8,9 +8,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG CUDA="cu121"
 ARG PYTORCH="2.3.0"
 ARG FLASH_ATTN="2.6.3"
-ARG TRANSFORMERS="4.47.0"
+ARG TRANSFORMERS="4.48.0"
 ARG HUGGINGFACE_HUB="0.27.0"
-ARG DIFFUSERS="0.31.0"
+ARG DIFFUSERS="0.32.1"
 ARG PEFT="0.14.0"
 ARG TRL="0.13.0"
 ARG BITSANDBYTES="0.45.0"
@@ -96,12 +96,12 @@ ENV HF_HUB_ENABLE_HF_TRANSFER="1"
 
 # Install Google Cloud Dependencies
 RUN pip install --upgrade --no-cache-dir \
-    google-cloud-storage \
-    google-cloud-bigquery \
-    google-cloud-aiplatform \
-    google-cloud-pubsub \
-    google-cloud-logging \
-    "protobuf<4.0.0"
+        google-cloud-storage \
+        google-cloud-bigquery \
+        google-cloud-aiplatform \
+        google-cloud-pubsub \
+        google-cloud-logging \
+        "protobuf<4.0.0"
 
 # Install Google CLI single command
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
