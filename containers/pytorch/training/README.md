@@ -29,7 +29,7 @@ The PyTorch Training containers will start a training job that will start on `do
   docker run --gpus all -ti \
       -v $(pwd)/artifact:/artifact \
       -e HF_TOKEN=$(cat ~/.cache/huggingface/token) \
-      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-48.ubuntu2204.py310 \
+      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-48.ubuntu2204.py311 \
       trl sft \
       --model_name_or_path google/gemma-2b \
       --attn_implementation "flash_attention_2" \
@@ -76,7 +76,7 @@ The PyTorch Training containers come with two different containers depending on 
 - **GPU**: To build the PyTorch Training container for GPU, an instance with at least one NVIDIA GPU available is required to install `flash-attn` (used to speed up the attention layers during training and inference).
 
   ```bash
-  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-48.ubuntu2204.py310 -f containers/pytorch/training/gpu/2.3.0/transformers/4.48.0/py310/Dockerfile .
+  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-48.ubuntu2204.py311 -f containers/pytorch/training/gpu/2.3.0/transformers/4.48.0/py311/Dockerfile .
   ```
 
 - **TPU**: To build the PyTorch Training container for Google Cloud TPUs, an instance with at least one TPU available is required to install `optimum-tpu` which is a Python library with Google TPU optimizations for `transformers` models, making its integration seamless.
