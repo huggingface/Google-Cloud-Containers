@@ -34,7 +34,7 @@ Before running this container, you will need to select any supported model from 
       -e HF_MODEL_ID=distilbert/distilbert-base-uncased-finetuned-sst-2-english \
       -e HF_TASK=text-classification \
       --platform linux/amd64 \
-      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311
+      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-3.transformers.4-46.ubuntu2204.py311
   ```
 
 - **GPU**: Note that here you need to have an instance with at least one NVIDIA GPU and to set the `--gpus all` flag within the `docker run` command, as well as using the GPU-compatible container.
@@ -44,7 +44,7 @@ Before running this container, you will need to select any supported model from 
       -e HF_MODEL_ID=distilbert/distilbert-base-uncased-finetuned-sst-2-english \
       -e HF_TASK=text-classification \
       --platform linux/amd64 \
-      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311
+      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-3.transformers.4-46.ubuntu2204.py311
   ```
 
 > [!NOTE]
@@ -79,11 +79,11 @@ The PyTorch Training containers come with two different containers depending on 
 - **CPU**
 
   ```bash
-  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311 -f containers/pytorch/inference/cpu/2.2.2/transformers/4.44.0/py311/Dockerfile --platform linux/amd64 .
+  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-3.transformers.4-46.ubuntu2204.py311 -f containers/pytorch/inference/cpu/2.3.1/transformers/4.46.1/py311/Dockerfile --platform linux/amd64 .
   ```
 
 - **GPU**
 
   ```bash
-  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311 -f containers/pytorch/inference/gpu/2.2.2/transformers/4.44.0/py311/Dockerfile --platform linux/amd64 .
+  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-3.transformers.4-46.ubuntu2204.py311 -f containers/pytorch/inference/gpu/2.3.1/transformers/4.46.1/py311/Dockerfile --platform linux/amd64 .
   ```
