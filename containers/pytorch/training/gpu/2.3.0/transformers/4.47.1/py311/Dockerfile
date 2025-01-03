@@ -70,14 +70,14 @@ ENV PATH="/root/.local/bin/:$PATH" \
 RUN printf '#!/bin/bash\nuv pip "$@"' > /usr/local/bin/pip && chmod +x /usr/local/bin/pip
 
 # Install latest release PyTorch (PyTorch must be installed before any DeepSpeed C++/CUDA ops.)
-RUN pip install --no-cache-dir --upgrade --index-url https://download.pytorch.org/whl/${CUDA} "torch==${PYTORCH}" torchvision torchaudio
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/${CUDA} "torch==${PYTORCH}" torchvision torchaudio
 
 # Install and upgrade Flash Attention 2
 RUN pip install --no-cache-dir packaging ninja
 RUN MAX_JOBS=${MAX_JOBS} pip install --no-build-isolation flash-attn==${FLASH_ATTN}
 
 # Install Hugging Face Libraries
-RUN pip install --upgrade --no-cache-dir \
+RUN pip install --no-cache-dir \
         "transformers[sklearn,sentencepiece,vision]==${TRANSFORMERS}" \
         "huggingface_hub[hf_transfer]==${HUGGINGFACE_HUB}" \
         "diffusers==${DIFFUSERS}" \
