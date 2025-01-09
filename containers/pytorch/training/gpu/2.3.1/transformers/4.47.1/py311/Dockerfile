@@ -56,19 +56,6 @@ RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     rm get-pip.py && \
     pip install --upgrade pip
 
-# Download the latest installer
-ADD https://astral.sh/uv/install.sh /uv-installer.sh
-
-# Run the installer then remove it
-RUN sh /uv-installer.sh && rm /uv-installer.sh
-
-# Ensure the installed binary is on the `PATH`, and use system's Python as default
-ENV PATH="/root/.local/bin/:$PATH" \
-    UV_SYSTEM_PYTHON=1
-
-# Set alias
-RUN printf '#!/bin/bash\nuv pip "$@"' > /usr/local/bin/pip && chmod +x /usr/local/bin/pip
-
 # Install latest release PyTorch (PyTorch must be installed before any DeepSpeed C++/CUDA ops.)
 RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/${CUDA} "torch==${PYTORCH}" torchvision torchaudio
 
