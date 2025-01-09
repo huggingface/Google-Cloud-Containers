@@ -192,5 +192,5 @@ RUN if [ -n "$ENABLE_GOOGLE_FEATURE" ]; then \
     fi
 
 # Custom entrypoint for Google
-COPY --chmod=775 containers/tgi/tpu/${VERSION}/entrypoint.sh* entrypoint.sh
+COPY --chmod=775 containers/tgi/tpu/${VERSION}/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
