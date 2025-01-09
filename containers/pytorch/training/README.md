@@ -79,8 +79,18 @@ The PyTorch Training containers come with two different containers depending on 
   docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-47.ubuntu2204.py311 -f containers/pytorch/training/gpu/2.3.0/transformers/4.47.1/py311/Dockerfile .
   ```
 
-- **TPU**: To build the PyTorch Training container for Google Cloud TPUs, an instance with at least one TPU available is required to install `optimum-tpu` which is a Python library with Google TPU optimizations for `transformers` models, making its integration seamless.
+- **TPU**: You can build PyTorch Training container for Google Cloud TPUs on any machine with docker build, you do not need to build it on a TPU VM
 
   ```bash
-  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-tpu.2.4.0.transformers.4.41.1.py310 -f containers/pytorch/training/tpu/2.4.0/transformers/4.41.1/py310/Dockerfile .
+  docker build -t us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-tpu.2.5.1.transformers.4.46.3.py310 -f containers/pytorch/training/tpu/2.5.1/transformers/4.46.3/py310/Dockerfile .
+  ```
+
+  To run the example notebook for fine-tuning Gemma, use the command below. You can skip the “Environment Setup” step, as you should already be on a TPU-enabled machine. For better security, consider omitting the --allow-root and --NotebookApp.token='' options when running the notebook.
+
+  ```bash
+  docker run --rm --net host --privileged \
+      -v$(pwd)/artifacts:/tmp/output \
+      -e HF_TOKEN=${HF_TOKEN} \
+      us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-tpu.2.5.1.transformers.4.46.3.py310 \
+      jupyter notebook --allow-root --NotebookApp.token='' /notebooks
   ```
