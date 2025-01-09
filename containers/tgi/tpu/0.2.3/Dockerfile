@@ -114,6 +114,9 @@ FROM base AS tpu_base
 ARG VERSION=${VERSION}
 
 # Install system prerequisites
+# NOTE: we need both python3.10 and python3.11 to be installed, as the TGI router uses python 3.11 and optimum-tpu uses
+# python 3.10. This has been fixed on newest version of optimum-tpu and will be removed in the next version (see
+# https://github.com/huggingface/optimum-tpu/pull/135 for details).
 RUN apt-get update -y \
  && apt-get install -y --no-install-recommends \
     libpython3.10 \
