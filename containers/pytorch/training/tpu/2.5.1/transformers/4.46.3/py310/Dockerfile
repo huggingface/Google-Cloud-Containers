@@ -34,7 +34,7 @@ RUN pip install git+https://github.com/huggingface/optimum-tpu.git@v${OPTIMUM_TP
 # Add examples
 ADD https://raw.githubusercontent.com/huggingface/optimum-tpu/v${OPTIMUM_TPU}/examples/language-modeling/gemma_tuning.ipynb \
   /notebooks/gemma_tuning.ipynb
-ADD https://raw.githubusercontent.com/huggingface/optimum-tpu/v${OPTIMUM_TPU}/examples/language-modeling/gemma_tuning.ipynb \
+ADD https://raw.githubusercontent.com/huggingface/optimum-tpu/v${OPTIMUM_TPU}/examples/language-modeling/llama_tuning.ipynb \
   /notebooks/llama_tuning.ipynb
 
 # Install Google CLI single command
