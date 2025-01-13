@@ -30,14 +30,14 @@ spec:
           volumeMounts:
             - mountPath: /dev/shm
               name: dshm
-            - mountPath: /data
-              name: data
+            - mountPath: /tmp
+              name: tmp
       volumes:
         - name: dshm
           emptyDir:
             medium: Memory
             sizeLimit: 1Gi
-        - name: data
+        - name: tmp
           emptyDir: {}
       nodeSelector:
         cloud.google.com/gke-accelerator: nvidia-l4
