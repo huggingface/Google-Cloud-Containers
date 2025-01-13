@@ -1,4 +1,4 @@
-# Fetch and extract the TGI sources
+# Fetch and extract the TEI sources
 FROM alpine AS tei
 RUN mkdir -p /tei
 ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.2.2.tar.gz /tei/sources.tar.gz

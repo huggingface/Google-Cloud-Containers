@@ -1,4 +1,4 @@
-# Fetch and extract the TGI sources
+# Fetch and extract the TEI sources
 FROM alpine AS tei
 
 RUN mkdir -p /tei
