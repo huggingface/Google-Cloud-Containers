@@ -87,8 +87,7 @@ RUN pip install --upgrade --no-cache-dir \
         google-cloud-bigquery \
         google-cloud-aiplatform \
         google-cloud-pubsub \
-        google-cloud-logging \
-        "protobuf<4.0.0"
+        google-cloud-logging
 
 # Install Google CLI single command
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
