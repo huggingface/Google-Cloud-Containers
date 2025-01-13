@@ -1,4 +1,4 @@
-# Fetch and extract the TGI sources
+# Fetch and extract the TEI sources
 FROM alpine AS tei
 
 RUN mkdir -p /tei
@@ -11,6 +11,8 @@ FROM nvidia/cuda:12.2.0-devel-ubuntu22.04 AS base-builder
 ENV SCCACHE=0.5.4
 ENV RUSTC_WRAPPER=/usr/local/bin/sccache
 ENV PATH="/root/.cargo/bin:${PATH}"
+# aligned with `cargo-chef` version in `lukemathwalker/cargo-chef:latest-rust-1.75-bookworm` 
+ENV CARGO_CHEF=0.1.62
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     curl \
@@ -23,7 +25,7 @@ RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v$SCCACHE/sc
     chmod +x /usr/local/bin/sccache
 
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
-RUN cargo install cargo-chef --locked
+RUN cargo install cargo-chef --version $CARGO_CHEF --locked
 
 FROM base-builder AS planner
 
