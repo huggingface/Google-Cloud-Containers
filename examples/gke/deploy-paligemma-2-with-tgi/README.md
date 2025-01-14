@@ -60,7 +60,7 @@ gcloud services enable containerfilesystem.googleapis.com
 
 [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224) is a gated model, as well as the [rest of the official PaliGemma 2 models](https://huggingface.co/collections/google/paligemma-2-release-67500e1e1dbfdd4dee27ba48). In order to use any of them and being able to download the weights, you first need to accept their gating / license in one of the model cards.
 
-![PaliGemma 2 Gating on the Hugging Face Hub](./imgs/model-gating.png)
+![PaliGemma 2 Gating on the Hugging Face Hub](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/examples/gke/deploy-paligemma-2-with-tgi/model-gating.png)
 
 Once you have been granted access to the PaliGemma 2 models on the Hub, you need to generate either a fine-grained or a read-access token. A fine-grained token allows you to scope permissions to the  desired models, such [`google/paligemma2-3b-pt-224`](https://huggingface.co/google/paligemma2-3b-pt-224), so you can download the weights, and is the recommended option. A read-access token would allow access to all the models your account has access to. To generate access tokens for the Hugging Face Hub you can follow the instructions at [Hugging Face Hub Documentation - User access tokens](https://huggingface.co/docs/hub/en/security-tokens).
 
@@ -105,7 +105,7 @@ gcloud container clusters create-auto $CLUSTER_NAME \
 >
 > Additionally, note that you can also use the "RAPID" channel instead of the "STABLE" if you require any Kubernetes feature not shipped yet within the latest Kubernetes version released on the "STABLE" channel, even though using the "STABLE" channel is recommended. For more information please visit the [GKE Documentation - Specifying cluster version](https://cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version).
 
-![GKE Cluster in the Google Cloud Console](./imgs/gke-cluster.png)
+![GKE Cluster in the Google Cloud Console](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/examples/gke/deploy-paligemma-2-with-tgi/gke-cluster.png)
 
 ## Get GKE Cluster Credentials
 
@@ -135,7 +135,7 @@ kubectl create secret generic hf-secret \
     --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-![GKE Secret in the Google Cloud Console](./imgs/gke-secrets.png)
+![GKE Secret in the Google Cloud Console](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/examples/gke/deploy-paligemma-2-with-tgi/gke-secrets.png)
 
 More information on how to set Kubernetes secrets in a GKE Cluster check the [GKE Documentation - Specifying cluster version](https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component).
 
@@ -255,9 +255,9 @@ kubectl apply -f ingress.yaml
 > kubectl apply -f Google-Cloud-Containers/examples/gke/deploy-paligemma-2-with-tgi/config
 > ```
 
-![GKE Deployment in the Google Cloud Console](./imgs/gke-deployment.png)
+![GKE Deployment in the Google Cloud Console](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/examples/gke/deploy-paligemma-2-with-tgi/gke-deployment.png)
 
-![GKE Deployment Logs in the Google Cloud Console](./imgs/gke-deployment-logs.png)
+![GKE Deployment Logs in the Google Cloud Console](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/examples/gke/deploy-paligemma-2-with-tgi/gke-deployment-logs.png)
 
 > [!NOTE]
 > The Kubernetes deployment may take a few minutes to be ready, so you can check the status of the pod/s being deployed on the default namespace with the following command:
