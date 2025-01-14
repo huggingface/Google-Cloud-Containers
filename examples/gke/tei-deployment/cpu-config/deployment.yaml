@@ -32,10 +32,10 @@ spec:
             - name: PORT
               value: "8080"
           volumeMounts:
-            - mountPath: /data
-              name: data
+            - mountPath: /tmp
+              name: tmp
       volumes:
-        - name: data
+        - name: tmp
           emptyDir: {}
       nodeSelector:
         cloud.google.com/compute-class: "Performance"
