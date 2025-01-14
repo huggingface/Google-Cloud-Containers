@@ -46,6 +46,7 @@ The [`examples`](./examples) directory contains examples for using the container
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
 | Vertex AI | [examples/vertex-ai/notebooks/trl-lora-sft-fine-tuning-on-vertex-ai](./examples/vertex-ai/notebooks/trl-lora-sft-fine-tuning-on-vertex-ai) | Fine-tune Gemma 2B with PyTorch Training DLC using SFT + LoRA on Vertex AI  |
 | Vertex AI | [examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai](./examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai) | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT on Vertex AI  |
+| Vertex AI | [examples/vertex-ai/pipelines/fine-tune-paligemma-2-with-pytorch](./examples/vertex-ai/pipelines/fine-tune-paligemma-2-with-pytorch)       | Fine-tune PaliGemma 2 with PyTorch Training DLC on Vertex AI                |
 | GKE       | [examples/gke/trl-full-fine-tuning](./examples/gke/trl-full-fine-tuning)                                                                   | Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE               |
 | GKE       | [examples/gke/trl-lora-fine-tuning](./examples/gke/trl-lora-fine-tuning)                                                                   | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT + LoRA on GKE |
 
@@ -65,6 +66,7 @@ The [`examples`](./examples) directory contains examples for using the container
 | GKE       | [examples/gke/tgi-llama-405b-deployment](./examples/gke/tgi-llama-405b-deployment)                                                   | Deploy Llama 3.1 405B with TGI DLC on GKE                     |
 | GKE       | [examples/gke/tgi-llama-vision-deployment](./examples/gke/tgi-llama-vision-deployment)                                               | Deploy Llama 3.2 11B Vision with TGI DLC on GKE               |
 | GKE       | [examples/gke/tgi-deployment](./examples/gke/tgi-deployment)                                                                         | Deploy Meta Llama 3 8B with TGI DLC on GKE                    |
+| GKE       | [examples/gke/deploy-paligemma-2-with-tgi](./examples/gke/deploy-paligemma-2-with-tgi)                                               | Deploy PaliGemma 2 with TGI DLC on GKE                        |
 | GKE       | [examples/gke/tgi-from-gcs-deployment](./examples/gke/tgi-from-gcs-deployment)                                                       | Deploy Qwen2 7B with TGI DLC from GCS on GKE                  |
 | GKE       | [examples/gke/tei-deployment](./examples/gke/tei-deployment)                                                                         | Deploy Snowflake's Arctic Embed with TEI DLC on GKE           |
 | Cloud Run | [examples/cloud-run/deploy-gemma-2-on-cloud-run](./examples/cloud-run/deploy-gemma-2-on-cloud-run)                                   | Deploy Gemma2 9B with TGI DLC on Cloud Run                    |

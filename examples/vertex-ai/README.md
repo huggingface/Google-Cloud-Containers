@@ -12,6 +12,7 @@ For Google Vertex AI, we differentiate between the executable Jupyter Notebook e
 | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | [notebooks/trl-lora-sft-fine-tuning-on-vertex-ai](./notebooks/trl-lora-sft-fine-tuning-on-vertex-ai) | Fine-tune Gemma 2B with PyTorch Training DLC using SFT + LoRA on Vertex AI |
 | [notebooks/trl-full-sft-fine-tuning-on-vertex-ai](./notebooks/trl-full-sft-fine-tuning-on-vertex-ai) | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT on Vertex AI |
+| [notebooks/fine-tune-paligemma-2-with-pytorch](./notebooks/fine-tune-paligemma-2-with-pytorch)       | Fine-tune PaliGemma 2 with PyTorch Training DLC on Vertex AI               |
 
 ### Inference Examples
 
