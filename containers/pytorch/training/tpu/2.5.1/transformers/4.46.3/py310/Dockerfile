@@ -31,11 +31,6 @@ RUN pip install --upgrade --no-cache-dir \
 
 # Install Optimum TPU
 RUN pip install git+https://github.com/huggingface/optimum-tpu.git@v${OPTIMUM_TPU}
-# Add examples
-ADD https://raw.githubusercontent.com/huggingface/optimum-tpu/v${OPTIMUM_TPU}/examples/language-modeling/gemma_tuning.ipynb \
-  /notebooks/gemma_tuning.ipynb
-ADD https://raw.githubusercontent.com/huggingface/optimum-tpu/v${OPTIMUM_TPU}/examples/language-modeling/llama_tuning.ipynb \
-  /notebooks/llama_tuning.ipynb
 
 # Install Google CLI single command
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
