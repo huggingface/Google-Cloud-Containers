@@ -31,4 +31,4 @@ jobs:
     with:
       group: aws-g4dn-2xlarge
       tests-path: pytorch/training
-      training-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.transformers.4-42.ubuntu2204.py310
+      training-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310
