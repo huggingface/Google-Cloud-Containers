@@ -31,7 +31,7 @@ jobs:
     with:
       group: aws-general-8-plus
       tests-path: pytorch/inference
-      inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-2.transformers.4-44.ubuntu2204.py311
+      inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-3.transformers.4-46.ubuntu2204.py311
 
   inference-on-gpu:
     name: Test Hugging Face PyTorch DLCs for Inference on GPU
@@ -39,4 +39,4 @@ jobs:
     with:
       group: aws-g4dn-2xlarge
       tests-path: pytorch/inference
-      inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-2.transformers.4-44.ubuntu2204.py311
+      inference-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-3.transformers.4-46.ubuntu2204.py311

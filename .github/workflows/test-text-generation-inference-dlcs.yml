@@ -31,4 +31,4 @@ jobs:
     with:
       group: aws-g4dn-2xlarge
       tests-path: tgi
-      tgi-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu121.2-2.ubuntu2204.py310
+      tgi-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-4.ubuntu2204.py311

@@ -31,7 +31,7 @@ jobs:
     with:
       group: aws-general-8-plus
       tests-path: tei
-      tei-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-4
+      tei-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-5
 
   tei-on-gpu:
     name: Test Hugging Face DLCs for TEI on GPU
@@ -39,4 +39,4 @@ jobs:
     with:
       group: aws-g4dn-2xlarge
       tests-path: tei
-      tei-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-4.ubuntu2204
+      tei-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-5.ubuntu2204
