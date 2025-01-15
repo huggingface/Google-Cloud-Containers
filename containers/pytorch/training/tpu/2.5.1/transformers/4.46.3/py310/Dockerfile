@@ -6,7 +6,7 @@ LABEL maintainer="Hugging Face"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Versions
-ARG OPTIMUM_TPU='0.2.2'
+ARG OPTIMUM_TPU='0.2.3'
 ARG TRANSFORMERS='4.46.3'
 ARG PEFT='0.13.2'
 ARG TRL='0.12.1'
@@ -30,10 +30,7 @@ RUN pip install --upgrade --no-cache-dir \
   jupyter notebook
 
 # Install Optimum TPU
-RUN pip install git+https://github.com/huggingface/optimum-tpu.git@v${OPTIMUM_TPU}
-# Add example
-ADD https://raw.githubusercontent.com/huggingface/optimum-tpu/v${OPTIMUM_TPU}/examples/language-modeling/gemma_tuning.ipynb \
-  /notebooks/gemma_tuning.ipynb
+RUN pip install --upgrade --no-cache-dir optimum-tpu==${OPTIMUM_TPU}
 
 # Install Google CLI single command
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
