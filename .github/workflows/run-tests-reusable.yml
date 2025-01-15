@@ -45,12 +45,12 @@ jobs:
       - name: Set up uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          export PATH=$HOME/.cargo/bin:$PATH
+          export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
           uv --version
 
       - name: Install dependencies
         run: |
-          uv venv --python 3.10
+          uv venv --python 3.11
           uv pip install -r tests/requirements.txt
 
       - name: Run Hugging Face DLC Tests
