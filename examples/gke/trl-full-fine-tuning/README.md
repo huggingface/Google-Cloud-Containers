@@ -1,6 +1,13 @@
-# Fine-tune Gemma 2B with TRL on GKE
+---
+title: Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE
+type: training
+---
 
-Gemma is a family of lightweight, state-of-the-art open models built from the same research and technology used to create the Gemini models, developed by Google DeepMind and other teams across Google. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to full fine-tune Gemma 2B with TRL via Supervised Fine-Tuning (SFT) in a multi-GPU setting on a GKE Cluster.
+# Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE
+
+Gemma is a family of lightweight, state-of-the-art open models built from the same research and technology used to create the Gemini models, developed by Google DeepMind and other teams across Google. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
+
+This example showcases how to full fine-tune Gemma 2B with TRL via Supervised Fine-Tuning (SFT) in a multi-GPU setting on a GKE Cluster.
 
 ## Setup / Configuration
 
@@ -56,7 +63,8 @@ gcloud container clusters create-auto $CLUSTER_NAME \
     --project=$PROJECT_ID \
     --location=$LOCATION \
     --release-channel=stable \
-    --cluster-version=1.28
+    --cluster-version=1.28 \
+    --no-autoprovisioning-enable-insecure-kubelet-readonly-port
 ```
 
 > [!NOTE]
@@ -155,10 +163,15 @@ Alternatively, if your model is uploaded to the Hugging Face Hub, you can check 
 
 ## Run Job
 
-Now you can already run the Kubernetes job in the Hugging Face PyTorch DLC for training on the GKE Cluster via `kubectl` from the `job.yaml` configuration file, that contains the job specification for running the command `trl sft` provided by the TRL CLI for the SFT full fine-tuning of [`google/gemma-2b`](https://huggingface.co/google/gemma-2b) in `bfloat16` using [`timdettmers/openassistant-guanaco`](https://huggingface.co/datasets/timdettmers/openassistant-guanaco), which is a subset from [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) with ~10k samples in 4 x A100 40GiB GPUs, storing the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
+Now you can already run the Kubernetes job in the Hugging Face PyTorch DLC for training on the GKE Cluster via `kubectl` from the [`job.yaml`](./job.yaml) configuration file, that contains the job specification for running the command `trl sft` provided by the TRL CLI for the SFT full fine-tuning of [`google/gemma-2b`](https://huggingface.co/google/gemma-2b) in `bfloat16` using [`timdettmers/openassistant-guanaco`](https://huggingface.co/datasets/timdettmers/openassistant-guanaco), which is a subset from [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) with ~10k samples in 4 x A100 40GiB GPUs, storing the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
 
 ```bash
-kubectl apply -f job.yaml
+
+```
+
+```bash
+git clone https://github.com/huggingface/Google-Cloud-Containers
+kubectl apply -f Google-Cloud-Containers/examples/gke/trl-full-fine-tuning/job.yaml
 ```
 
 ![GKE Job Created in the GCP Console](./imgs/gke-job-created.png)
@@ -166,7 +179,7 @@ kubectl apply -f job.yaml
 ![GKE Job Running in the GCP Console](./imgs/gke-job-running.png)
 
 > [!NOTE]
-> In this case, since you are running a batch job, it will only use one node as specified within the `job.yaml` file, since you don't need anything else than that. So on, the job will deploy one pod running the `trl sft` command on top of the Hugging Face PyTorch DLC container for training, and also the GCS FUSE container that is mounting the GCS Bucket into the `/data` path so as to store the generated artifacts in GCS. Once the job is completed, it will automatically scale back to 0, meaning that it will not consume resources.
+> In this case, since you are running a batch job, it will only use one node as specified within the [`job.yaml`](./job.yaml) file, since you don't need anything else than that. So on, the job will deploy one pod running the `trl sft` command on top of the Hugging Face PyTorch DLC container for training, and also the GCS FUSE container that is mounting the GCS Bucket into the `/data` path so as to store the generated artifacts in GCS. Once the job is completed, it will automatically scale back to 0, meaning that it will not consume resources.
 
 Additionally, you can use `kubectl` to stream the logs of the job as it follows:
 

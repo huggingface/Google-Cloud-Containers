@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tgi-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tgi-server
+  template:
+    metadata:
+      labels:
+        app: tgi-server
+        hf.co/model: meta-llama--Llama-3.2-11B-Vision-Instruct
+        hf.co/task: text-generation
+    spec:
+      containers:
+        - name: tgi-container
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311
+          resources:
+            requests:
+              nvidia.com/gpu: 2
+          env:
+            - name: MODEL_ID
+              value: meta-llama/Llama-3.2-11B-Vision-Instruct
+            - name: NUM_SHARD
+              value: "2"
+            - name: PORT
+              value: "8080"
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /tmp
+              name: tmp
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+        - name: tmp
+          emptyDir: {}
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4

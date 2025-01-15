@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tgi-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tgi-server
+  template:
+    metadata:
+      labels:
+        app: tgi-server
+        hf.co/model: google--gemma-2-2b-it
+        hf.co/task: text-generation
+    spec:
+      containers:
+        - name: tgi-container
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-3.ubuntu2204.py311
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+          env:
+            - name: MODEL_ID
+              value: google/gemma-2-2b-it
+            - name: LORA_ADAPTERS
+              value: google-cloud-partnership/gemma-2-2b-it-lora-magicoder,google-cloud-partnership/gemma-2-2b-it-lora-sql,google-cloud-partnership/gemma-2-2b-it-lora-jap-en
+            - name: NUM_SHARD
+              value: "1"
+            - name: PORT
+              value: "8080"
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_token
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /tmp
+              name: tmp
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+        - name: tmp
+          emptyDir: {}
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4

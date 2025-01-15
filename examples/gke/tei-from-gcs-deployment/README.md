@@ -1,6 +1,13 @@
-# Deploy BGE Base v1.5 (English) with Text Embeddings Inference (TEI) from a GCS Bucket on GKE
+---
+title: Deploy BGE Base v1.5 with TEI DLC from GCS on GKE
+type: inference
+---
 
-BGE, standing for BAAI General Embedding, is a collection of embedding models released by BAAI, which is an English base model for general embedding tasks ranked in the MTEB Leaderboard. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy a text embedding model from a Google Cloud Storage (GCS) Bucket on a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
+# Deploy BGE Base v1.5 with TEI DLC from GCS on GKE
+
+BGE, standing for BAAI General Embedding, is a collection of embedding models released by BAAI, which is an English base model for general embedding tasks ranked in the MTEB Leaderboard. Text Embeddings Inference (TEI) is a toolkit developed by Hugging Face for deploying and serving open source text embeddings and sequence classification models; enabling high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
+
+This example showcases how to deploy a text embedding model from a Google Cloud Storage (GCS) Bucket on a GKE Cluster running a purpose-built container to deploy text embedding models in a secure and managed environment with the Hugging Face DLC for TEI.
 
 ## Setup / Configuration
 
@@ -48,7 +55,7 @@ gcloud components install gke-gcloud-auth-plugin
 Once everything is set up, you can proceed with the creation of the GKE Cluster and the node pool, which in this case will be a single CPU node as for most of the workloads CPU inference is enough to serve most of the text embeddings models, while it could benefit a lot from GPU serving.
 
 > [!NOTE]
-> CPU is being used to run the inference on top of the text embeddings models to showcase the current capabilities of TEI, but switching to GPU is as easy as replacing `spec.containers[0].image` with `us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-2.ubuntu2204`, and then updating the requested resources, as well as the `nodeSelector` requirements in the `deployment.yaml` file. For more information, please refer to the [`gpu-config`](./gpu-config/) directory that contains a pre-defined configuration for GPU serving in TEI with an NVIDIA Tesla T4 GPU (with a compute capability of 7.5 i.e. natively supported in TEI).
+> CPU is being used to run the inference on top of the text embeddings models to showcase the current capabilities of TEI, but switching to GPU is as easy as replacing `spec.containers[0].image` with `us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-4.ubuntu2204`, and then updating the requested resources, as well as the `nodeSelector` requirements in the `deployment.yaml` file. For more information, please refer to the [`gpu-config`](./gpu-config/) directory that contains a pre-defined configuration for GPU serving in TEI with an NVIDIA Tesla T4 GPU (with a compute capability of 7.5 i.e. natively supported in TEI).
 
 To deploy the GKE Cluster, the "Autopilot" mode will be used as it is the recommended one for most of the workloads, since the underlying infrastructure is managed by Google. Alternatively, you can also use the "Standard" mode.
 
@@ -60,7 +67,8 @@ gcloud container clusters create-auto $CLUSTER_NAME \
     --project=$PROJECT_ID \
     --location=$LOCATION \
     --release-channel=stable \
-    --cluster-version=1.28
+    --cluster-version=1.28 \
+    --no-autoprovisioning-enable-insecure-kubelet-readonly-port
 ```
 
 > [!NOTE]
@@ -88,7 +96,7 @@ gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
 
 This is an optional step in the tutorial, since you may want to reuse an existing model on a GCS Bucket, if that is the case, then feel free to jump to the next step of the tutorial on how to configure the IAM for GCS so that you can access the bucket from a pod in the GKE Cluster.
 
-Otherwise, to upload a model from the Hugging Face Hub to a GCS Bucket, you can use the script [./scripts/upload_model_to_gcs.sh](./scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS Bucket (and create the bucket if not created already).
+Otherwise, to upload a model from the Hugging Face Hub to a GCS Bucket, you can use the script [scripts/upload_model_to_gcs.sh](../../../scripts/upload_model_to_gcs.sh), which will download the model from the Hugging Face Hub and upload it to the GCS Bucket (and create the bucket if not created already).
 
 The `gsutil` component should be installed via `gcloud`, and the Python packages `huggingface_hub` with the extra `hf_transfer`, and the package `crcmod` should also be installed.
 
@@ -142,19 +150,20 @@ Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TEI
 > [!NOTE]
 > Recently, the Hugging Face Hub team has included the `text-embeddings-inference` tag in the Hub, so feel free to explore all the embedding models in the Hub that can be served via TEI at <https://huggingface.co/models?other=text-embeddings-inference>.
 
-The Hugging Face DLC for TEI will be deployed via `kubectl`, from the configuration files in either the `cpu-config/` or the `gpu-config/` directories depending on whether you want to use the CPU or GPU accelerators, respectively:
+The Hugging Face DLC for TEI will be deployed via `kubectl`, from the configuration files in either the [`cpu-config/`](./cpu-config/) or the [`gpu-config/`](./gpu-config/) directories depending on whether you want to use the CPU or GPU accelerators, respectively:
 
-- `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TEI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/bge-base-en-v1.5`.
-- `service.yaml`: contains the service details of the pod, exposing the port 80 for the TEI service.
-- `storageclass.yaml`: contains the storage class details of the pod, defining the storage class for the volume mount.
-- (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+- [`deployment.yaml`](./cpu-config/deployment.yaml): contains the deployment details of the pod including the reference to the Hugging Face DLC for TEI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/bge-base-en-v1.5`.
+- [`service.yaml`](./cpu-config/service.yaml): contains the service details of the pod, exposing the port 8080 for the TEI service.
+- [`storageclass.yaml`](./cpu-config): contains the storage class details of the pod, defining the storage class for the volume mount.
+- (optional) [`ingress.yaml`](./cpu-config/ingress.yaml): contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
-kubectl apply -f cpu-config/
+git clone https://github.com/huggingface/Google-Cloud-Containers
+kubectl apply -f Google-Cloud-Containers/examples/gke/tei-from-gcs-deployment/cpu-config
 ```
 
 > [!NOTE]
-> As already mentioned, for this example you will be deploying the container in a CPU node, but the configuration to deploy TEI in a GPU node is also available in the [`gpu-config`](./gpu-config/) directory, so if you want to deploy TEI in a GPU node, please run `kubectl apply -f gpu-config/` instead of `kubectl apply -f cpu-config/`.
+> As already mentioned, for this example you will be deploying the container in a CPU node, but the configuration to deploy TEI in a GPU node is also available in the [`gpu-config`](./gpu-config/) directory, so if you want to deploy TEI in a GPU node, please run `kubectl apply -f Google-Cloud-Containers/examples/gke/tei-from-gcs-deployment/gpu-config` instead of `kubectl apply -f Google-Cloud-Containers/examples/gke/tei-from-gcs-deployment/cpu-config`.
 
 ![GKE Deployment in the GCP Console](./imgs/gke-deployment.png)
 

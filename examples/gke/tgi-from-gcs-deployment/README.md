@@ -1,6 +1,13 @@
-# Deploy Qwen2 7B Instruct with Text Generation Inference (TGI) from a GCS Bucket on GKE
+---
+title: Deploy Qwen2 7B with TGI DLC from GCS on GKE
+type: inference
+---
 
-Qwen2 is the new series of Qwen Large Language Models (LLMs) built by Alibaba Cloud, with both base and instruction-tuned language models ranging from 0.5 to 72 billion parameters, including a Mixture-of-Experts model; the 7B variant sitting in the second place in the 7B size range in the Open LLM Leaderboard by Hugging Face and the 72B one in the first place amongst any size. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy an LLM from a Google Cloud Storage (GCS) Bucket on a GKE Cluster running a purpose-built container to deploy LLMs in a secure and managed environment with the Hugging Face DLC for TGI.
+# Deploy Qwen2 7B with TGI DLC from GCS on GKE
+
+Qwen2 is the new series of Qwen Large Language Models (LLMs) built by Alibaba Cloud, with both base and instruction-tuned language models ranging from 0.5 to 72 billion parameters, including a Mixture-of-Experts model; the 7B variant sitting in the second place in the 7B size range in the Open LLM Leaderboard by Hugging Face and the 72B one in the first place amongst any size. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
+
+This example showcases how to deploy an LLM from a Google Cloud Storage (GCS) Bucket on a GKE Cluster running a purpose-built container to deploy LLMs in a secure and managed environment with the Hugging Face DLC for TGI.
 
 ## Setup / Configuration
 
@@ -57,7 +64,8 @@ gcloud container clusters create-auto $CLUSTER_NAME \
     --project=$PROJECT_ID \
     --location=$LOCATION \
     --release-channel=stable \
-    --cluster-version=1.28
+    --cluster-version=1.28 \
+    --no-autoprovisioning-enable-insecure-kubelet-readonly-port
 ```
 
 > [!NOTE]
@@ -139,15 +147,16 @@ Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TGI
 > [!NOTE]
 > To explore all the models that can be served via TGI, you can explore the models tagged with `text-generation-inference` in the Hub at <https://huggingface.co/models?other=text-generation-inference>.
 
-The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the `config/` directory:
+The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the [`config/`](./config/) directory:
 
-- `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/Qwen2-7B-Instruct`.
-- `service.yaml`: contains the service details of the pod, exposing the port 80 for the TEI service.
-- `storageclass.yaml`: contains the storage class details of the pod, defining the storage class for the volume mount.
-- (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+- [`deployment.yaml`](./config/deployment.yaml): contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to the model path in the volume mount, in this case `/data/Qwen2-7B-Instruct`.
+- [`service.yaml`](./config/service.yaml): contains the service details of the pod, exposing the port 8080 for the TGI service.
+- [`storageclass.yaml`](./config/storageclass.yaml): contains the storage class details of the pod, defining the storage class for the volume mount.
+- (optional) [`ingress.yaml`](./config/ingress.yaml): contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
-kubectl apply -f config/
+git clone https://github.com/huggingface/Google-Cloud-Containers
+kubectl apply -f Google-Cloud-Containers/examples/gke/tgi-from-gcs-deployment/config
 ```
 
 ![GKE Deployment in the GCP Console](./imgs/gke-deployment.png)

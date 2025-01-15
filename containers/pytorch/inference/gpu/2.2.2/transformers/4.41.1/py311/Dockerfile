@@ -31,10 +31,16 @@ RUN apt-get update && \
     && apt-get clean autoremove --yes \
     && rm -rf /var/lib/{apt,dpkg,cache,log}
 
-# Hugging Face Inference Toolkit
-ARG HF_INFERENCE_TOOLKIT_VERSION=0.4.2
+# Prevent `huggingface_hub>0.26.0` from being installed later on
+RUN pip install "huggingface_hub[hf_transfer]<0.26.0"
+
+# Hugging Face Inference Toolkit (version 0.4.1 + path fix)
+ARG HF_INFERENCE_TOOLKIT_VERSION=58b760fe3ec4cbddf064ac62c7a3f745af136d5f
 ARG HF_INFERENCE_TOOLKIT_URL=git+https://github.com/huggingface/huggingface-inference-toolkit.git@${HF_INFERENCE_TOOLKIT_VERSION}
-RUN pip install "${HF_INFERENCE_TOOLKIT_URL}#egg=huggingface-inference-toolkit[torch,diffusers,st,google]"
+RUN pip install "${HF_INFERENCE_TOOLKIT_URL}#egg=huggingface-inference-toolkit[torch,diffusers,st]"
+
+# Install google-cloud-storage required to download artifacts from Google Cloud Storage buckets
+RUN pip install --upgrade google-cloud-storage
 
 # copy entrypoint and change permissions
 COPY --chmod=0755 containers/pytorch/inference/gpu/2.2.2/transformers/4.41.1/py311/entrypoint.sh entrypoint.sh

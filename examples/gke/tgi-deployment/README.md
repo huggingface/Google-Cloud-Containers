@@ -1,6 +1,13 @@
-# Deploy Meta Llama 3 8B with Text Generation Inference (TGI) on GKE
+---
+title: Deploy Meta Llama 3 8B with TGI DLC on GKE
+type: inference
+---
 
-Meta Llama 3 is the latest LLM from the Llama family, released by Meta; coming in two sizes 8B and 70B, including both the base model and the instruction-tuned model. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure. This post explains how to deploy an LLM from the Hugging Face Hub, as Llama3 8B Instruct, on a GKE Cluster running a purpose-built container to deploy LLMs in a secure and managed environment with the Hugging Face DLC for TGI.
+# Deploy Meta Llama 3 8B with TGI DLC on GKE
+
+Meta Llama 3 is the latest LLM from the Llama family, released by Meta; coming in two sizes 8B and 70B, including both the base model and the instruction-tuned model. Text Generation Inference (TGI) is a toolkit developed by Hugging Face for deploying and serving LLMs, with high performance text generation. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
+
+This example showcases how to deploy an LLM from the Hugging Face Hub, as Meta Llama 3 8B Instruct, on a GKE Cluster running a purpose-built container to deploy LLMs in a secure and managed environment with the Hugging Face DLC for TGI.
 
 ## Setup / Configuration
 
@@ -56,7 +63,8 @@ gcloud container clusters create-auto $CLUSTER_NAME \
     --project=$PROJECT_ID \
     --location=$LOCATION \
     --release-channel=stable \
-    --cluster-version=1.28
+    --cluster-version=1.28 \
+    --no-autoprovisioning-enable-insecure-kubelet-readonly-port
 ```
 
 > [!NOTE]
@@ -123,15 +131,15 @@ Now you can proceed to the Kubernetes deployment of the Hugging Face DLC for TGI
 > [!NOTE]
 > To explore all the models that can be served via TGI, you can explore the models tagged with `text-generation-inference` in the Hub at <https://huggingface.co/models?other=text-generation-inference>.
 
-The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the `config/` directory:
+The Hugging Face DLC for TGI will be deployed via `kubectl`, from the configuration files in the [`config/`](./config/) directory:
 
-- `deployment.yaml`: contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to [`meta-llama/Meta-Llama-3.1-8B-Instruct`](https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct).
-
-- `service.yaml`: contains the service details of the pod, exposing the port 80 for the TGI service.
-- (optional) `ingress.yaml`: contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
+- [`deployment.yaml`](./config/deployment.yaml): contains the deployment details of the pod including the reference to the Hugging Face DLC for TGI setting the `MODEL_ID` to [`meta-llama/Meta-Llama-3.1-8B-Instruct`](https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct).
+- [`service.yaml`](./config/service.yaml): contains the service details of the pod, exposing the port 8080 for the TGI service.
+- (optional) [`ingress.yaml`](./config/ingress.yaml): contains the ingress details of the pod, exposing the service to the external world so that it can be accessed via the ingress IP.
 
 ```bash
-kubectl apply -f config/
+git clone https://github.com/huggingface/Google-Cloud-Containers
+kubectl apply -f Google-Cloud-Containers/examples/gke/tgi-deployment/config
 ```
 
 ![GKE Deployment in the GCP Console](./imgs/gke-deployment.png)
@@ -146,7 +154,7 @@ kubectl apply -f config/
 > Alternatively, you can just wait for the deployment to be ready with the following command:
 >
 > ```bash
-> kubectl wait --for=condition=Available --timeout=700s deployment/tei-deployment
+> kubectl wait --for=condition=Available --timeout=700s deployment/tgi-deployment
 > ```
 
 ## Inference with TGI

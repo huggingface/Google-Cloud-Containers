@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: tei-container
-          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-2.ubuntu2204:latest
+          image: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-4.ubuntu2204:latest
           resources:
             requests:
               nvidia.com/gpu: 1
@@ -30,14 +30,14 @@ spec:
           volumeMounts:
             - mountPath: /dev/shm
               name: dshm
-            - mountPath: /data
-              name: data
+            - mountPath: /tmp
+              name: tmp
       volumes:
         - name: dshm
           emptyDir:
             medium: Memory
             sizeLimit: 1Gi
-        - name: data
+        - name: tmp
           emptyDir: {}
       nodeSelector:
         cloud.google.com/gke-accelerator: nvidia-tesla-t4

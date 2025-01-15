@@ -242,7 +242,10 @@ COPY --from=tgi /tgi/server/Makefile server/Makefile
 RUN cd server && \
     make gen-server && \
     pip install -r requirements_cuda.txt && \
-    pip install ".[bnb, accelerate, quantize, peft, outlines]" --no-cache-dir
+    pip install poetry && \
+    poetry export -f requirements.txt --extras "bnb accelerate quantize peft outlines" --output requirements_poetry.txt && \
+    pip install -r requirements_poetry.txt && \
+    pip install .
 
 # Deps before the binaries
 # The binaries change on every build given we burn the SHA into them
