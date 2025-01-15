@@ -30,7 +30,7 @@ RUN pip install --upgrade --no-cache-dir \
   jupyter notebook
 
 # Install Optimum TPU
-RUN pip install git+https://github.com/huggingface/optimum-tpu.git@v${OPTIMUM_TPU}
+RUN pip install --upgrade --no-cache-dir optimum-tpu==${OPTIMUM_TPU}
 
 # Install Google CLI single command
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
