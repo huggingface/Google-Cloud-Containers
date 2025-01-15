@@ -3,6 +3,8 @@
       title: Hugging Face on Google Cloud
     - local: features
       title: Features & benefits
+    - local: tpu
+      title: Using TPUs on Google Cloud
     - local: resources
       title: Other Resources
   title: Getting Started

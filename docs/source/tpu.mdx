@@ -1,0 +1,3 @@
+# Using TPUs on Google Cloud
+
+To learn how to use Google Cloud TPUs with Hugging Face libraries, check out [optimum-tpu](https://huggingface.co/docs/optimum-tpu), our dedicated library for TPU support.
