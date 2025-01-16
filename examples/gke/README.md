@@ -13,6 +13,7 @@ This directory contains usage examples of the Hugging Face Deep Learning Contain
 
 | Example                                                      | Title                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------- |
+| [deploy-paligemma-2-with-tgi](./deploy-paligemma-2-with-tgi) | Deploy PaliGemma 2 with TGI DLC on GKE                        |
 | [tei-deployment](./tei-deployment)                           | Deploy Snowflake's Arctic Embed with TEI DLC on GKE           |
 | [tei-from-gcs-deployment](./tei-from-gcs-deployment)         | Deploy BGE Base v1.5 with TEI DLC from GCS on GKE             |
 | [tgi-deployment](./tgi-deployment)                           | Deploy Meta Llama 3 8B with TGI DLC on GKE                    |
