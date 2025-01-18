@@ -36,7 +36,7 @@ if [[ "${AIP_STORAGE_URI:-}" == gs://* ]]; then
     TARGET_DIR="/opt/huggingface/model"
     mkdir -p "$TARGET_DIR"
 
-    # Check if gsutil is available
+    # Check if `gsutil` is available
     if ! command -v gsutil &> /dev/null; then
         echo "ERROR: gsutil command not found. Please install Google Cloud SDK." >&2
         exit 1
