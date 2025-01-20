@@ -46,6 +46,10 @@ RUN pip install --upgrade "huggingface-inference-toolkit[torch,diffusers,st,goog
 
 ENV HF_HUB_ENABLE_HF_TRANSFER="1"
 
+# Install Flash Attention 2
+RUN pip install --no-cache-dir packaging ninja
+RUN MAX_JOBS=4 pip install --no-build-isolation "flash-attn==2.6.3"
+
 # Install Google CLI single command
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
     | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
