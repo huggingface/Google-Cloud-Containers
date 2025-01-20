@@ -1,13 +1,15 @@
 #!/bin/bash
 
-set -euo pipefail
+set -eo pipefail
 
 # Define the default port
-readonly PORT=5000
+readonly DEFAULT_PORT=5000
 
 # Check if `AIP_MODE` is set and adjust the port for Vertex AI
 if [[ ! -z "${AIP_MODE}" ]]; then
-    PORT="${AIP_HTTP_PORT:-$PORT}"
+    PORT="${AIP_HTTP_PORT:-$DEFAULT_PORT}"
+else
+    PORT="$DEFAULT_PORT"
 fi
 
 # Just one of `HF_MODEL_ID`, `HF_MODEL_DIR` and `AIP_STORAGE_URI` can be provided
