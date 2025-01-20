@@ -12,12 +12,10 @@ else
     PORT="$DEFAULT_PORT"
 fi
 
-# Just one of `HF_MODEL_ID`, `HF_MODEL_DIR` and `AIP_STORAGE_URI` can be provided
-if [[ $(( ${#HF_MODEL_ID:+1} + ${#HF_MODEL_DIR:+1} + ${#AIP_STORAGE_URI:+1} )) -gt 1 ]]; then
-    echo "ERROR: Only one of HF_MODEL_ID, HF_MODEL_DIR, or AIP_STORAGE_URI should be provided." >&2
-    exit 1
-elif [[ $(( ${#HF_MODEL_ID:+1} + ${#HF_MODEL_DIR:+1} + ${#AIP_STORAGE_URI:+1} )) -eq 0 ]]; then
-    echo "ERROR: At least one of HF_MODEL_ID, HF_MODEL_DIR, or AIP_STORAGE_URI must be provided." >&2
+# Check if exactly one of HF_MODEL_ID, HF_MODEL_DIR, or AIP_STORAGE_URI is set, by
+# concatenating thosa and counting non-empty ones using pattern substitution
+if [[ $(printf "%s\n" "${HF_MODEL_ID:+x}" "${HF_MODEL_DIR:+x}" "${AIP_STORAGE_URI:+x}" | grep -c .) -ne 1 ]]; then
+    echo "ERROR: Exactly one of HF_MODEL_ID, HF_MODEL_DIR, or AIP_STORAGE_URI must be provided."
     exit 1
 fi
 
@@ -57,8 +55,13 @@ if [[ "${AIP_STORAGE_URI:-}" == gs://* ]]; then
     AIP_STORAGE_URI=""
 fi
 
-# If `HF_MODEL_DIR` is set and valid, then install the `requirements.txt` file (if available)
+# If `HF_MODEL_DIR` is set is a valid directory
 if [[ -n "${HF_MODEL_DIR:-}" ]]; then
+    if [[ ! -d "${HF_MODEL_DIR}" ]]; then
+        echo "ERROR: Provided HF_MODEL_DIR is not a valid directory" >&2
+        exit 1
+    fi
+
     # Check if `requirements.txt` exists and if so install dependencies
     if [[ -f "${HF_MODEL_DIR}/requirements.txt" ]]; then
         echo "INFO: Installing custom dependencies from ${HF_MODEL_DIR}/requirements.txt"
@@ -70,9 +73,6 @@ if [[ -n "${HF_MODEL_DIR:-}" ]]; then
             echo "WARNING: If you intend to run custom code, make sure to include handler.py."
         fi
     fi
-else
-    echo "ERROR: Provided HF_MODEL_DIR is not a valid directory" >&2
-    exit 1
 fi
 
 # Start the server
