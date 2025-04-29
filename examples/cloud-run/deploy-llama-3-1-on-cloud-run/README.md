@@ -10,7 +10,7 @@ Llama 3.1 is the latest open LLM from Meta, released in July 2024. Llama 3.1 com
 This example showcases how to deploy an LLM from the Hugging Face Hub, in this case Llama 3.1 8B Instruct model quantized to INT4 using AWQ, with the Hugging Face DLC for TGI on Google Cloud Run with GPU support ([in preview](https://cloud.google.com/products#product-launch-stages)).
 
 > [!NOTE]
-> GPU support on Cloud Run is only available as a waitlisted public preview. If you're interested in trying out the feature, [request a quota increase](https://cloud.google.com/run/quotas#increase) for `Total Nvidia L4 GPU allocation, per project per region`. At the time of writing this example, NVIDIA L4 GPUs (24GiB VRAM) are the only available GPUs on Cloud Run; enabling automatic scaling up to 7 instances by default (more available via quota), as well as scaling down to zero instances when there are no requests.
+> To access GPU on Cloud Run, [request a quota increase](https://cloud.google.com/run/quotas#increase) for `Total Nvidia L4 GPU allocation, per project per region`. At the time of writing this example, NVIDIA L4 GPUs (24GiB VRAM) are the only available GPUs on Cloud Run; enabling automatic scaling up to 7 instances by default (more available via quota), as well as scaling down to zero instances when there are no requests.
 
 ## Setup / Configuration
 
