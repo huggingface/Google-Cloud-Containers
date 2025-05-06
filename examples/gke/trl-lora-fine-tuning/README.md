@@ -1,13 +1,13 @@
 ---
-title: Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT + LoRA on GKE
+title: Fine-tune Gemma2 2B with PyTorch Training DLC using SFT + LoRA on GKE
 type: training
 ---
 
-# Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT + LoRA on GKE
+# Fine-tune Gemma2 2B with PyTorch Training DLC using SFT + LoRA on GKE
 
-Mistral is a family of models with varying sizes, created by the Mistral AI team; the Mistral 7B v0.3 LLM is a Mistral 7B v0.2 with extended vocabulary. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
+Gemma 2 is an advanced, lightweight open model that enhances performance and efficiency while building on the research and technology of its predecessor and the Gemini models developed by Google DeepMind and other teams across Google. TRL is a full stack library to fine-tune and align Large Language Models (LLMs) developed by Hugging Face. And, Google Kubernetes Engine (GKE) is a fully-managed Kubernetes service in Google Cloud that can be used to deploy and operate containerized applications at scale using GCP's infrastructure.
 
-This example showcases how to fine-tune Mistral 7B v0.3 with TRL via Supervised Fine-Tuning (SFT) and Low-Rank Adaptation (LoRA) in a single GPU on a GKE Cluster.
+This example showcases how to fine-tune Google Gemma2 2B with TRL via Supervised Fine-Tuning (SFT) and Low-Rank Adaptation (LoRA) in a single GPU on a GKE Cluster.
 
 ## Setup / Configuration
 
@@ -22,6 +22,7 @@ Optionally, to ease the usage of the commands within this tutorial, you need to 
 export PROJECT_ID=your-project-id
 export LOCATION=your-location
 export CLUSTER_NAME=your-cluster-name
+export BUCKET_NAME=your-bucket-name
 ```
 
 Then you need to login into your GCP account and set the project ID to the one you want to use for the deployment of the GKE Cluster.
@@ -88,6 +89,20 @@ Once the GKE Cluster is created, you can get the credentials to access it via `k
 gcloud container clusters get-credentials $CLUSTER_NAME --location=$LOCATION
 ```
 
+## Optional: Create bucket and upload model from Hub in GCS
+
+> Unless you already have a GCS Bucket, please follow the instructions below in order to create a new bucket where the generated fine-tuning artifacts will be uploaded to.
+
+To create the bucket on Google Cloud Storage (GCS), you first need to ensure that the name is unique for the new bucket or if a bucket with the same name already exists.
+
+```bash
+gcloud components install gsutil
+
+if [ -z \"$(gsutil ls | grep gs://$BUCKET_NAME)\" ]; then
+    gcloud storage buckets create gs://$BUCKET_NAME --project=$PROJECT_ID --location=$LOCATION --default-storage-class=STANDARD --uniform-bucket-level-access
+fi
+```
+
 ## Configure IAM for GCS
 
 Before you run the fine-tuning job of the Hugging Face PyTorch DLC for training on the GKE Cluster, you need to set the IAM permissions for the GCS bucket so that the pod in the GKE Cluster can access the bucket, that will be mounted into the running container and use to write the generated artifacts so that those are automatically uploaded to the GCS Bucket. To do so, you need to create a namespace and a service account in the GKE Cluster, and then set the IAM permissions for the GCS Bucket.
@@ -117,7 +132,7 @@ gcloud storage buckets add-iam-policy-binding \
 
 ## Optional: Set Secrets in GKE
 
-As [`mistralai/Mistral-7B-v0.3`](https://huggingface.co/mistralai/Mistral-7B-v0.3) is a gated model, you need to set a Kubernetes secret with the Hugging Face Hub token via `kubectl`.
+As [`google/gemma-2-2b-it`](https://huggingface.co/google/gemma-2-2b-it) is a gated model, you need to set a Kubernetes secret with the Hugging Face Hub token via `kubectl`.
 
 To generate a custom token for the Hugging Face Hub, you can follow the instructions at <https://huggingface.co/docs/hub/en/security-tokens>; and the recommended way of setting it is to install the `huggingface_hub` Python SDK as follows:
 
@@ -151,22 +166,12 @@ kubectl create secret generic hf-secret \
 
 More information on how to set Kubernetes secrets in a GKE Cluster at <https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component>.
 
-## Define Job Configuration
-
-Before proceeding into the Kubernetes deployment of the batch job via the Hugging Face PyTorch DLC for training, you need to define first the configuration required for the job to run successfully i.e. which GPU is capable of fine-tuning [`mistralai/Mistral-7B-v0.3`](https://huggingface.co/mistralai/Mistral-7B-v0.3) in `bfloat16` using LoRA.
-
-As a rough calculation, you could assume that the amount of GPU VRAM required to fine-tune a model in half precision is about four times the model size (read more about it in [Eleuther AI - Transformer Math 101](https://blog.eleuther.ai/transformer-math/)).
-
-Alternatively, if your model is uploaded to the Hugging Face Hub, you can check the numbers in the community space [`Vokturz/can-it-run-llm`](https://huggingface.co/spaces/Vokturz/can-it-run-llm), which does those calculations for you, based the model to fine-tune and the available hardware.
-
-![`Vokturz/can-it-run-llm` for `mistralai/Mistral-7B-v0.3`](./imgs/can-it-run-llm.png)
-
 ## Run Job
 
-Now you can already run the Kubernetes job in the Hugging Face PyTorch DLC for training on the GKE Cluster via `kubectl` from the [`job.yaml`](./job.yaml) configuration file, that contains the job specification for running the command `trl sft` provided by the TRL CLI for the SFT LoRA fine-tuning of [`mistralai/Mistral-7B-v0.3`](https://huggingface.co/mistralai/Mistral-7B-v0.3) in `bfloat16` using [`timdettmers/openassistant-guanaco`](https://huggingface.co/datasets/timdettmers/openassistant-guanaco), which is a subset from [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) with ~10k samples in a single L4 24GiB GPU, storing the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
+Now you can already run the Kubernetes job in the Hugging Face PyTorch DLC for training on the GKE Cluster via `kubectl` from the [`job.yaml`](./job.yaml) configuration file, that contains the job specification for running the command `trl sft` provided by the TRL CLI for the SFT LoRA fine-tuning of [`google/gemma-2-2b-it`](https://huggingface.co/google/gemma-2-2b-it) in `bfloat16` using [`google-cloud-partnership/Magicoder-Gemma2`](https://huggingface.co/datasets/google-cloud-partnership/Magicoder-Gemma2), which is a dataset formatted using the Gemma2 chat formatting, originally coming from [`ise-uiuc/Magicoder-OSS-Instruct-75K`](https://huggingface.co/datasets/ise-uiuc/Magicoder-OSS-Instruct-75K) with ~10k samples in a single L4 24GiB GPU, storing the generated artifacts into a volume mount under `/data` linked to a GCS Bucket.
 
 ```bash
-git clone https://github.com/huggingface/Google-Cloud-Containers
+git clone https://github.com/huggingface/Google-Cloud-Containers@gke-lora-ft-gemma
 kubectl apply -f Google-Cloud-Containers/examples/gke/trl-lora-fine-tuning/job.yaml
 ```
 
