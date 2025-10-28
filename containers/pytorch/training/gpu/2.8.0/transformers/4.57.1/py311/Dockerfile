@@ -43,6 +43,9 @@ RUN mkdir -p /home/huggingface && \
     useradd -d /home/huggingface -s /bin/bash huggingface && \
     chown -R huggingface:huggingface /home/huggingface
 
+RUN mkdir -p /home/huggingface/.triton/autotune && \
+    chown -R huggingface:huggingface /home/huggingface/.triton
+
 ENV HOME=/home/huggingface
 USER huggingface
 WORKDIR /home/huggingface
