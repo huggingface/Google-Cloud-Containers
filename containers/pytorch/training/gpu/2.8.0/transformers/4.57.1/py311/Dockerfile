@@ -87,7 +87,7 @@ RUN uv pip install --no-cache-dir \
     "accelerate==${ACCELERATE}" \
     "evaluate==${EVALUATE}" \
     "peft==${PEFT}" \
-    "trl==${TRL}" \
+    "trl[liger,peft,vlm]==${TRL}" \
     "sentence-transformers==${SENTENCE_TRANSFORMERS}" \
     "deepspeed==${DEEPSPEED}" \
     "bitsandbytes==${BITSANDBYTES}"
