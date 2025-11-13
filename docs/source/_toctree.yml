@@ -4,7 +4,7 @@
     - local: features
       title: Features & benefits
     - local: tpu
-      title: Using TPUs on Google Cloud
+      title: Google TPUs
     - local: resources
       title: Other Resources
   title: Getting Started
