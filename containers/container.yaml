@@ -1,24 +1,24 @@
 pytorch:
   - type: training
     accelerator: gpu
-    framework: 2.3.0
-    transformers: 4.42.3
-    python: 3.10
+    framework: 2.3.1
+    transformers: 4.48.0
+    python: 3.11
   - type: inference
     accelerator: cpu
-    framework: 2.2.2
-    transformers: 4.44.0
+    framework: 2.3.1
+    transformers: 4.48.0
     python: 3.11
   - type: inference
     accelerator: gpu
-    framework: 2.2.2
-    transformers: 4.44.0
+    framework: 2.3.1
+    transformers: 4.48.0
     python: 3.11
 tgi:
   - accelerator: gpu
-    framework: 2.2.0
+    framework: 2.4.0
 tei:
   - accelerator: cpu
-    framework: 1.4.0
+    framework: 1.6.0
   - accelerator: gpu
-    framework: 1.4.0
+    framework: 1.6.0
