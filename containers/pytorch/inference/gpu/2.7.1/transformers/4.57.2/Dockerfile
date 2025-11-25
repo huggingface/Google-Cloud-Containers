@@ -72,12 +72,12 @@ ENV VIRTUAL_ENV=/home/huggingface/venv \
 
 WORKDIR /home/huggingface/app
 
-COPY hf_serve-0.0.1rc6-py3-none-any.whl .
+COPY --chown=huggingface:huggingface containers/pytorch/inference/gpu/2.7.1/transformers/4.57.2/py311/hf_serve-0.0.1rc6-py3-none-any.whl .
 RUN uv pip install --frozen hf_serve-0.0.1rc6-py3-none-any.whl --extra cuda --extra flash-attn --preview-features extra-build-dependencies
 
 RUN uv pip install google-cloud-storage crcmod --upgrade
 
-COPY --chown=huggingface:huggingface entrypoint.sh /home/huggingface/entrypoint.sh
+COPY --chown=huggingface:huggingface containers/pytorch/inference/gpu/2.7.1/transformers/4.57.2/py311/entrypoint.sh .
 RUN chmod +x /home/huggingface/entrypoint.sh
 
 USER huggingface
