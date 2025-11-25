@@ -9,6 +9,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     ca-certificates \
     build-essential \
     git \
+    gnupg \
     # NOTE: `ffmpeg` and `libmagic-dev` are required for audio related tasks
     # NOTE: `ffmpeg` version is constrained < 8, as it's a `torchcodec` requirement
     ffmpeg=7:* \
@@ -70,10 +71,16 @@ RUN uv venv /home/huggingface/venv --python 3.11
 ENV VIRTUAL_ENV=/home/huggingface/venv \
     PATH="/home/huggingface/venv/bin:$PATH"
 
-WORKDIR /home/huggingface/app
+WORKDIR /home/huggingface
+
+# NOTE: Until `hf-serve` is made public, the extras `cuda` and `flash-attn` need
+# to be installed manually before installing `hf-serve` from the wheel
+RUN uv pip install "torch>=2.5.1,<2.8.0" "torchvision" "torchcodec<0.6" --extra-index-url https://download.pytorch.org/whl/cu126 && \
+    uv pip install packaging ninja wheel && \
+    uv pip install "flash-attn==2.8.3" --no-build-isolation
 
 COPY --chown=huggingface:huggingface containers/pytorch/inference/gpu/2.7.1/transformers/4.57.2/py311/hf_serve-0.0.1rc6-py3-none-any.whl .
-RUN uv pip install hf_serve-0.0.1rc6-py3-none-any.whl --extra cuda --extra flash-attn --preview-features extra-build-dependencies
+RUN uv pip install "hf_serve-0.0.1rc6-py3-none-any.whl"
 
 RUN uv pip install google-cloud-storage crcmod --upgrade
 
