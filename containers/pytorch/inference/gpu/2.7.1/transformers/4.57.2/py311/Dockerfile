@@ -75,7 +75,7 @@ WORKDIR /home/huggingface
 
 # NOTE: Until `hf-serve` is made public, the extras `cuda` and `flash-attn` need
 # to be installed manually before installing `hf-serve` from the wheel
-RUN uv pip install "torch>=2.5.1,<2.8.0" "torchvision" "torchcodec<0.6" --extra-index-url https://download.pytorch.org/whl/cu126 && \
+RUN uv pip install "torch==2.7.1" "torchvision" "torchcodec<0.6" --extra-index-url https://download.pytorch.org/whl/cu128 && \
     uv pip install packaging ninja wheel && \
     uv pip install "flash-attn==2.8.3" --no-build-isolation
 
