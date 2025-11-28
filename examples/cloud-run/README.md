@@ -1,6 +1,6 @@
-# (Preview) Cloud Run Examples
+# Cloud Run Examples
 
-This directory contains usage examples of the Hugging Face Deep Learning Containers (DLCs) in Cloud Run only for inference at the moment, with a focus on Large Language Models (LLMs).
+This directory contains usage examples of the Hugging Face Deep Learning Containers (DLCs) in Cloud Run with a focus on inference for Large Language Models (LLMs).
 
 ## Inference Examples
 

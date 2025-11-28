@@ -30,4 +30,5 @@ help:
 	@echo "Usage:"
 	@echo "  make docs   - Auto-generate the examples for the docs"
 	@echo "  make clean  - Remove the auto-generated docs"
+	@echo "  make serve  - Serve the docs locally"
 	@echo "  make help   - Display this help message"

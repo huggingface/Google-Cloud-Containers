@@ -10,10 +10,10 @@ Find all the available Hugging Face DLCs in either the [Google Cloud Deep Learni
 gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface"
 ```
 
-For more information on each container, check the READMEs in the following directories
+For more information on each container, check the READMEs in the following directories:
 
-- [Text Generation Inference](./tgi/README.md)
-- [Text Embeddings Inference](./tei/README.md)
+- [Text Generation Inference (TGI)](./tgi/README.md)
+- [Text Embeddings Inference (TEI)](./tei/README.md)
 - [PyTorch Inference](./pytorch/inference/README.md)
 - [PyTorch Training](./pytorch/training/README.md)
 

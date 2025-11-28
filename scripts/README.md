@@ -18,7 +18,7 @@ gcloud config set project <project_id>
 Besides that, for the scripts that are accessing the Hugging Face Hub, is recommended to have `huggingface-cli` installed via `pip` as follows:
 
 ```bash
-pip install "huggingface_hub[hf_transfer]" --upgrade
+pip install "huggingface_hub[hf-xet]" --upgrade
 ```
 
 And then, to either set the `HF_TOKEN` environment variable with a fine-grained token with the required permissions, or just to run `huggingface-cli login` and provide the same token there so that's included within the Hugging Face Hub cache.
