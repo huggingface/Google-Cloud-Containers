@@ -79,12 +79,12 @@ RUN uv pip install "torch==2.7.1" "torchvision" "torchcodec<0.6" --extra-index-u
     uv pip install packaging ninja wheel && \
     uv pip install "flash-attn==2.8.3" --no-build-isolation
 
-COPY --chown=huggingface:huggingface containers/pytorch/inference/gpu/2.7.1/transformers/4.57.2/py311/hf_serve-0.0.1rc6-py3-none-any.whl .
-RUN uv pip install "hf_serve-0.0.1rc6-py3-none-any.whl"
+COPY --chown=huggingface:huggingface containers/pytorch/inference/gpu/2.7.1/transformers/4.57.3/py311/hf_serve-0.0.1rc7-py3-none-any.whl .
+RUN uv pip install "hf_serve-0.0.1rc7-py3-none-any.whl"
 
 RUN uv pip install google-cloud-storage crcmod --upgrade
 
-COPY --chown=huggingface:huggingface containers/pytorch/inference/gpu/2.7.1/transformers/4.57.2/py311/entrypoint.sh .
+COPY --chown=huggingface:huggingface containers/pytorch/inference/gpu/2.7.1/transformers/4.57.3/py311/entrypoint.sh .
 RUN chmod +x /home/huggingface/entrypoint.sh
 
 USER huggingface
