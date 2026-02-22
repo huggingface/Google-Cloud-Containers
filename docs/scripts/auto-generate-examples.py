@@ -30,7 +30,8 @@ def process_file(root, file, dir):
         content = f.read()
 
     # For Juypter Notebooks, remove the comment i.e. `<!--` and the `--!>` but keep the metadata
-    content = re.sub(r"<!-- (.*?) -->", r"\1", content, flags=re.DOTALL)
+    # We only uncomment the metadata block to avoid uncommenting other HTML comments
+    content = re.sub(r"<!--\s*(---.*?---)\s*-->", r"\1", content, flags=re.DOTALL)
 
     # Replace image and link paths
     content = re.sub(
