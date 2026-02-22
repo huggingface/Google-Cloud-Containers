@@ -94,10 +94,9 @@ def process_file(root, file, dir):
         print("No relative paths found in the processed file.")
 
     # Calculate the example URL
-    example_url = f"https://github.com/huggingface/Google-Cloud-Containers/tree/main/{root}/{file}"
-
-    # Add the final note
-    content += f"\n\n---\n<Tip>\n\n📍 Find the complete example on GitHub [here]({example_url})!\n\n</Tip>"
+    if file.__contains__("ipynb"):
+        example_url = f"https://github.com/huggingface/Google-Cloud-Containers/tree/main/{root}/{file}"
+        content += f"\n\n---\n<Tip>\n\n📍 Find the complete example on GitHub [here]({example_url})!\n\n</Tip>"
 
     with open(target, "w") as f:
         f.write(content)
