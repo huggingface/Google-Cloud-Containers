@@ -1,6 +1,7 @@
 ---
 title: Deploy Meta Llama 3 8B with TGI DLC on GKE
 type: inference
+author: Alvaro Bartolome
 ---
 
 # Deploy Meta Llama 3 8B with TGI DLC on GKE

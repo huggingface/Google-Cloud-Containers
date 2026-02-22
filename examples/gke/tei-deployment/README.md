@@ -1,6 +1,7 @@
 ---
 title: Deploy Snowflake's Arctic Embed with TEI DLC on GKE
 type: inference
+author: Alvaro Bartolome
 ---
 
 # Deploy Snowflake's Arctic Embed with TEI DLC on GKE

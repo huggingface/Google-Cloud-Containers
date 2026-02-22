@@ -14,7 +14,11 @@ def extract_info_from_md(file_path):
     with open(file_path, "r") as f:
         content = f.read()
 
-    match = re.search(r"---\s*title:\s*(.*?)\s*type:\s*(.*?)\s*---", content, re.DOTALL)
+    match = re.search(
+        r"---\s*title:\s*(.*?)\n\s*type:\s*(.*?)\n(?:author:.*?\n)?\s*---",
+        content,
+        re.DOTALL,
+    )
     if match:
         return match.group(1).strip(), match.group(2).strip()
     return None, None
@@ -28,7 +32,7 @@ def extract_info_from_ipynb(file_path):
     if first_cell["cell_type"] == "markdown":
         content = "".join(first_cell["source"])
         match = re.search(
-            r"<!--\s*---\s*title:\s*(.*?)\s*type:\s*(.*?)\s*---\s*-->",
+            r"<!--\s*---\s*title:\s*(.*?)\n\s*type:\s*(.*?)\n(?:author:.*?\n)?\s*---\s*-->",
             content,
             re.DOTALL,
         )
@@ -119,7 +123,7 @@ def update_docs(examples):
     ordered_types = ["inference", "training", "evaluation"]
 
     for service in ordered_services:
-        service_name = f"(Preview) {service}" if service == "Cloud Run" else service
+        service_name = service
         new_content.append(f"\n### {service_name}\n")
 
         for example_type in ordered_types:

@@ -1,6 +1,7 @@
 ---
 title: Deploy BGE Base v1.5 with TEI DLC from GCS on GKE
 type: inference
+author: Alvaro Bartolome
 ---
 
 # Deploy BGE Base v1.5 with TEI DLC from GCS on GKE

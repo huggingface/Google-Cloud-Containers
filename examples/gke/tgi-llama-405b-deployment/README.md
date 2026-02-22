@@ -1,6 +1,7 @@
 ---
 title: Deploy Llama 3.1 405B with TGI DLC on GKE
 type: inference
+author: Alvaro Bartolome and Philipp Schmid
 ---
 
 # Deploy Llama 3.1 405B with TGI DLC on GKE
