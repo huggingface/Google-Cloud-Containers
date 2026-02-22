@@ -1,8 +1,8 @@
+import json
 import os
 import re
-import json
-from collections import defaultdict
 import subprocess
+from collections import defaultdict
 
 
 def get_tracked_files():
@@ -54,7 +54,7 @@ def generate_tables():
 
     for dirpath, _, filenames in os.walk(root_dir):
         for filename in filenames:
-            if filename in ["README.md", "vertex-notebook.ipynb"]:
+            if filename == "README.md" or filename.__contains__("notebook.ipynb"):
                 file_path = os.path.join(dirpath, filename)
                 relative_path = os.path.relpath(file_path, start=".")
 
