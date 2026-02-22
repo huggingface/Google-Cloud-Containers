@@ -1,4 +1,7 @@
-.PHONY: docs clean help
+.PHONY: install docs clean help
+
+install:
+	@uv pip install hf-doc-builder requests watchdog
 
 docs: clean
 	@echo "Processing README.md files from examples/gke, examples/cloud-run, and examples/vertex-ai..."
