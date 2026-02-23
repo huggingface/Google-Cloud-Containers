@@ -1,10 +1,14 @@
-.PHONY: docs clean help
+.PHONY: install docs clean help
+
+install:
+	@uv pip install hf-doc-builder requests watchdog
 
 docs: clean
 	@echo "Processing README.md files from examples/gke, examples/cloud-run, and examples/vertex-ai..."
 	@mkdir -p docs/source/examples
 	@echo "Converting Jupyter Notebooks to MDX..."
 	@doc-builder notebook-to-mdx examples/vertex-ai/notebooks/
+	@doc-builder notebook-to-mdx examples/cloud-run
 	@echo "Auto-generating example files for documentation..."
 	@python docs/scripts/auto-generate-examples.py
 	@echo "Cleaning up generated Markdown Notebook files..."
@@ -20,6 +24,7 @@ clean:
 	@awk '/^# GENERATED CONTENT DO NOT EDIT!/,/^# END GENERATED CONTENT/{next} {print}' docs/source/_toctree.yml > docs/source/_toctree.yml.tmp && mv docs/source/_toctree.yml.tmp docs/source/_toctree.yml
 	@echo "Cleaning up generated Markdown Notebook files (if any)..."
 	@find examples/vertex-ai/notebooks -name "vertex-notebook.md" -type f -delete
+	@find examples/cloud-run -name "notebook.md" -type f -delete
 	@echo "Cleanup complete."
 
 serve:

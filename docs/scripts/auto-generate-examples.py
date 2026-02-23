@@ -9,7 +9,7 @@ def process_readme_files():
     for dir in ["gke", "cloud-run", "vertex-ai/notebooks"]:
         for root, _, files in os.walk(f"examples/{dir}"):
             for file in files:
-                if file == "README.md" or file == "vertex-notebook.md":
+                if file == "README.md" or file.__contains__("notebook.md"):
                     process_file(root, file, dir)
 
 
@@ -30,7 +30,8 @@ def process_file(root, file, dir):
         content = f.read()
 
     # For Juypter Notebooks, remove the comment i.e. `<!--` and the `--!>` but keep the metadata
-    content = re.sub(r"<!-- (.*?) -->", r"\1", content, flags=re.DOTALL)
+    # We only uncomment the metadata block to avoid uncommenting other HTML comments
+    content = re.sub(r"<!--\s*(---.*?---)\s*-->", r"\1", content, flags=re.DOTALL)
 
     # Replace image and link paths
     content = re.sub(
@@ -94,14 +95,9 @@ def process_file(root, file, dir):
         print("No relative paths found in the processed file.")
 
     # Calculate the example URL
-    example_url = (
-        f"https://github.com/huggingface/Google-Cloud-Containers/tree/main/{root}"
-    )
     if file.__contains__("ipynb"):
-        example_url += "/vertex-notebook.ipynb"
-
-    # Add the final note
-    content += f"\n---\n<Tip>\n\n📍 Find the complete example on GitHub [here]({example_url})!\n\n</Tip>"
+        example_url = f"https://github.com/huggingface/Google-Cloud-Containers/tree/main/{root}/{file}"
+        content += f"\n\n---\n<Tip>\n\n📍 Find the complete example on GitHub [here]({example_url})!\n\n</Tip>"
 
     with open(target, "w") as f:
         f.write(content)

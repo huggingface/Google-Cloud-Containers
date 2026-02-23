@@ -1,6 +1,7 @@
 ---
 title: Deploy Gemma2 with multiple LoRA adapters with TGI DLC on GKE
 type: inference
+author: Alvaro Bartolome
 ---
 
 # Deploy Gemma2 with multiple LoRA adapters with TGI DLC on GKE

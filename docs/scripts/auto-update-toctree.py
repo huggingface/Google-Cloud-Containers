@@ -1,9 +1,61 @@
 import glob
 import os
 import re
-
-
+import subprocess
 from pathlib import Path
+
+
+def get_git_date(file_path):
+    if not file_path or not os.path.exists(file_path):
+        return None
+    try:
+        date = (
+            subprocess.check_output(
+                ["git", "log", "-1", "--format=%ad", "--date=short", file_path],
+                stderr=subprocess.STDOUT,
+            )
+            .decode("utf-8")
+            .strip()
+        )
+        if not date:
+            return None
+        return date
+    except Exception:
+        return None
+
+
+def get_original_file_path(mdx_file):
+    stem = Path(mdx_file).stem
+
+    if stem.endswith("-index"):
+        d = stem.replace("-index", "")
+        if d == "vertex-ai-notebooks":
+            return "examples/vertex-ai/notebooks/README.md"
+        if d == "vertex-ai":
+            return "examples/vertex-ai/README.md"
+        return f"examples/{d}/README.md"
+
+    if stem.startswith("vertex-ai-notebooks-"):
+        base = stem.replace("vertex-ai-notebooks-", "")
+        # Try notebook first, then README
+        nb_path = f"examples/vertex-ai/notebooks/{base}/notebook.ipynb"
+        if os.path.exists(nb_path):
+            return nb_path
+        readme_path = f"examples/vertex-ai/notebooks/{base}/README.md"
+        if os.path.exists(readme_path):
+            return readme_path
+
+    for d in ["gke", "cloud-run"]:
+        if stem.startswith(f"{d}-"):
+            base = stem.replace(f"{d}-", "")
+            # Try notebook first, then README
+            nb_path = f"examples/{d}/{base}/notebook.ipynb"
+            if os.path.exists(nb_path):
+                return nb_path
+            readme_path = f"examples/{d}/{base}/README.md"
+            if os.path.exists(readme_path):
+                return readme_path
+    return None
 
 
 def update_toctree_yaml():
@@ -27,22 +79,56 @@ def update_toctree_yaml():
             for file in files:
                 with open(file, "r+") as mdx_file:
                     content = mdx_file.read()
-                    metadata_match = re.search(r"---(.*?)---", content, re.DOTALL)
+
+                    # Match metadata, including potentially commented ones or with leading/trailing spaces
+                    # We look for the first occurrence of the --- block
+                    metadata_match = re.search(
+                        r"^\s*(?:<!--\s*)?---\s*\n(.*?)\n---\s*(?:\s*-->)?",
+                        content,
+                        re.DOTALL | re.MULTILINE,
+                    )
 
                     metadata = {}
                     if metadata_match:
                         metadata_str = metadata_match.group(1)
-                        metadata = dict(re.findall(r"(\w+):\s*(.+)", metadata_str))
+                        metadata = {
+                            k.strip(): v.strip()
+                            for k, v in re.findall(r"(\w+):\s*(.+)", metadata_str)
+                        }
 
-                        # Remove metadata from content assuming it's the block on top
-                        # surrounded by `---` including those too
+                        # Remove metadata block from content
+                        # Handling potential leading whitespace and the optional <!-- --> wrapper
                         content = re.sub(
-                            r"^---\s*\n.*?\n---\s*\n",
+                            r"^\s*(?:<!--\s*)?---\s*\n.*?\n---\s*(?:\s*-->)?\s*\n",
                             "",
                             content,
                             flags=re.DOTALL | re.MULTILINE,
                         )
                         content = content.strip()
+
+                        # Add "Written by" and "Last updated"
+                        author = metadata.get("author")
+                        original_file = get_original_file_path(file)
+                        date = get_git_date(original_file)
+
+                        extra_info = ""
+                        if author and date:
+                            extra_info = f"<small>Written by {author}</small><br><small>Last updated {date}</small>"
+                        elif author:
+                            extra_info = f"<small>Written by {author}</small>"
+                        elif date:
+                            extra_info = f"<small>Last updated {date}</small>"
+
+                        if extra_info:
+                            extra_info = f"<p>{extra_info}</p>"
+                            # Match the first # Title line
+                            match = re.search(r"^(# .+)$", content, re.MULTILINE)
+                            if match:
+                                title_line = match.group(1)
+                                # Only replace the first occurrence of the title line
+                                content = content.replace(
+                                    title_line, f"{title_line}\n\n{extra_info}\n", 1
+                                )
 
                         mdx_file.seek(0)
                         mdx_file.write(content)
