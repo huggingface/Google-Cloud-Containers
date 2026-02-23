@@ -113,14 +113,14 @@ def update_toctree_yaml():
 
                         extra_info = ""
                         if author and date:
-                            extra_info = f"Written by {author}\nLast updated {date}"
+                            extra_info = f"<small>Written by {author}</small><br><small>Last updated {date}</small>"
                         elif author:
-                            extra_info = f"Written by {author}"
+                            extra_info = f"<small>Written by {author}</small>"
                         elif date:
-                            extra_info = f"Last updated {date}"
+                            extra_info = f"<small>Last updated {date}</small>"
 
                         if extra_info:
-                            extra_info = f"> {extra_info}"
+                            extra_info = f"<p>{extra_info}</p>"
                             # Match the first # Title line
                             match = re.search(r"^(# .+)$", content, re.MULTILINE)
                             if match:
