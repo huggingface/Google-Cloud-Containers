@@ -1,7 +1,7 @@
 FROM alpine AS text-embeddings-inference
 
 RUN mkdir -p /text-embeddings-inference
-ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.9.1.tar.gz /text-embeddings-inference/sources.tar.gz
+ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.9.2.tar.gz /text-embeddings-inference/sources.tar.gz
 RUN tar -C /text-embeddings-inference -xf /text-embeddings-inference/sources.tar.gz --strip-components=1
 
 FROM lukemathwalker/cargo-chef:latest-rust-1.92-bookworm AS chef
@@ -94,6 +94,6 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     apt-get clean autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}
 
-COPY --chmod=775 containers/tei/cpu/1.9.1/entrypoint.sh entrypoint.sh
+COPY --chmod=775 containers/tei/cpu/1.9.2/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["--json-output"]
