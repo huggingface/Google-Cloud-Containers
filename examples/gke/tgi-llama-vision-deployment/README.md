@@ -1,6 +1,7 @@
 ---
 title: Deploy Llama 3.2 11B Vision with TGI DLC on GKE
 type: inference
+author: Alvaro Bartolome
 ---
 
 # Deploy Llama 3.2 11B Vision with TGI DLC on GKE

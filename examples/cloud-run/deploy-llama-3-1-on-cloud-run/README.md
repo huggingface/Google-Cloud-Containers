@@ -1,6 +1,7 @@
 ---
 title: Deploy Llama 3.1 8B with TGI DLC on Cloud Run
 type: inference
+author: Alvaro Bartolome
 ---
 
 # Deploy Llama 3.1 8B with TGI DLC on Cloud Run

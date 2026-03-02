@@ -1,6 +1,7 @@
 ---
 title: Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT + LoRA on GKE
 type: training
+author: Alvaro Bartolome
 ---
 
 # Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT + LoRA on GKE

@@ -1,6 +1,7 @@
 ---
 title: Deploy Qwen2 7B with TGI DLC from GCS on GKE
 type: inference
+author: Alvaro Bartolome
 ---
 
 # Deploy Qwen2 7B with TGI DLC from GCS on GKE

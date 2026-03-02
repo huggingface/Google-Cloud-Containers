@@ -1,6 +1,7 @@
 ---
 title: Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE
 type: training
+author: Alvaro Bartolome
 ---
 
 # Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE

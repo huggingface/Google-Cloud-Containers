@@ -1,6 +1,7 @@
 ---
 title: Deploy Gemma2 9B with TGI DLC on Cloud Run
 type: inference
+author: Alvaro Bartolome
 ---
 
 # Deploy Gemma2 9B with TGI DLC on Cloud Run
