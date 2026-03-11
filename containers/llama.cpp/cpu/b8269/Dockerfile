@@ -61,7 +61,8 @@ COPY --from=build /app/lib/ /app
 ### Server, Server only
 FROM base AS server
 
-ENV LLAMA_ARG_HOST=0.0.0.0
+ENV LLAMA_ARG_HOST=0.0.0.0 \
+    HF_HOME=/tmp
 
 COPY --from=build /app/full/llama-server /app
 COPY --chmod=775 containers/llama.cpp/cpu/b8269/entrypoint.sh /app/entrypoint.sh
