@@ -10,7 +10,7 @@ ENV SCCACHE=0.10.0
 ENV RUSTC_WRAPPER=/usr/local/bin/sccache
 ENV PATH="/root/.cargo/bin:${PATH}"
 # NOTE: `CARGO_CHEF` version is aligned with `cargo-chef` version installed in
-# `lukemathwalker/cargo-chef:latest-rust-1.75-bookworm`
+# `lukemathwalker/cargo-chef:latest-rust-1.92-bookworm`
 ENV CARGO_CHEF=0.1.73
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -22,6 +22,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
 RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v$SCCACHE/sccache-v$SCCACHE-x86_64-unknown-linux-musl.tar.gz | tar -xzv --strip-components=1 -C /usr/local/bin sccache-v$SCCACHE-x86_64-unknown-linux-musl/sccache && \
     chmod +x /usr/local/bin/sccache
 
+COPY --from=text-embeddings-inference /text-embeddings-inference/rust-toolchain.toml rust-toolchain.toml
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 RUN cargo install cargo-chef --version $CARGO_CHEF --locked
 
