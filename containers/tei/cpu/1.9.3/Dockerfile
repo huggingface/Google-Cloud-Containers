@@ -1,7 +1,7 @@
 FROM alpine AS text-embeddings-inference
 
 RUN mkdir -p /text-embeddings-inference
-ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.9.2.tar.gz /text-embeddings-inference/sources.tar.gz
+ADD https://github.com/huggingface/text-embeddings-inference/archive/refs/tags/v1.9.3.tar.gz /text-embeddings-inference/sources.tar.gz
 RUN tar -C /text-embeddings-inference -xf /text-embeddings-inference/sources.tar.gz --strip-components=1
 
 FROM lukemathwalker/cargo-chef:latest-rust-1.92-bookworm AS chef
@@ -94,6 +94,14 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     apt-get clean autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}
 
-COPY --chmod=775 containers/tei/cpu/1.9.2/entrypoint.sh entrypoint.sh
+# NOTE: anthoscli is not required for the intended use of gcloud SDK within this
+# context, hence we're safe to remove it, preventing the following CVEs:
+# - CVE-2025-68121
+# - CVE-2026-27143
+# - CVE-2026-33186
+# Which are originated due to the bundled Go version in the pre-compiled anthoscli
+RUN rm -rf /usr/lib/google-cloud-sdk/bin/anthoscli
+
+COPY --chmod=775 containers/tei/cpu/1.9.3/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["--json-output"]

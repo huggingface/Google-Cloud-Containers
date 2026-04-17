@@ -43,6 +43,23 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     apt-get clean autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}
 
+# NOTE: anthoscli is not required for the intended use of gcloud SDK within this
+# context, hence we're safe to remove it, preventing the following CVEs:
+# - CVE-2025-68121
+# - CVE-2026-27143
+# - CVE-2026-33186
+# Which are originated due to the bundled Go version in the pre-compiled anthoscli
+RUN rm -rf /usr/lib/google-cloud-sdk/bin/anthoscli
+
+# NOTE: nic_sampler is not required for inference workloads, and is removed to
+# prevent CVEs originating from the bundled Go version used to compile it
+# - CVE-2025-22871
+# - CVE-2026-33186
+# - CVE-2024-24790
+# - CVE-2026-27143
+# - CVE-2025-68121
+RUN rm -f /opt/nvidia/nsight-compute/2025.1.1/host/target-linux-x64/plugins/efa_metrics/nic_sampler
+
 # NOTE: Inference Endpoints API writes the Hugging Face Hub repository in
 # `/repository` hence it should allow any user to read from it
 RUN mkdir -p /repository && chmod 755 /repository
