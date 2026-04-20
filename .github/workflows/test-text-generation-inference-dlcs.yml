@@ -1,0 +1,34 @@
+name: Test Hugging Face DLCs for TGI (GPU)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - tests/tgi/*
+      - .github/workflows/run-tests-reusable.yml
+      - .github/workflows/test-text-generation-inference-dlcs.yml
+  pull_request:
+    types:
+      - synchronize
+      - ready_for_review
+    branches:
+      - main
+    paths:
+      - tests/tgi/*
+      - .github/workflows/run-tests-reusable.yml
+      - .github/workflows/test-text-generation-inference-dlcs.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  tgi-on-gpu:
+    name: Test Hugging Face DLCs for TGI on GPU
+    uses: huggingface/Google-Cloud-Containers/.github/workflows/run-tests-reusable.yml@add-integration-tests
+    with:
+      group: aws-g4dn-2xlarge
+      tests-path: tgi
+      tgi-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-4.ubuntu2204.py311
