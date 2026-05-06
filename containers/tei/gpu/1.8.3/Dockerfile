@@ -85,7 +85,9 @@ FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04 AS base
 
 ENV HUGGINGFACE_HUB_CACHE=/tmp \
     PORT=8080 \
-    USE_FLASH_ATTENTION=True
+    USE_FLASH_ATTENTION=True \
+    PATH="/usr/local/nvidia/bin:$PATH" \
+    LD_LIBRARY_PATH="/usr/local/nvidia/lib64:$LD_LIBRARY_PATH"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     apt-transport-https \

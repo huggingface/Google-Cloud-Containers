@@ -111,7 +111,8 @@ FROM nvidia/cuda:12.9.1-runtime-ubuntu24.04 AS base
 ENV HUGGINGFACE_HUB_CACHE=/tmp \
     PORT=8080 \
     USE_FLASH_ATTENTION=True \
-    LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+    PATH="/usr/local/nvidia/bin:$PATH" \
+    LD_LIBRARY_PATH="/usr/local/cuda/lib64:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     apt-transport-https \

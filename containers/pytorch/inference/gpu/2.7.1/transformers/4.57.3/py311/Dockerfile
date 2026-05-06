@@ -104,5 +104,8 @@ RUN uv pip install google-cloud-storage crcmod --upgrade
 COPY --chown=huggingface:huggingface containers/pytorch/inference/gpu/2.7.1/transformers/4.57.3/py311/entrypoint.sh .
 RUN chmod +x /home/huggingface/entrypoint.sh
 
+ENV PATH="/usr/local/nvidia/bin:$PATH" \
+    LD_LIBRARY_PATH="/usr/local/nvidia/lib64:$LD_LIBRARY_PATH"
+
 USER huggingface
 ENTRYPOINT ["/home/huggingface/entrypoint.sh"]
