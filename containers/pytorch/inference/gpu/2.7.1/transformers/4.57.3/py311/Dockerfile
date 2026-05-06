@@ -90,14 +90,16 @@ ENV VIRTUAL_ENV=/home/huggingface/venv \
 
 WORKDIR /home/huggingface
 
-# CVE-2025-47273
-RUN uv pip install "setuptools>=78.1.1" --upgrade
-# CVE-2026-42311 and CVE-2026-40192
-RUN uv pip install "Pillow>=12.2" --upgrade
-# CVE-2026-26007
-RUN uv pip install "cryptography>=46.0.5" --upgrade
-# CVE-2026-27459
-RUN uv pip install "pyopenssl>=26" --upgrade
+# CVE-2025-47273: setuptools>=78.1.1
+# CVE-2026-42311, CVE-2026-40192: Pillow>=12.2
+# CVE-2026-26007: cryptography>=46.0.5
+# CVE-2026-27459: pyopenssl>=26
+RUN uv pip install \
+    "setuptools>=78.1.1" \
+    "Pillow>=12.2" \
+    "cryptography>=46.0.5" \
+    "pyopenssl>=26" \
+    --upgrade
 
 # NOTE: Until `hf-serve` is made public, the extras `cuda` and `flash-attn` need
 # to be installed manually before installing `hf-serve` from the wheel
