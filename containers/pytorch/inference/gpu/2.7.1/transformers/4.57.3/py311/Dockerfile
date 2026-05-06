@@ -90,6 +90,15 @@ ENV VIRTUAL_ENV=/home/huggingface/venv \
 
 WORKDIR /home/huggingface
 
+# CVE-2025-47273
+RUN uv pip install "setuptools>=78.1.1" --upgrade
+# CVE-2026-42311 and CVE-2026-40192
+RUN uv pip install "Pillow>=12.2" --upgrade
+# CVE-2026-26007
+RUN uv pip install "cryptography>=46.0.5" --upgrade
+# CVE-2026-27459
+RUN uv pip install "pyopenssl>=26" --upgrade
+
 # NOTE: Until `hf-serve` is made public, the extras `cuda` and `flash-attn` need
 # to be installed manually before installing `hf-serve` from the wheel
 RUN uv pip install "torch==2.7.1" "torchvision" "torchcodec<0.6" --extra-index-url https://download.pytorch.org/whl/cu128 && \
@@ -100,6 +109,7 @@ COPY --chown=huggingface:huggingface containers/pytorch/inference/gpu/2.7.1/tran
 RUN uv pip install "hf_serve-0.0.1rc7-py3-none-any.whl"
 
 RUN uv pip install google-cloud-storage crcmod --upgrade
+RUN uv cache clean
 
 COPY --chown=huggingface:huggingface containers/pytorch/inference/gpu/2.7.1/transformers/4.57.3/py311/entrypoint.sh .
 RUN chmod +x /home/huggingface/entrypoint.sh
