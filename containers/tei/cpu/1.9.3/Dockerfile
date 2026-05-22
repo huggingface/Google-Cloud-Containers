@@ -102,6 +102,9 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
 # Which are originated due to the bundled Go version in the pre-compiled anthoscli
 RUN rm -rf /usr/lib/google-cloud-sdk/bin/anthoscli
 
+# NOTE: CVE-2026-42010 and CVE-2026-33845
+RUN apt-get update && apt-get upgrade -y dpkg && rm -rf /var/lib/apt/lists/*
+
 COPY --chmod=775 containers/tei/cpu/1.9.3/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["--json-output"]
