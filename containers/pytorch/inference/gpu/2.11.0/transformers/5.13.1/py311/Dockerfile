@@ -93,11 +93,12 @@ WORKDIR /home/huggingface
 # CVE-2025-47273: setuptools>=78.1.1
 # CVE-2026-42311, CVE-2026-40192: Pillow>=12.2
 # CVE-2026-26007: cryptography>=46.0.5
+# GHSA-537c-gmf6-5ccf: cryptography>=48.0.1
 # CVE-2026-27459: pyopenssl>=26
 RUN uv pip install \
     "setuptools>=78.1.1" \
     "Pillow>=12.2" \
-    "cryptography>=46.0.5" \
+    "cryptography>=48.0.1" \
     "pyopenssl>=26" \
     --upgrade
 
