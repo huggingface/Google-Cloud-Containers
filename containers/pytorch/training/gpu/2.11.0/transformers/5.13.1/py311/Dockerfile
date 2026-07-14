@@ -59,8 +59,10 @@ ENV VIRTUAL_ENV=/home/huggingface/venv \
 RUN uv pip install "torch==2.11.0" torchvision torchaudio --torch-backend=cu126
 
 RUN uv pip install --no-cache-dir \
-    "transformers[audio,chat_template,kernels,video,vision]>=5.13.1"
-    "huggingface_hub[hf_xet]==1.23.0" \
+    "transformers[audio,chat_template,kernels,video,vision]==5.13.1" \
+    "diffusers[training]==0.39.0" \
+    "sentence-transformers[train]==5.6.0" \
+    "huggingface_hub==1.23.0" \
     "datasets==5.0.0" \
     "teich==0.1.5" \
     "accelerate==1.14.0" \
