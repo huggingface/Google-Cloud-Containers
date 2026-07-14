@@ -2,13 +2,12 @@
 
 set -eo pipefail
 
-export CLOUD="google"
-
 # Default `PORT` is 5000, unless other port is provided via `AIP_HTTP_PORT` only
 # when `AIP_MODE` is set (usually set to `PREDICT`)
 readonly DEFAULT_PORT=5000
 if [[ ! -z "${AIP_MODE}" ]]; then
     export PORT="${AIP_HTTP_PORT:-$DEFAULT_PORT}"
+    export CLOUD="google"
 else
     export PORT="$DEFAULT_PORT"
 fi
