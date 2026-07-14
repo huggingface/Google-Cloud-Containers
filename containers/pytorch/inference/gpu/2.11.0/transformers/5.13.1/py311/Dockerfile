@@ -102,14 +102,14 @@ RUN uv pip install \
     "pyopenssl>=26" \
     --upgrade
 
-RUN uv pip install "torch==2.11.0" torchvision torchaudio --torch-backend=cu128
+RUN uv pip install "torch==2.11.0" torchvision "torchaudio==2.11.0" --torch-backend=cu128
 
 RUN uv pip install --no-cache-dir \
     "transformers[audio,chat_template,kernels,video,vision]==5.13.1" \
     "diffusers[kernels]==0.39.0" \
     "sentence-transformers==5.6.0"
 
-RUN uv pip install "hf-serve[cuda]==0.1.2"
+RUN uv pip install "hf-serve[cuda-128]==0.1.2"
 
 RUN uv pip install --no-cache-dir \
     google-cloud-storage \
