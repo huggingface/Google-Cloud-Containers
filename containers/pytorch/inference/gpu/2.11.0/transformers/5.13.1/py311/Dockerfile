@@ -109,7 +109,11 @@ RUN uv pip install --no-cache-dir \
     "diffusers[kernels]==0.39.0" \
     "sentence-transformers==5.6.0"
 
-RUN uv pip install "hf-serve[cuda,flash-attn]==0.1.1"
+# NOTE: Likely both `psutil` and `torch` should be defined as build dependencies
+# for `flash-attn` to prevent manual install + `--no-build-isolation` later on
+RUN uv pip install psutil
+
+RUN uv pip install "hf-serve[cuda,flash-attn]==0.1.1" --no-build-isolation
 
 RUN uv pip install --no-cache-dir \
     google-cloud-storage \
