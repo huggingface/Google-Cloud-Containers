@@ -9,13 +9,14 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     ca-certificates \
     build-essential \
     git \
-    git-lfs \
     ffmpeg=7:* \
     libmagic-dev \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# NOTE: `torchcodec` and hence the audio-related models as e.g. Wav2Vec, require
+# both `libnpp` and `libnvrtc` to be preset for it to work seamlessly on CUDA
 RUN if ! ldconfig -p | grep -q libnpp; then \
     apt-get update && apt-get install -y --no-install-recommends libnpp-dev; \
     fi && \
@@ -34,6 +35,23 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     apt-get install google-cloud-cli -y && \
     apt-get clean autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}
+
+# NOTE: anthoscli is not required for the intended use of gcloud SDK within this
+# context, hence we're safe to remove it, preventing the following CVEs:
+# - CVE-2025-68121
+# - CVE-2026-27143
+# - CVE-2026-33186
+# Which are originated due to the bundled Go version in the pre-compiled anthoscli
+RUN rm -rf /usr/lib/google-cloud-sdk/bin/anthoscli
+
+# NOTE: nic_sampler is not required for inference workloads, and is removed to
+# prevent CVEs originating from the bundled Go version used to compile it
+# - CVE-2025-22871
+# - CVE-2026-33186
+# - CVE-2024-24790
+# - CVE-2026-27143
+# - CVE-2025-68121
+RUN rm -f /opt/nvidia/nsight-compute/2025.1.1/host/target-linux-x64/plugins/efa_metrics/nic_sampler
 
 RUN mkdir -p /home/huggingface && \
     useradd -d /home/huggingface -s /bin/bash huggingface && \
@@ -57,6 +75,18 @@ ENV VIRTUAL_ENV=/home/huggingface/venv \
     PATH="/home/huggingface/venv/bin:$PATH"
 
 RUN uv pip install "torch==2.11.0" torchvision torchaudio --torch-backend=cu126
+
+# CVE-2025-47273: setuptools>=78.1.1
+# CVE-2026-42311, CVE-2026-40192: Pillow>=12.2
+# CVE-2026-26007: cryptography>=46.0.5
+# GHSA-537c-gmf6-5ccf: cryptography>=48.0.1
+# CVE-2026-27459: pyopenssl>=26
+RUN uv pip install \
+    "setuptools>=78.1.1" \
+    "Pillow>=12.2" \
+    "cryptography>=48.0.1" \
+    "pyopenssl>=26" \
+    --upgrade
 
 RUN uv pip install --no-cache-dir \
     "transformers[audio,chat_template,kernels,video,vision]==5.13.1" \
