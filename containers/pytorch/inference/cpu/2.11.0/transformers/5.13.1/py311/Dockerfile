@@ -97,7 +97,7 @@ RUN uv pip install --no-cache-dir \
     "diffusers[kernels]==0.39.0" \
     "sentence-transformers==5.6.0"
 
-RUN uv pip install "hf-serve[cpu]==0.1.2"
+RUN uv pip install "hf-serve[cpu]==0.1.3"
 
 RUN uv pip install --no-cache-dir \
     google-cloud-storage \
