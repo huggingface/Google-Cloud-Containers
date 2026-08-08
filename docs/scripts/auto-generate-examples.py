@@ -33,6 +33,29 @@ def process_file(root, file, dir):
     # We only uncomment the metadata block to avoid uncommenting other HTML comments
     content = re.sub(r"<!--\s*(---.*?---)\s*-->", r"\1", content, flags=re.DOTALL)
 
+    # Convert hfoptions comment markers to proper HF docs MDX components.
+    # Notebooks use HTML comments so the markers are invisible in Jupyter but are
+    # preserved verbatim by nbconvert, and then converted here to the MDX format
+    # used by the HuggingFace documentation site, e.g.:
+    #   <!-- hfoptions id="model" -->  →  <hfoptions id="model">
+    #   <!-- hfoption id="FunctionGemma 270M IT" -->  →  <hfoption id="FunctionGemma 270M IT">
+    #   <!-- /hfoption -->  →  </hfoption>
+    #   <!-- /hfoptions -->  →  </hfoptions>
+    # All hfoptions groups with the same id are linked in the UI: selecting one option
+    # toggles every group with that id across the whole page simultaneously.
+    content = re.sub(
+        r"<!--\s*hfoptions\s+id=\"([^\"]+)\"\s*-->",
+        r'<hfoptions id="\1">',
+        content,
+    )
+    content = re.sub(
+        r"<!--\s*hfoption\s+id=\"([^\"]+)\"\s*-->",
+        r'<hfoption id="\1">',
+        content,
+    )
+    content = re.sub(r"<!--\s*/hfoption\s*-->", r"</hfoption>", content)
+    content = re.sub(r"<!--\s*/hfoptions\s*-->", r"</hfoptions>", content)
+
     # Replace image and link paths
     content = re.sub(
         r"\(\./(imgs|assets)/([^)]*\.png)\)",
@@ -63,7 +86,7 @@ def process_file(root, file, dir):
         # Remove '> ' from the beginning of each line
         lines = [line[2:] for line in content.split("\n") if line.strip()]
 
-        # Determine the Tip type
+        # Determine the Tip type (NOTE and TIP both map to <Tip>, WARNING to <Tip warning>)
         tip_type = " warning" if block_type == "WARNING" else ""
 
         # Construct the new block
@@ -74,7 +97,7 @@ def process_file(root, file, dir):
         return new_block
 
     # Regular expression to match the specified blocks
-    pattern = r"> \[!(NOTE|WARNING)\]\n((?:>.*(?:\n|$))+)"
+    pattern = r"> \[!(NOTE|TIP|WARNING)\]\n((?:>.*(?:\n|$))+)"
 
     # Perform the transformation
     content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
