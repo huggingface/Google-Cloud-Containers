@@ -25,7 +25,20 @@ Additionally, if you're willing to run the Docker container in GPUs you will nee
 
 ## Run
 
-Before running this container, you will need to select any supported model from the [Hugging Face Hub offering for `transformers`](https://huggingface.co/models?library=transformers&sort=trending), as well as the task that the model runs as e.g. text-classification.
+Before running this container, you will need to select any supported model from the Hugging Face Hub offering for [`transformers`](https://huggingface.co/models?library=transformers&sort=trending), [`diffusers`](https://huggingface.co/models?library=diffusers&sort=trending), and [`sentence-transformers`](https://huggingface.co/models?library=sentence-transformers&sort=trending), as well as the task that the model runs.
+
+The Hugging Face PyTorch DLCs for Inference come with a pre-defined entrypoint, so to run those you only need to define the environment variable values of the model and task that you want to deploy, being the `HF_MODEL_ID` and `HF_TASK` respectively. Besides those, you can also define a wide range of environment variable values supported within the [`huggingface-inference-toolkit`](https://github.com/huggingface/huggingface-inference-toolkit) as detailed [here](https://github.com/huggingface/huggingface-inference-toolkit?tab=readme-ov-file#%EF%B8%8F-environment-variables).
+
+> [!NOTE]
+> As [huggingface-inference-toolkit](https://github.com/huggingface/huggingface-inference-toolkit) is built to be fully compatible with Google Vertex AI, then you can also set the environment variables defined by Vertex AI such as `AIP_MODE=PREDICTION`, `AIP_HTTP_PORT=8080`, `AIP_PREDICT_ROUTE=/predict`, `AIP_HEALTH_ROUTE=/health`, and some more. To read about all the exposed environment variables in Vertex AI please check [Vertex AI Documentation - Custom container requirements for prediction](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).
+
+### Supported Tasks
+
+You can find a list of the supported tasks with a brief introduction, links to the documentation and an example on how to use those within the Hugging Face PyTorch DLC for Inference [here](./TASKS.md).
+
+### Supported Hardware
+
+The Hugging Face PyTorch DLCs for Inference are available for both CPU and GPU, and you can select the container based on the hardware you have available.
 
 - **CPU**
 
@@ -47,12 +60,9 @@ Before running this container, you will need to select any supported model from 
       us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-3.transformers.4-46.ubuntu2204.py311
   ```
 
-> [!NOTE]
-> As [huggingface-inference-toolkit](https://github.com/huggingface/huggingface-inference-toolkit) is built to be fully compatible with Google Vertex AI, then you can also set the environment variables defined by Vertex AI such as `AIP_MODE=PREDICTION`, `AIP_HTTP_PORT=8080`, `AIP_PREDICT_ROUTE=/predict`, `AIP_HEALTH_ROUTE=/health`, and some more. To read about all the exposed environment variables in Vertex AI please check [Vertex AI Documentation - Custom container requirements for prediction](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).
-
 ## Test
 
-Once the Docker container is running, you can start sending requests to the `/predict` endpoint which is the default endpoint exposed by the PyTorch Inference containers (unless overridden with `AIP_PREDICT_ROUTE` on build time).
+Once the Docker container is running, you can start sending requests to the `/predict` endpoint which is the default endpoint exposed by the Hugging Face PyTorch DLCs for Inference (unless overridden with `AIP_PREDICT_ROUTE` on run time).
 
 ```bash
 curl http://0.0.0.0:5000/predict \
@@ -65,7 +75,7 @@ curl http://0.0.0.0:5000/predict \
 ```
 
 > [!NOTE]
-> The [huggingface-inference-toolkit](https://github.com/huggingface/huggingface-inference-toolkit) is powered by the `pipeline` method within `transformers`, that means that the payload will be different based on the model that you're deploying. So on, before sending requests to the deployed model, you will need to first check which is the task that the `pipeline` method and the model support and are running. To read more about the `pipeline` and the supported tasks please check [Transformers Documentation - Pipelines](https://huggingface.co/docs/transformers/en/main_classes/pipelines).
+> You can see which are the expected input and output payloads for each task, as that's conditioned by the `HF_TASK` environment variable value set during the `docker run` command, [here](./TASKS.md).
 
 ## Optional
 
