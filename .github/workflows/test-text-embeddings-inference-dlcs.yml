@@ -1,0 +1,42 @@
+name: Test Hugging Face DLCs for TEI (CPU and GPU)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - tests/tei/*
+      - .github/workflows/run-tests-reusable.yml
+      - .github/workflows/test-text-embeddings-inference-dlcs.yml
+  pull_request:
+    types:
+      - synchronize
+      - ready_for_review
+    branches:
+      - main
+    paths:
+      - tests/tei/*
+      - .github/workflows/run-tests-reusable.yml
+      - .github/workflows/test-text-embeddings-inference-dlcs.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  tei-on-cpu:
+    name: Test Hugging Face DLCs for TEI on CPU
+    uses: huggingface/Google-Cloud-Containers/.github/workflows/run-tests-reusable.yml@add-integration-tests
+    with:
+      group: aws-general-8-plus
+      tests-path: tei
+      tei-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-5
+
+  tei-on-gpu:
+    name: Test Hugging Face DLCs for TEI on GPU
+    uses: huggingface/Google-Cloud-Containers/.github/workflows/run-tests-reusable.yml@add-integration-tests
+    with:
+      group: aws-g4dn-2xlarge
+      tests-path: tei
+      tei-dlc: us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-5.ubuntu2204

@@ -1,0 +1,63 @@
+name: Reusable Workflow to Run Hugging Face DLCs Tests
+
+on:
+  workflow_call:
+    inputs:
+      group:
+        description: "The GitHub Runners Group to run on."
+        required: true
+        type: string
+      tests-path:
+        description: "The path of the tests to run inside `tests`."
+        required: true
+        type: string
+      training-dlc:
+        description: "The URI of the Hugging Face PyTorch DLC for Training (GPU only)."
+        required: false
+        type: string
+      inference-dlc:
+        description: "The URI of the Hugging Face PyTorch DLC for Inference (CPU and GPU)."
+        required: false
+        type: string
+      tgi-dlc:
+        description: "The URI of the Hugging Face TGI DLC (GPU only)."
+        required: false
+        type: string
+      tei-dlc:
+        description: "The URI of the Hugging Face TEI DLC (CPU and GPU)."
+        required: false
+        type: string
+
+jobs:
+  run-tests:
+    runs-on:
+      group: ${{ inputs.group }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4.1.7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.2.0
+        with:
+          python-version: "3.10"
+
+      - name: Set up uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
+          uv --version
+
+      - name: Install dependencies
+        run: |
+          uv venv --python 3.11
+          uv pip install -r tests/requirements.txt
+
+      - name: Run Hugging Face DLC Tests
+        if:
+        run: uv run pytest -s tests/${{ inputs.tests-path }} --basetemp=${{ runner.temp }}
+        env:
+          TRAINING_DLC: ${{ inputs.training-dlc }}
+          INFERENCE_DLC: ${{ inputs.inference-dlc }}
+          TGI_DLC: ${{ inputs.tgi-dlc }}
+          TEI_DLC: ${{ inputs.tei-dlc }}
