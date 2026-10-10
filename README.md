@@ -1,78 +1,54 @@
-# 🤗 Hugging Face Deep Learning Containers (DLCs) for Google Cloud
+# 🤗 Hugging Face on Google Cloud
 
-<img alt="Hugging Face x Google Cloud" src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/thumbnail.png" />
+Hugging Face collaborates with Google Cloud across open science, open source, and cloud; to enable companies and individuals to build their own AI with the latest open models from Hugging Face and the latest features and innovation from Google Cloud.
 
-[Hugging Face Deep Learning Containers (DLCs) for Google Cloud](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face) are a set of Docker images for training and deploying Transformers, Sentence Transformers, and Diffusers models on Google Cloud Vertex AI, Google Kubernetes Engine (GKE), and Google Cloud Run.
+![Hugging Face on Google Cloud](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/google-cloud/thumbnail.png)
 
-The [Google-Cloud-Containers](https://github.com/huggingface/Google-Cloud-Containers/tree/main) repository contains the container files for building Hugging Face-specific Deep Learning Containers (DLCs), examples on how to train and deploy models on Google Cloud.
+This repository contains the [Hugging Face Deep Learning Containers (DLCs) for Google Cloud](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face), as well as documentation and dedicated examples ranging different scenarios and use-cases, showcasing how to benefit from Hugging Face on Google Cloud, specifically targeting Vertex AI, Google Kubernetes Engine, and Cloud Run.
 
-The containers are publicly maintained, updated and released periodically by Hugging Face and the Google Cloud and available for all Google Cloud customers in the [Google Cloud's Artifact Registry](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face).
+The containers are publicly maintained, updated and released periodically by Hugging Face and Google Cloud, and made available for all Google Cloud customers on Google Cloud, under the us-docker.pkg.dev/deeplearning-platform-release/vertex-model-garden Artifact Registry.
 
-- Training
-  - [PyTorch](./containers/pytorch/training/README.md)
-    - GPU
-    - TPU (soon to be released)
-- Inference
-  - [PyTorch](./containers/pytorch/inference/README.md)
-    - CPU
-    - GPU
-  - [Text Generation Inference](./containers/tgi/README.md)
-    - GPU
-    - TPU (soon to be released)
-  - [Text Embeddings Inference](./containers/tei/README.md)
-    - CPU
-    - GPU
+## DLCs
 
-## Latest DLCs
-
-| Container URI                                                                                                                     | Path                                                                                                                                               | Framework | Type      | Accelerator |
-| --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | --------- | ----------- |
-| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-generation-inference-cu124.2-4.ubuntu2204.py311           | [text-generation-inference-gpu.2.4.0](./containers/tgi/gpu/2.4.0/Dockerfile)                                                                       | TGI       | Inference | GPU         |
-| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cu122.1-6.ubuntu2204                 | [text-embeddings-inference-gpu.1.6.0](./containers/tei/gpu/1.6.0/Dockerfile)                                                                       | TEI       | Inference | GPU         |
-| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-text-embeddings-inference-cpu.1-6                              | [text-embeddings-inference-cpu.1.6.0](./containers/tei/cpu/1.6.0/Dockerfile)                                                                       | TEI       | Inference | CPU         |
-| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-42.ubuntu2204.py310  | [huggingface-pytorch-training-gpu.2.3.1.transformers.4.48.0.py311](./containers/pytorch/training/gpu/2.3.1/transformers/4.48.0/py311/Dockerfile)   | PyTorch   | Training  | GPU         |
-| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cu121.2-3.transformers.4-48.ubuntu2204.py311 | [huggingface-pytorch-inference-gpu.2.3.1.transformers.4.48.0.py311](./containers/pytorch/inference/gpu/2.3.1/transformers/4.48.0/py311/Dockerfile) | PyTorch   | Inference | GPU         |
-| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-inference-cpu.2-3.transformers.4-48.ubuntu2204.py311   | [huggingface-pytorch-inference-cpu.2.3.1.transformers.4.48.0.py311](./containers/pytorch/inference/cpu/2.3.1/transformers/4.48.0/py311/Dockerfile) | PyTorch   | Inference | CPU         |
+The DLCs are a set of optimized, pre-installed Docker images designed to streamline the development, training, and deployment of machine learning models on Google Cloud. DLCs provide pre-configured Docker containers for solutions like [Text Embeddings Inference](https://github.com/huggingface/text-embeddings-inference) or PyTorch-based frameworks as [Transformers](https://github.com/huggingface/transformers), [Diffusers](https://github.com/huggingface/diffusers), or [Sentence Transformers](https://github.com/huggingface/sentence-transformers) for inference, or [TRL](https://github.com/huggingface/trl) for post-training; among others. The DLCs are optimized for performance and efficiency on CPUs, NVIDIA GPUs, and Google TPUs, and come with all the required drivers to work seamlessly on Google Cloud on such devices. Additionally, the DLCs are regularly maintained and released, designed to integrate seamlessly on Google Cloud, and the vulnerabilities are regularly scanned and patched.
 
 > [!NOTE]
-> The listing above **only contains the latest version of each of the Hugging Face DLCs**, the full listing of the available published containers in Google Cloud can be found either in the [Deep Learning Containers Documentation](https://cloud.google.com/deep-learning-containers/docs/choosing-container#hugging-face), in the [Google Cloud Artifact Registry](https://console.cloud.google.com/artifacts/docker/deeplearning-platform-release/us/gcr.io) or via the `gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-"` command.
-
-## Examples
-
-The [`examples`](./examples) directory contains examples for using the containers on different scenarios, and digging deeper on some of the features of the containers offered within Google Cloud.
-
-### Training
-
-| Service   | Example                                                                                                                                    | Title                                                                       |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| Vertex AI | [examples/vertex-ai/notebooks/trl-lora-sft-fine-tuning-on-vertex-ai](./examples/vertex-ai/notebooks/trl-lora-sft-fine-tuning-on-vertex-ai) | Fine-tune Gemma 2B with PyTorch Training DLC using SFT + LoRA on Vertex AI  |
-| Vertex AI | [examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai](./examples/vertex-ai/notebooks/trl-full-sft-fine-tuning-on-vertex-ai) | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT on Vertex AI  |
-| GKE       | [examples/gke/trl-full-fine-tuning](./examples/gke/trl-full-fine-tuning)                                                                   | Fine-tune Gemma 2B with PyTorch Training DLC using SFT on GKE               |
-| GKE       | [examples/gke/trl-lora-fine-tuning](./examples/gke/trl-lora-fine-tuning)                                                                   | Fine-tune Mistral 7B v0.3 with PyTorch Training DLC using SFT + LoRA on GKE |
+> Run the following command to list all the currently available Hugging Face DLCs:
+>
+> ```bash
+> gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/vertex-model-garden" | grep "hf-" | grep "official"
+> ```
+>
+> Or rather run the following to list all the former but still available Hugging Face DLCs:
+>
+> ```bash
+> gcloud container images list --repository="us-docker.pkg.dev/deeplearning-platform-release/gcr.io" | grep "huggingface-"
+> ```
 
 ### Inference
 
-| Service   | Example                                                                                                                              | Title                                                         |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-bert-on-vertex-ai)                     | Deploy BERT Models with PyTorch Inference DLC on Vertex AI    |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-embedding-on-vertex-ai)           | Deploy Embedding Models with TEI DLC on Vertex AI             |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-flux-on-vertex-ai)                     | Deploy FLUX with PyTorch Inference DLC on Vertex AI           |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-from-gcs-on-vertex-ai) | Deploy Gemma 7B with TGI DLC from GCS on Vertex AI            |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-gemma-on-vertex-ai)                   | Deploy Gemma 7B with TGI DLC on Vertex AI                     |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-llama-vision-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-llama-vision-on-vertex-ai)     | Deploy Llama 3.2 11B Vision with TGI DLC on Vertex AI         |
-| Vertex AI | [examples/vertex-ai/notebooks/deploy-llama-3-1-405b-on-vertex-ai](./examples/vertex-ai/notebooks/deploy-llama-3-1-405b-on-vertex-ai) | Deploy Meta Llama 3.1 405B with TGI DLC on Vertex AI          |
-| GKE       | [examples/gke/tei-from-gcs-deployment](./examples/gke/tei-from-gcs-deployment)                                                       | Deploy BGE Base v1.5 with TEI DLC from GCS on GKE             |
-| GKE       | [examples/gke/tgi-multi-lora-deployment](./examples/gke/tgi-multi-lora-deployment)                                                   | Deploy Gemma2 with multiple LoRA adapters with TGI DLC on GKE |
-| GKE       | [examples/gke/tgi-llama-405b-deployment](./examples/gke/tgi-llama-405b-deployment)                                                   | Deploy Llama 3.1 405B with TGI DLC on GKE                     |
-| GKE       | [examples/gke/tgi-llama-vision-deployment](./examples/gke/tgi-llama-vision-deployment)                                               | Deploy Llama 3.2 11B Vision with TGI DLC on GKE               |
-| GKE       | [examples/gke/tgi-deployment](./examples/gke/tgi-deployment)                                                                         | Deploy Meta Llama 3 8B with TGI DLC on GKE                    |
-| GKE       | [examples/gke/tgi-from-gcs-deployment](./examples/gke/tgi-from-gcs-deployment)                                                       | Deploy Qwen2 7B with TGI DLC from GCS on GKE                  |
-| GKE       | [examples/gke/tei-deployment](./examples/gke/tei-deployment)                                                                         | Deploy Snowflake's Arctic Embed with TEI DLC on GKE           |
-| Cloud Run | [examples/cloud-run/deploy-gemma-2-on-cloud-run](./examples/cloud-run/deploy-gemma-2-on-cloud-run)                                   | Deploy Gemma2 9B with TGI DLC on Cloud Run                    |
-| Cloud Run | [examples/cloud-run/deploy-llama-3-1-on-cloud-run](./examples/cloud-run/deploy-llama-3-1-on-cloud-run)                               | Deploy Llama 3.1 8B with TGI DLC on Cloud Run                 |
+For inference, at the moment the DLCs cover both:
 
-### Evaluation
+- Text Embeddings Inference (TEI), which is Hugging Face solution for inference with embedding models written in Rust.
 
-| Service   | Example                                                                                                                  | Title                                        |
-| --------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
-| Vertex AI | [examples/vertex-ai/notebooks/evaluate-llms-with-vertex-ai](./examples/vertex-ai/notebooks/evaluate-llms-with-vertex-ai) | Evaluate open LLMs with Vertex AI and Gemini |
+    |                                                                                                Container URI |   Platform |
+    |--------------------------------------------------------------------------------------------------------------|------------|
+    |         us-docker.pkg.dev/deeplearning-platform-release/vertex-model-garden/hf-tei-official-cpu.1-9.debian12 |        CPU |
+    | us-docker.pkg.dev/deeplearning-platform-release/vertex-model-garden/hf-tei-official-gpu.cu129.1-9.ubuntu2404 | NVIDIA GPU |
+
+- PyTorch Inference, comes with PyTorch as well as Hugging Face libraries as Transformers, Diffusers, or Sentence Transformers, to expose the task-based APIs for each model on a wide-range of tasks from text-classification on Transformers, text-to-image on Diffusers, or feature-extraction on Sentence Transformers, among many others.
+
+    |                                                                                                                    Container URI |   Platform |
+    |----------------------------------------------------------------------------------------------------------------------------------|------------|
+    | us-docker.pkg.dev/deeplearning-platform-release/vertex-model-garden/hf-pytorch-inference-official-gpu.cu128.2-7.ubuntu2404.py311 | NVIDIA GPU |
+
+> [!NOTE]
+> The inference DLCs come with native support for Vertex AI, meaning that those will handle the `AIP_...`-like environment variables, as well as expose Vertex AI compliant routes that match its specification.
+
+### Training
+
+For training, the DLCs come with PyTorch as well as Hugging Face libraries as Transformers, Diffusers, Sentence Transformers; but also other libraries as Accelerate or TRL, for distributed training and post-training, respectively; allowing users to easily fine-tune any model on different settings, from text classification models to post-training LLMs and VLMs.
+
+|                                                                                                                    Container URI |  Platform |
+|----------------------------------------------------------------------------------------------------------------------------------|-----------|
+| us-docker.pkg.dev/deeplearning-platform-release/gcr.io/huggingface-pytorch-training-cu121.2-3.transformers.4-48.ubuntu2204.py311 | NVIDIA GPU |
